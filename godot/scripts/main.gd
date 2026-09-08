@@ -15,7 +15,7 @@ var hero: HeroState
 var player: Player
 var hud: Hud
 var runner: SkillRunner
-var enemies: Array = []
+var enemies: Array[Enemy] = []
 var shots: Array = []
 var floor_no: int = 1
 var kill_stacks: int = 0

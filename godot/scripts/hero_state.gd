@@ -36,7 +36,7 @@ static func create(cid: String, nm: String = "冒険者") -> HeroState:
 	var h := HeroState.new()
 	h.class_id = cid
 	h.hero_name = nm
-	var starter := {
+	var starter: Array = {
 		"swordsman": ["w_shortsword", "a_chain"],
 		"mage": ["w_oakstaff", "a_robe"],
 		"rogue": ["w_dagger", "a_leather"],
