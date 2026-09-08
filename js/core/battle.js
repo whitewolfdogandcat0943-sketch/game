@@ -62,6 +62,8 @@ G.Battle = (function () {
       u.S = c.S; u.flags = c.flags;
       u.S.maxHp = Math.max(1, u.S.maxHp);
       /* 装備の付け替えで最大値が下がった場合に現在値がはみ出さないようにする */
+      if (u.flags.speedPower) u.S.atk += Math.round(u.S.spd * 0.40);
+      if (u.flags.wallPower) u.S.atk += Math.round(u.S.def * 0.35);
       if (u.hp != null) u.hp = Math.min(u.hp, u.S.maxHp);
       if (u.mp != null) u.mp = Math.min(u.mp, u.S.maxMp);
     } else {
@@ -106,7 +108,11 @@ G.Battle = (function () {
       rec: {
         critStreak: 0, critStreakMax: 0, reflectDmg: 0, reflectKills: 0, elementsUsed: {},
         itemsUsed: 0, damageTaken: 0, maxMultiKill: 0, kills: 0, aoeKills: 0, isBoss: !!opts.isBoss,
-        damageDealt: 0, turns: 0
+        damageDealt: 0, turns: 0,
+        /* ミシック条件の判定に使う記録 */
+        mpSpent: 0, skillsUsed: {}, skillKinds: 0, onlyBasic: true, statusPeak: 0,
+        barrierAbsorbed: 0, evadeStreak: 0, evadeStreakMax: 0, healed: 0,
+        weakKills: 0, maxHitDamage: 0, firstHitDone: false
       }
     };
     b.units.forEach(function (u, i) { u.idx = i; });
@@ -119,6 +125,10 @@ G.Battle = (function () {
       var got = U.pick(pool);
       G.addItem(state.hero, got.id, 1);
       log(b, '🧪 錬成術が働き〈' + got.name + '〉を1個 補充した。', 'good');
+    }
+    if (hero.flags.alchemyShield) {
+      hero.barrier += Math.round(hero.S.maxHp * 0.12 * (1 + (hero.S.itemPower || 0)));
+      log(b, '⚗ 触媒が反応し、バリア（' + hero.barrier + '）を展開した。', 'good');
     }
     newRound(b);
     advance(b);
@@ -167,6 +177,12 @@ G.Battle = (function () {
   }
 
   function endRound(b) {
+    if (b.hero.flags.thornAura && alive(b.hero)) {
+      var td = Math.max(1, Math.round(b.hero.S.maxHp * 0.012 * (1 + (b.hero.S.reflect || 0) * 2)));
+      aliveEnemies(b).forEach(function (x) {
+        applyRawDamage(b, x, td, '🌵 棘の霧', b.hero, { aoe: true, noReflect: true });
+      });
+    }
     b.units.forEach(function (u) {
       if (!alive(u)) return;
       /* DOT */
@@ -198,13 +214,24 @@ G.Battle = (function () {
 
   /* ===================== ダメージ計算 ===================== */
 
-  function damageMods(u) {
+  function damageMods(u, tgt, b) {
     var extra = 0;
     var f = u.flags || {};
     if (f.pristine && u.side === 'player' && u._b && u._b.rec.damageTaken <= 0) extra += 0.40;
     if (f.lowHpRage && u.hp / u.S.maxHp <= 0.30) extra += 0.60;
     if (f.mythicScaling && u.side === 'player') extra += 0.10 * G.Stats.rarityCount(u.hero, 'mythic');
     if (f.stackAtkOnKill) extra += 0.06 * (u.killStacks || 0);
+    if (f.manaPower && u.S.maxMp) extra += 0.30 * U.clamp(u.mp / u.S.maxMp, 0, 1);
+    if (tgt) {
+      if (f.executeLow && tgt.hp / tgt.S.maxHp <= 0.25) extra += 0.60;
+      if (f.bossSlayer && tgt.isBoss) extra += 0.25;
+      if (f.statusDamage && tgt.statuses.length) extra += 0.35;
+    }
+    if (b && u.side === 'player') {
+      var n = aliveEnemies(b).length;
+      if (f.hordeSlayer && n >= 3) extra += 0.22;
+      if (f.soloFocus && n === 1) extra += 0.40;
+    }
     return extra;
   }
 
@@ -238,19 +265,31 @@ G.Battle = (function () {
     /* 回避 */
     if (!o.trueHit && T.evade && U.chance(T.evade)) {
       if (!o.silent) { log(b, '💨 ' + tgt.name + ' は攻撃をかわした！'); fx(b, { t: 'miss', i: tgt.idx }); }
+      if (tgt.side === 'player') {
+        b.rec.evadeStreak++;
+        b.rec.evadeStreakMax = Math.max(b.rec.evadeStreakMax, b.rec.evadeStreak);
+      }
+      if (tgt.flags && tgt.flags.counterEvade && !o.isCounter && alive(tgt)) {
+        log(b, '⚡ ' + tgt.name + ' の反撃！');
+        strike(b, tgt, src, { kind: 'phys', el: 'phys', power: 80, isCounter: true, trueHit: true });
+      }
       return 0;
     }
 
     var dmg = atkStat * (o.power / 100);
     dmg *= (1 + (S['el_' + el] || 0));
-    dmg *= o.fullPierce ? Math.max(1, elementMult(tgt, el, 1, true))
-                        : elementMult(tgt, el, S.pierce, src.flags && src.flags.guardBreak);
-    dmg *= (1 + (S.dmgUp || 0) + damageMods(src));
+    var eMult = o.fullPierce ? Math.max(1, elementMult(tgt, el, 1, true))
+                             : elementMult(tgt, el, S.pierce, src.flags && src.flags.guardBreak);
+    if (eMult > 1 && src.flags && src.flags.weakHunter) eMult *= 1.30;
+    dmg *= eMult;
+    dmg *= (1 + (S.dmgUp || 0) + damageMods(src, tgt, b));
     if (o.isAoe) dmg *= (1 + (S.aoePower || 0) + (o.aoeBonus || 0));
 
     /* 会心 */
     var critRate = (S.critRate || 0) + (o.critBonus || 0);
     var isCrit = o.alwaysCrit || U.chance(critRate);
+    if (!isCrit && src.side === 'player' && src.flags.firstHitCrit && !b.rec.firstHitDone) isCrit = true;
+    if (src.side === 'player') b.rec.firstHitDone = true;
     var defIgnore = o.defIgnore || 0;
     if (isCrit) {
       dmg *= ((S.critDmg || 1.5) + (o.critBonusDmg || 0));
@@ -280,6 +319,16 @@ G.Battle = (function () {
     var steal = (S.lifesteal || 0) + (o.drain || 0);
     if (steal > 0 && dealt > 0) heal(b, src, Math.round(dealt * steal), '吸収');
 
+    if (src.side === 'player') b.rec.maxHitDamage = Math.max(b.rec.maxHitDamage, dealt);
+
+    /* 会心追撃 */
+    if (isCrit && dealt > 0 && src.flags && src.flags.critChain && !o.isChain && alive(tgt) && U.chance(0.25)) {
+      log(b, '🗡 追撃！', 'crit');
+      var co = {}; for (var ck in o) co[ck] = o[ck];
+      co.power = Math.round(o.power * 0.5); co.isChain = true; co.alwaysCrit = false;
+      strike(b, src, tgt, co);
+    }
+
     /* 属性付随効果 */
     if (src.flags) {
       if (src.flags.shockOnThunder && el === 'thunder' && alive(tgt) && U.chance(0.25)) addStatus(b, tgt, 'shock', 2);
@@ -293,9 +342,15 @@ G.Battle = (function () {
     meta = meta || {};
     if (!alive(tgt)) return 0;
     var dmg = amount;
+    if (tgt.flags) {
+      if (tgt.flags.wardAll) dmg = Math.round(dmg * 0.85);
+      if (tgt.flags.lastStand && tgt.hp / tgt.S.maxHp <= 0.50) dmg = Math.round(dmg * 0.75);
+    }
+    dmg = Math.max(1, dmg);
     if (tgt.barrier > 0) {
       var absorbed = Math.min(tgt.barrier, dmg);
       tgt.barrier -= absorbed; dmg -= absorbed;
+      if (tgt.side === 'player') b.rec.barrierAbsorbed += absorbed;
       if (absorbed > 0 && !meta.silent) log(b, '🛡 バリアが ' + absorbed + ' ダメージを吸収した。');
       if (dmg <= 0) return 0;
     }
@@ -316,7 +371,7 @@ G.Battle = (function () {
       fx(b, { t: 'dmg', i: tgt.idx, v: dmg, crit: !!meta.crit, aoe: !!meta.aoe, el: meta.el });
     }
     if (src && src.side === 'player') { b.rec.damageDealt += dmg; }
-    if (tgt.side === 'player') b.rec.damageTaken += dmg;
+    if (tgt.side === 'player') { b.rec.damageTaken += dmg; b.rec.evadeStreak = 0; }
 
     /* 被弾時バリア獲得 */
     if (dmg > 0 && tgt.flags && tgt.flags.barrierOnHit && alive(tgt) && U.chance(0.20)) {
@@ -367,8 +422,15 @@ G.Battle = (function () {
       b.state.run.stats.kills++;
       if (meta && meta.byReflect) { b.rec.reflectKills++; b.state.run.stats.reflectKills++; }
       if (meta && meta.aoe) { b.rec.aoeKills++; b.state.run.stats.aoeKills++; }
+      if (meta && meta.el && (u.weak || []).indexOf(meta.el) >= 0) b.rec.weakKills++;
       if (src && src.side === 'player') {
         if (src.flags.stackAtkOnKill) src.killStacks = (src.killStacks || 0) + 1;
+        if (src.flags.killHeal) heal(b, src, Math.round(src.S.maxHp * 0.08), '喰らい取り');
+        if (src.flags.deathSpike) {
+          aliveEnemies(b).filter(function (x) { return x !== u; }).forEach(function (x) {
+            applyRawDamage(b, x, Math.round(src.S.maxHp * 0.05), '💥 爆散', src, { aoe: true, noReflect: true });
+          });
+        }
         if (src.flags.soulHarvest) {
           var mp = Math.round(src.S.maxMp * 0.15);
           src.mp = Math.min(src.S.maxMp, src.mp + mp);
@@ -383,6 +445,12 @@ G.Battle = (function () {
     var before = u.hp;
     u.hp = Math.min(u.S.maxHp, u.hp + amount);
     var got = u.hp - before;
+    if (u.side === 'player') b.rec.healed += got;
+    var over = amount - got;
+    if (over > 0 && u.flags && u.flags.overheal) {
+      u.barrier += Math.round(over * 0.5);
+      log(b, '🛡 溢れた治癒がバリアに変わった（' + u.barrier + '）。', 'good');
+    }
     if (got > 0) {
       log(b, '💚 ' + (label ? label + ': ' : '') + u.name + ' のHPが ' + got + ' 回復した。', 'good');
       fx(b, { t: 'heal', i: u.idx, v: got });
@@ -395,6 +463,7 @@ G.Battle = (function () {
     var ex = u.statuses.filter(function (s) { return s.k === kind; })[0];
     if (ex) { ex.t = Math.max(ex.t, turns); return; }
     u.statuses.push({ k: kind, t: turns, v: val || 0.06 });
+    if (u.side === 'enemy') b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
     var nm = { burn: '🔥 火傷', poison: '☠ 毒', freeze: '❄ 凍結', shock: '⚡ 麻痺' }[kind] || kind;
     log(b, nm + ' を ' + u.name + ' に付与した。');
     refresh(u);
@@ -430,6 +499,9 @@ G.Battle = (function () {
     if (src.side === 'player') {
       if (src.mp < cost) { log(b, 'MPが足りない。', 'bad'); return false; }
       src.mp -= cost;
+      b.rec.mpSpent += cost;
+      if (!b.rec.skillsUsed[skillId]) { b.rec.skillsUsed[skillId] = true; b.rec.skillKinds++; }
+      if (skillId !== 'attack' && skillId !== 'guard') b.rec.onlyBasic = false;
     }
     var eff = sk.eff || {};
 
@@ -448,6 +520,10 @@ G.Battle = (function () {
     if (sk.kind === 'phys' || sk.kind === 'mag') {
       var hits = sk.hits || 1;
       var power = sk.power;
+      if (sk.kind === 'mag' && (sk.mp || 0) > 0 && src.flags && src.flags.doubleCast) {
+        hits *= 2; power = Math.round(power * 0.60);
+        log(b, '　✨ 二重詠唱！', 'good');
+      }
       var opt = {
         kind: sk.kind, el: sk.el, isAoe: isAoe,
         critBonus: eff.critBonus || 0, critBonusDmg: eff.critBonusDmg || 0,
@@ -520,7 +596,11 @@ G.Battle = (function () {
     }
 
     /* --- バフ・支援 --- */
-    if (eff.buffs) eff.buffs.forEach(function (x) { addBuff(b, src, x.k, x.v, x.t); });
+    if (eff.buffs) eff.buffs.forEach(function (x) {
+      var v = x.v;
+      if (sk.id === 'guard' && x.k === 'reflect' && src.flags && src.flags.guardCounter) v += 0.60;
+      addBuff(b, src, x.k, v, x.t);
+    });
     if (eff.flagBuff) {
       src.flagBuffs.push({ f: eff.flagBuff.f, t: eff.flagBuff.t + 1 }); refresh(src);
       log(b, '✨ ' + src.name + ': ' + (G.FLAGS[eff.flagBuff.f] || eff.flagBuff.f), 'good');
@@ -548,6 +628,9 @@ G.Battle = (function () {
 
   function strikeWrap(b, src, t, o, sk) {
     var hitsLeft = 1;
+    if (sk.id === 'attack' && src.flags && src.flags.elementCycle) {
+      o.el = G.MAGIC_ELEMENTS[(b.round - 1) % G.MAGIC_ELEMENTS.length];
+    }
     /* doubleStrike: 通常攻撃が2回に分裂 */
     if (sk.id === 'attack' && src.flags && src.flags.doubleStrike) {
       o.power = Math.round(o.power * 0.6); hitsLeft = 2;
@@ -575,6 +658,13 @@ G.Battle = (function () {
   }
 
   function applySkillSideEffects(b, src, targets, eff) {
+    /* 状態異常の伝播 */
+    if (src.side === 'player' && src.flags && src.flags.spreadStatus) {
+      var extra = aliveEnemies(b).filter(function (x) { return targets.indexOf(x) < 0; })
+        .filter(function () { return U.chance(0.35); });
+      targets = targets.concat(extra);
+      if (extra.length) log(b, '☣ 状態異常が周囲へ伝播した。', 'aoe');
+    }
     targets.filter(alive).forEach(function (t) {
       if (eff.burn && U.chance(eff.burn.c != null ? eff.burn.c : 1)) addStatus(b, t, 'burn', eff.burn.t, eff.burn.v);
       if (eff.poison && U.chance(eff.poison.c != null ? eff.poison.c : 1)) addStatus(b, t, 'poison', eff.poison.t, eff.poison.v);

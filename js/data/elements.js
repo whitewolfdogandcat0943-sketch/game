@@ -77,5 +77,29 @@ G.FLAGS = {
   allElemStrike: '通常攻撃が全属性の複合攻撃になる',
   itemEcho:      'アイテム使用後、25%でもう一度同じ効果が発動',
   guardBreak:    '与ダメージが常に耐性の影響を25%緩和',
-  soulHarvest:   '敵撃破時、最大MPの15%を回復'
+  soulHarvest:   '敵撃破時、最大MPの15%を回復',
+
+  /* --- 追加フラグ --- */
+  killHeal:      '敵撃破時、最大HPの8%を回復する',
+  overheal:      '回復の超過分の50%がバリアになる',
+  lastStand:     'HP50%以下のとき、被ダメージ25%減',
+  executeLow:    'HP25%以下の敵への与ダメージ+60%',
+  bossSlayer:    'ボスへの与ダメージ+25%',
+  hordeSlayer:   '敵が3体以上いるとき与ダメージ+22%',
+  soloFocus:     '敵が1体のみのとき与ダメージ+40%',
+  statusDamage:  '状態異常の敵への与ダメージ+35%',
+  speedPower:    '素早さの40%を物理攻撃力に加算する',
+  wallPower:     '物理防御の35%を物理攻撃力に加算する',
+  manaPower:     '残りMPの割合に応じて与ダメージ最大+30%',
+  critChain:     '会心時、25%でもう一撃（威力50%）が入る',
+  spreadStatus:  '状態異常を付与したとき、35%で他の敵にも伝播',
+  firstHitCrit:  '各戦闘の最初の攻撃は必ず会心する',
+  counterEvade:  '攻撃を回避したとき、反撃する（威力80%）',
+  doubleCast:    '魔法スキルが2回発動する（1発あたり60%）',
+  thornAura:     'ラウンド終了時、敵全体に棘のダメージ',
+  deathSpike:    '敵撃破時、他の敵全体に最大HPの5%のダメージ',
+  wardAll:       'あらゆる被ダメージを15%軽減する',
+  elementCycle:  '通常攻撃の属性が毎ターン移り変わる',
+  weakHunter:    '弱点を突いたときの与ダメージがさらに+30%',
+  alchemyShield: '戦闘開始時、アイテム威力に比例したバリアを得る'
 };

@@ -472,8 +472,10 @@ G.Screens = (function () {
     });
     h += '</div>';
 
-    h += '<div class="sep"></div><h3 class="r-legend">レジェンドアクセサリ</h3><div class="grid g2">' +
+    h += '<div class="sep"></div><h3 class="r-legend">レジェンドアクセサリ（' + G.LEGENDS.length + '種）</h3><div class="grid g2">' +
       G.LEGENDS.map(function (a) { return UI.accCard(a); }).join('') + '</div>';
+    h += '<div class="sep"></div><h3 class="r-normal">通常アクセサリ（' + G.NORMALS.length + '種）</h3><div class="grid g2">' +
+      G.NORMALS.map(function (a) { return UI.accCard(a); }).join('') + '</div>';
     h += '<div class="sep"></div><div class="center"><button class="btn primary" data-act="closeModal">閉じる</button></div>';
     UI.modal(h);
   }

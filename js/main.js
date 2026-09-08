@@ -142,7 +142,9 @@
         var d = G.Save.loadRun();
         if (!d) { UI.toast('保存された冒険がありません。'); go('title'); break; }
         state.hero = d.hero; state.run = d.run;
-        if (!state.run.stats) state.run.stats = { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0 };
+        if (!state.run.stats) state.run.stats = {};
+        ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges']
+          .forEach(function (k) { if (state.run.stats[k] == null) state.run.stats[k] = 0; });
         go('map');
         break;
       }
@@ -223,6 +225,7 @@
         if (!chk.ok) { UI.toast('条件を満たしていない。'); break; }
         if (state.hero.classHistory.indexOf(state.hero.classId) < 0) state.hero.classHistory.push(state.hero.classId);
         state.hero.classId = cid;
+        state.run.stats.classChanges = (state.run.stats.classChanges || 0) + 1;
         if (state.meta.classesSeen.indexOf(cid) < 0) state.meta.classesSeen.push(cid);
         G.Save.saveMeta(state);
         var newS = G.Stats.compute(state.hero).S;

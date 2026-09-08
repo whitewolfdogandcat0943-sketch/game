@@ -43,7 +43,7 @@ G.Run = (function () {
     state.hero = newHero(classId, name);
     state.run = {
       floor: 1, nodes: [], current: null, active: true, cleared: 0,
-      stats: { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0, elites: 0, bosses: 0 },
+      stats: { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0, elites: 0, bosses: 0, classChanges: 0 },
       notifiedClasses: {}, shop: null, pendingRewards: null
     };
     state.meta.runs++;
@@ -126,7 +126,7 @@ G.Run = (function () {
   function rollAcc(floor, dropUp, forceLegend) {
     var legendChance = U.clamp(0.06 + floor * 0.018 + (dropUp || 0) * 0.5, 0, 0.6);
     if (forceLegend || U.chance(legendChance)) return U.pick(G.LEGENDS);
-    var pool = G.NORMALS.filter(function (a) { return a.tier <= (floor <= 6 ? 1 : 2); });
+    var pool = G.NORMALS.filter(function (a) { return a.tier <= (floor <= 6 ? 1 : (floor <= 12 ? 2 : 3)); });
     return U.pick(pool.length ? pool : G.NORMALS);
   }
 
@@ -233,7 +233,7 @@ G.Run = (function () {
     var f = state.run.floor;
     var stock = [];
     var i;
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 4; i++) {
       var a = rollAcc(f, 0.1, U.chance(0.22));
       stock.push({ type: 'acc', id: a.id, price: Math.round((a.price || 200) * U.rf(0.9, 1.15)) });
     }
