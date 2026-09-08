@@ -140,12 +140,29 @@ G.Battle = (function () {
   /** 描画後に再生する演出イベントを積む（fx.js が消費する） */
   function fx(b, o) { if (b && b.fx && o.i != null) b.fx.push(o); }
 
+  /** 戦闘スタイルの実績を積む（上級職の解放条件に使う）
+   *
+   * 軸ごとに発生頻度が大きく違う（範囲は敵の数だけ、アイテムは使用時だけ）ため、
+   * そのまま数えると低頻度の軸が絶対に比率で勝てなくなる。
+   * また敵の手番はプレイヤーの手番より多いため、手番単位だと堅守・反射が構造的に
+   * 膨らむ。そこで「1ラウンドにつき各軸1回まで」に正規化して比較可能にする。 */
+  function sty(b, axis, n) {
+    if (!b.styGate) b.styGate = {};
+    if (b.styGate[axis]) return;
+    b.styGate[axis] = true;
+    G.Style.add(b.state, axis, n == null ? 1 : n);
+  }
+
+  /** 手番の切り替わりでスタイルの計上枠をリセットする */
+  function resetSty(b) { b.styGate = {}; }
+
   function alive(u) { return u.hp > 0; }
   function aliveEnemies(b) { return b.enemies.filter(alive); }
 
   function newRound(b) {
     b.round++;
     b.rec.turns++;
+    resetSty(b);
     b.queue = b.units.filter(alive).slice().sort(function (x, y) {
       var d = y.S.spd - x.S.spd;
       return d !== 0 ? d : (Math.random() - 0.5);
@@ -267,6 +284,7 @@ G.Battle = (function () {
       if (!o.silent) { log(b, '💨 ' + tgt.name + ' は攻撃をかわした！'); fx(b, { t: 'miss', i: tgt.idx }); }
       if (tgt.side === 'player') {
         b.state.run.stats.evades = (b.state.run.stats.evades || 0) + 1;
+        sty(b, 'speed', 1);
         b.rec.evadeStreak++;
         b.rec.evadeStreakMax = Math.max(b.rec.evadeStreakMax, b.rec.evadeStreak);
       }
@@ -282,6 +300,12 @@ G.Battle = (function () {
     var eMult = o.fullPierce ? Math.max(1, elementMult(tgt, el, 1, true))
                              : elementMult(tgt, el, S.pierce, src.flags && src.flags.guardBreak);
     if (eMult > 1 && src.flags && src.flags.weakHunter) eMult *= 1.30;
+    if (src.side === 'player') {
+      if (el !== 'phys') sty(b, 'elem', 1);
+      if (el === 'light') sty(b, 'light', 1);
+      if (el === 'dark') sty(b, 'dark', 1);
+      sty(b, kind === 'mag' ? 'mag' : 'phys', 1);
+    }
     dmg *= eMult;
     dmg *= (1 + (S.dmgUp || 0) + damageMods(src, tgt, b));
     if (o.isAoe) dmg *= (1 + (S.aoePower || 0) + (o.aoeBonus || 0));
@@ -308,6 +332,7 @@ G.Battle = (function () {
         b.rec.critStreak++;
         b.rec.critStreakMax = Math.max(b.rec.critStreakMax, b.rec.critStreak);
         b.state.run.stats.crits++;
+        sty(b, 'crit', 1);
       } else b.rec.critStreak = 0;
       b.rec.elementsUsed[el] = true;
     }
@@ -318,7 +343,10 @@ G.Battle = (function () {
 
     /* 吸収 */
     var steal = (S.lifesteal || 0) + (o.drain || 0);
-    if (steal > 0 && dealt > 0) heal(b, src, Math.round(dealt * steal), '吸収');
+    if (steal > 0 && dealt > 0) {
+      heal(b, src, Math.round(dealt * steal), '吸収');
+      if (src.side === 'player') sty(b, 'life', 1);
+    }
 
     if (src.side === 'player') b.rec.maxHitDamage = Math.max(b.rec.maxHitDamage, dealt);
 
@@ -356,7 +384,7 @@ G.Battle = (function () {
     if (tgt.barrier > 0) {
       var absorbed = Math.min(tgt.barrier, dmg);
       tgt.barrier -= absorbed; dmg -= absorbed;
-      if (tgt.side === 'player') b.rec.barrierAbsorbed += absorbed;
+      if (tgt.side === 'player') { b.rec.barrierAbsorbed += absorbed; sty(b, 'guard', 2); }
       if (absorbed > 0 && !meta.silent) log(b, '🛡 バリアが ' + absorbed + ' ダメージを吸収した。');
       if (dmg <= 0) return 0;
     }
@@ -376,8 +404,15 @@ G.Battle = (function () {
       log(b, t, meta.crit ? 'crit' : (meta.aoe ? 'aoe' : ''));
       fx(b, { t: 'dmg', i: tgt.idx, v: dmg, crit: !!meta.crit, aoe: !!meta.aoe, el: meta.el });
     }
-    if (src && src.side === 'player') { b.rec.damageDealt += dmg; }
-    if (tgt.side === 'player') { b.rec.damageTaken += dmg; b.rec.evadeStreak = 0; }
+    if (src && src.side === 'player') {
+      b.rec.damageDealt += dmg;
+      if (meta.aoe) sty(b, 'aoe', 1);
+    }
+    if (tgt.side === 'player') {
+      b.rec.damageTaken += dmg;
+      b.rec.evadeStreak = 0;
+      if ((tgt.S.dr || 0) >= 0.15 || (tgt.S.reflect || 0) >= 0.20) sty(b, 'guard', 1);
+    }
 
     /* 被弾時バリア獲得 */
     if (dmg > 0 && tgt.flags && tgt.flags.barrierOnHit && alive(tgt) && U.chance(0.20)) {
@@ -412,6 +447,7 @@ G.Battle = (function () {
     target.hp = Math.max(0, target.hp - rd);
     fx(b, { t: 'dmg', i: target.idx, v: Math.min(before, rd), reflect: true });
     if (reflector.side === 'player') {
+      sty(b, 'reflect', 1);
       b.rec.reflectDmg += Math.min(before, rd);
       b.rec.damageDealt += Math.min(before, rd);
     }
@@ -426,7 +462,9 @@ G.Battle = (function () {
     if (u.side === 'enemy') {
       b.rec.kills++;
       b.state.run.stats.kills++;
-      if (meta && meta.byReflect) { b.rec.reflectKills++; b.state.run.stats.reflectKills++; }
+      if (meta && meta.byReflect) {
+        b.rec.reflectKills++; b.state.run.stats.reflectKills++; sty(b, 'reflect', 3);
+      }
       if (meta && meta.aoe) { b.rec.aoeKills++; b.state.run.stats.aoeKills++; }
       if (meta && meta.el && (u.weak || []).indexOf(meta.el) >= 0) b.rec.weakKills++;
       if (src && src.side === 'player') {
@@ -473,6 +511,7 @@ G.Battle = (function () {
     if (u.side === 'enemy') {
       b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
       b.state.run.stats.statusApplied = (b.state.run.stats.statusApplied || 0) + 1;
+      sty(b, 'status', 1);
     }
     var nm = { burn: '🔥 火傷', poison: '☠ 毒', freeze: '❄ 凍結', shock: '⚡ 麻痺' }[kind] || kind;
     log(b, nm + ' を ' + u.name + ' に付与した。');
@@ -704,6 +743,7 @@ G.Battle = (function () {
     if (!keep) G.addItem(hero, itemId, -1);
     b.rec.itemsUsed++;
     b.state.run.stats.itemsUsed++;
+    sty(b, 'item', 2);
     fx(b, { t: 'act', i: src.idx });
     log(b, '▶ ' + src.name + ' は〈' + it.name + '〉を使った。' + (keep ? '（温存！消費しなかった）' : ''), 'sys');
 

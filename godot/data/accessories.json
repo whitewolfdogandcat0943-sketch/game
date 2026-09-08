@@ -1355,6 +1355,54 @@
   "kind": "acc"
  },
  {
+  "id": "n_venomband",
+  "name": "毒牙の腕輪",
+  "tier": 2,
+  "price": 175,
+  "mods": {
+   "el_dark": 0.12
+  },
+  "flags": [
+   "statusOnHit"
+  ],
+  "desc": "牙に毒を仕込んだ腕輪。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_frostneedle",
+  "name": "霜針の護符",
+  "tier": 2,
+  "price": 175,
+  "mods": {
+   "el_ice": 0.15
+  },
+  "flags": [
+   "freezeOnIce"
+  ],
+  "desc": "刺すような冷気を宿した針。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_hexcharm",
+  "name": "呪符の護符",
+  "tier": 2,
+  "price": 175,
+  "mods": {
+   "pierce": 0.1
+  },
+  "flags": [
+   "lingering"
+  ],
+  "desc": "書かれた呪いが消えない護符。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
   "id": "n_noviceward",
   "name": "見習いの護符",
   "tier": 1,
@@ -1901,6 +1949,23 @@
    "shockOnThunder"
   ],
   "desc": "雷神が身につけていたという腕輪。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_epidemic",
+  "name": "疫禍の香炉",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "el_dark": 0.25
+  },
+  "flags": [
+   "spreadStatus",
+   "lingering"
+  ],
+  "desc": "焚くほどに病が広がる香炉。",
   "rarity": "legend",
   "slot": "acc",
   "kind": "acc"

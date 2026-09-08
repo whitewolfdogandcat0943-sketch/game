@@ -19,6 +19,12 @@ need(typeof el.weak_mult === 'number' && typeof el.resist_mult === 'number', 'el
 need(el.flags && Object.keys(el.flags).length > 0, 'elements: flags が空');
 need(el.modkeys && el.modkeys.critRate, 'elements: modkeys が不足');
 
+/* 解放条件の記述子。Godot側もこの型だけを解釈すればよい。 */
+const KNOWN_COND_TYPES = new Set([
+  'stat', 'allElem', 'pairElem', 'elemCount', 'rarityCount', 'level', 'runStat', 'metaMythics',
+  'style', 'styleAny', 'styleDual', 'styleHybrid', 'accStyle', 'accStyleDual', 'accElemPair',
+]);
+
 const classes = read('classes.json');
 const classIds = Object.keys(classes);
 need(classIds.length === 25, `classes: 25件でなく ${classIds.length}件`);
@@ -30,7 +36,10 @@ for (const [id, c] of Object.entries(classes)) {
     need(typeof c.base[k] === 'number', `classes.${id}.base: ${k} がない`);
     need(typeof c.grow[k] === 'number', `classes.${id}.grow: ${k} がない`);
   }
-  (c.req || []).forEach((r, i) => need(r.d && r.d.t, `classes.${id}.req[${i}]: 記述子 d がない`));
+  (c.req || []).forEach((r, i) => {
+    need(r.d && r.d.t, `classes.${id}.req[${i}]: 記述子 d がない`);
+    if (r.d) need(KNOWN_COND_TYPES.has(r.d.t), `classes.${id}.req[${i}]: 未知の条件型 "${r.d.t}"`);
+  });
   (c.from || []).forEach(f => need(classes[f], `classes.${id}: 前提職 ${f} が存在しない`));
 }
 
@@ -49,7 +58,7 @@ enemies.forEach(e => {
 });
 
 const accs = read('accessories.json');
-need(accs.length === 138, `accessories: 138件でなく ${accs.length}件`);
+need(accs.length === 142, `accessories: 142件でなく ${accs.length}件`);
 const myth = accs.filter(a => a.rarity === 'mythic');
 need(myth.length === 24, `ミシックが24件でなく ${myth.length}件`);
 myth.forEach(a => {

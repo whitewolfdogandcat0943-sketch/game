@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, '..');
 const FILES = [
   'js/util.js',
   'js/data/elements.js',
+  'js/core/style.js',
   'js/data/skills.js',
   'js/data/classes.js',
   'js/data/gear.js',

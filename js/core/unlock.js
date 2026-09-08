@@ -27,7 +27,10 @@ G.Unlock = (function () {
       ok: res.fromOk
     });
     (cls.req || []).forEach(function (r) {
-      res.conds.push({ label: r.label, ok: !!r.test(c) });
+      var ok = false, prog = '';
+      try { ok = !!r.test(c); } catch (e) { ok = false; }
+      try { prog = r.prog ? r.prog(c) : ''; } catch (e) { prog = ''; }
+      res.conds.push({ label: r.label, ok: ok, prog: prog });
     });
     res.ok = res.conds.every(function (x) { return x.ok; }) && c.hero.classId !== clsId;
     return res;

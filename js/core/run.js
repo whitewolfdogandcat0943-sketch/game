@@ -44,7 +44,7 @@ G.Run = (function () {
     state.run = {
       floor: 1, nodes: [], current: null, active: true, cleared: 0,
       stats: { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0, elites: 0, bosses: 0,
-               classChanges: 0, statusApplied: 0, evades: 0 },
+               classChanges: 0, statusApplied: 0, evades: 0, style: G.Style.newRecord() },
       notifiedClasses: {}, shop: null, pendingRewards: null
     };
     state.meta.runs++;

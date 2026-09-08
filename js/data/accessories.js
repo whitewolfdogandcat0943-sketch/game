@@ -188,6 +188,14 @@
   n({ id: 'n_sagelens', name: '賢者の眼鏡', tier: 2, price: 185, mods: { mag: 20, itemPower: 0.22 }, desc: '調合の失敗が減る眼鏡。' });
   n({ id: 'n_hunterbelt', name: '猟兵の帯', tier: 2, price: 185, mods: { atk: 18, goldUp: 0.25, dropUp: 0.25 }, desc: '獲物を余さず持ち帰る。' });
 
+  /* --- 通常: 呪詛（状態異常）系 --- */
+  n({ id: 'n_venomband', name: '毒牙の腕輪', tier: 2, price: 175, mods: { 'el_dark': 0.12 },
+      flags: ['statusOnHit'], desc: '牙に毒を仕込んだ腕輪。' });
+  n({ id: 'n_frostneedle', name: '霜針の護符', tier: 2, price: 175, mods: { 'el_ice': 0.15 },
+      flags: ['freezeOnIce'], desc: '刺すような冷気を宿した針。' });
+  n({ id: 'n_hexcharm', name: '呪符の護符', tier: 2, price: 175, mods: { pierce: 0.10 },
+      flags: ['lingering'], desc: '書かれた呪いが消えない護符。' });
+
   /* --- 通常: 序盤・補助 --- */
   n({ id: 'n_noviceward', name: '見習いの護符', tier: 1, price: 80, mods: { atk: 8, mag: 8, def: 8, hp: 30 }, desc: '万遍なく、ほんの少しだけ。' });
   n({ id: 'n_travelboots', name: '旅人の靴', tier: 1, price: 85, mods: { spd: 10, goldUp: 0.15 }, desc: '履き慣らされた靴。' });
@@ -255,6 +263,9 @@
       desc: '夜明けを閉じ込めた冠。' });
   l({ id: 'l_thunderbrace', name: '雷神の腕輪', tier: 3, price: 660, mods: { 'el_thunder': 0.40, critRate: 0.08 },
       flags: ['shockOnThunder'], desc: '雷神が身につけていたという腕輪。' });
+
+  l({ id: 'l_epidemic', name: '疫禍の香炉', tier: 3, price: 660, mods: { 'el_dark': 0.25 },
+      flags: ['spreadStatus', 'lingering'], desc: '焚くほどに病が広がる香炉。' });
 
   /* --- 追加ミシック --- */
   m({ id: 'y_flashmoment', name: '電光石火の刻', tier: 4, price: 0,

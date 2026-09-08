@@ -82,8 +82,37 @@ G.Screens = (function () {
       UI.bar(hero.mp, S.maxMp, 'mp', 'MP') + '<div style="height:6px"></div>' +
       UI.bar(hero.exp, G.Stats.expToNext(hero.level), 'xp', '次のレベルまで') + '</div>';
     h += '<div>' + buildSummary(state) + '</div></div>';
+    h += '<div class="sep"></div>' + stylePanel(state);
     h += '</div>';
     render(h);
+  }
+
+  /** 戦い方（行動の実績）と、アクセ構成のスタイルを並べて見せる */
+  function stylePanel(state) {
+    var rec = G.Style.behaviour(state), sh = G.Style.shares(rec);
+    var acc = G.Style.accShares(state.hero);
+    var rows = G.Style.AXIS_IDS.map(function (ax) {
+      return { ax: ax, b: rec[ax] || 0, bs: sh.share[ax], a: acc.score[ax], as: acc.share[ax] };
+    }).sort(function (x, y) { return (y.b + y.a) - (x.b + x.a); });
+
+    var h = '<div class="grid g2"><div><h3 class="small">戦い方（上級職の解放条件）</h3>' +
+      '<div class="tiny muted" style="margin-bottom:6px">実際にどう戦ったかが積み上がる。</div>';
+    rows.forEach(function (r) {
+      if (r.b <= 0) return;
+      h += '<div class="kv"><span class="' + G.Style.axisClass(r.ax) + '">' + G.Style.axisName(r.ax) +
+        '</span><span>' + r.b + '　<span class="muted">' + Math.round(r.bs * 100) + '%</span></span></div>';
+    });
+    if (sh.total <= 0) h += '<div class="muted small">まだ戦っていない。</div>';
+    h += '</div><div><h3 class="small">アクセサリ構成（最上級職の解放条件）</h3>' +
+      '<div class="tiny muted" style="margin-bottom:6px">装備中の4枠だけを見た構成。</div>';
+    rows.forEach(function (r) {
+      if (r.a <= 0) return;
+      h += '<div class="kv"><span class="' + G.Style.axisClass(r.ax) + '">' + G.Style.axisName(r.ax) +
+        '</span><span>' + Math.round(r.a) + '　<span class="muted">' + Math.round(r.as * 100) + '%</span></span></div>';
+    });
+    if (acc.total <= 0) h += '<div class="muted small">アクセサリを装備していない。</div>';
+    h += '</div></div>';
+    return h;
   }
 
   /** ビルドの特徴を一行で要約 */
@@ -314,6 +343,7 @@ G.Screens = (function () {
     var checks = G.Unlock.availableClasses(state);
     var cur = G.CLASSES[state.hero.classId];
     var h = '<h1>⛩ 転職の祭壇</h1>';
+    h += '<div class="panel">' + stylePanel(state) + '</div>';
     h += '<p class="muted">現在の職業: <b>' + cur.name + '</b>（' +
       (cur.tier === 3 ? '最上級職' : cur.tier === 2 ? '上級職' : '初級職') + '）／ ' +
       'これまでの職業のスキルは全て使用できる。</p>';
@@ -335,7 +365,8 @@ G.Screens = (function () {
           (c.flags && c.flags.length ? '<br>' + UI.flagsText(c.flags) : '') +
           '<br><b>習得スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div>' +
           (c.tier > 1 ? '<div class="sep"></div>' + r.conds.map(function (cd) {
-            return '<div class="cond ' + (cd.ok ? 'ok' : 'ng') + '">' + cd.label + '</div>';
+            return '<div class="cond ' + (cd.ok ? 'ok' : 'ng') + '">' + cd.label +
+              (cd.prog ? ' <span class="muted">[' + cd.prog + ']</span>' : '') + '</div>';
           }).join('') : '') +
           '</div>';
       });

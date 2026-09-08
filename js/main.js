@@ -155,6 +155,7 @@
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
          'statusApplied', 'evades']
           .forEach(function (k) { if (state.run.stats[k] == null) state.run.stats[k] = 0; });
+        if (!state.run.stats.style) state.run.stats.style = G.Style.newRecord();
         go('map');
         break;
       }
