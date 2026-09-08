@@ -1,0 +1,5 @@
+# Godot 4 が生成するもの
+.godot/
+/android/
+export_presets.cfg
+*.translation

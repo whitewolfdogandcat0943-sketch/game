@@ -1,13 +1,16 @@
 /* classes.js - 職業（初級 / 上級 / 最上級）と解放条件 */
 (function () {
   /* --- 解放条件ビルダー --------------------------------------------- */
+  /* 各条件は d（記述子）を持つ。これによりエンジン非依存のJSONへ書き出せる。 */
   function stat(key, val, label) {
-    return { label: label, test: function (c) { return (c.S[key] || 0) >= val; },
+    return { label: label, d: { t: 'stat', k: key, v: val },
+             test: function (c) { return (c.S[key] || 0) >= val; },
              now: function (c) { return c.S[key] || 0; }, need: val, key: key };
   }
   function allElem(val) {
     return {
       label: '6属性すべてのダメージ強化が ' + Math.round(val * 100) + '% 以上',
+      d: { t: 'allElem', v: val },
       test: function (c) {
         return G.MAGIC_ELEMENTS.every(function (e) { return (c.S['el_' + e] || 0) >= val; });
       }
@@ -16,43 +19,33 @@
   function pairElem(a, b, val) {
     return {
       label: G.ELEMENTS[a].name + '＋' + G.ELEMENTS[b].name + '属性強化の合計が ' + Math.round(val * 100) + '% 以上',
+      d: { t: 'pairElem', a: a, b: b, v: val },
       test: function (c) { return (c.S['el_' + a] || 0) + (c.S['el_' + b] || 0) >= val; }
     };
   }
   function mythicN(n) {
-    return { label: 'ミシックアクセサリを ' + n + '個 装備している',
+    return { label: 'ミシックアクセサリを ' + n + '個 装備している', d: { t: 'rarityCount', r: 'mythic', v: n },
              test: function (c) { return c.mythicCount >= n; } };
   }
   function legendN(n) {
-    return { label: 'レジェンドアクセサリを ' + n + '個 装備している',
+    return { label: 'レジェンドアクセサリを ' + n + '個 装備している', d: { t: 'rarityCount', r: 'legend', v: n },
              test: function (c) { return c.legendCount >= n; } };
   }
   function lv(n) {
-    return { label: 'レベル ' + n + ' 以上', test: function (c) { return c.hero.level >= n; } };
+    return { label: 'レベル ' + n + ' 以上', d: { t: 'level', v: n },
+             test: function (c) { return c.hero.level >= n; } };
   }
-  function itemsUsed(n) {
-    return { label: 'この冒険でアイテムを ' + n + '回以上使用', test: function (c) { return (c.run.stats.itemsUsed || 0) >= n; } };
+  function runStat(key, n, label) {
+    return { label: label, d: { t: 'runStat', k: key, v: n },
+             test: function (c) { return (c.run.stats[key] || 0) >= n; } };
   }
-  function kills(n) {
-    return { label: 'この冒険で ' + n + '体以上撃破', test: function (c) { return (c.run.stats.kills || 0) >= n; } };
-  }
-  function reflectKills(n) {
-    return { label: '反射ダメージで ' + n + '体以上撃破', test: function (c) { return (c.run.stats.reflectKills || 0) >= n; } };
-  }
-  function critCount(n) {
-    return { label: 'この冒険で会心を ' + n + '回以上発生', test: function (c) { return (c.run.stats.crits || 0) >= n; } };
-  }
-  function aoeKills(n) {
-    return { label: '範囲攻撃で ' + n + '体以上撃破', test: function (c) { return (c.run.stats.aoeKills || 0) >= n; } };
-  }
-  function statusApplied(n) {
-    return { label: 'この冒険で状態異常を ' + n + '回以上 付与',
-             test: function (c) { return (c.run.stats.statusApplied || 0) >= n; } };
-  }
-  function evades(n) {
-    return { label: 'この冒険で敵の攻撃を ' + n + '回以上 回避',
-             test: function (c) { return (c.run.stats.evades || 0) >= n; } };
-  }
+  function itemsUsed(n) { return runStat('itemsUsed', n, 'この冒険でアイテムを ' + n + '回以上使用'); }
+  function kills(n) { return runStat('kills', n, 'この冒険で ' + n + '体以上撃破'); }
+  function reflectKills(n) { return runStat('reflectKills', n, '反射ダメージで ' + n + '体以上撃破'); }
+  function critCount(n) { return runStat('crits', n, 'この冒険で会心を ' + n + '回以上発生'); }
+  function aoeKills(n) { return runStat('aoeKills', n, '範囲攻撃で ' + n + '体以上撃破'); }
+  function statusApplied(n) { return runStat('statusApplied', n, 'この冒険で状態異常を ' + n + '回以上 付与'); }
+  function evades(n) { return runStat('evades', n, 'この冒険で敵の攻撃を ' + n + '回以上 回避'); }
   G.COND = { statusApplied: statusApplied, evades: evades, stat: stat, allElem: allElem, pairElem: pairElem, mythicN: mythicN, legendN: legendN, lv: lv,
              itemsUsed: itemsUsed, kills: kills, reflectKills: reflectKills, critCount: critCount, aoeKills: aoeKills };
 
@@ -118,7 +111,7 @@
     id: 'elementalist', name: '元素使い', tier: 2, icon: '🜁',
     desc: '複数属性を操る術士。弱点を突き、耐性を貫く。',
     from: ['mage', 'priest'],
-    req: [{ label: '3属性以上のダメージ強化が 15% 以上',
+    req: [{ label: '3属性以上のダメージ強化が 15% 以上', d: { t: 'elemCount', n: 3, v: 0.15 },
             test: function (c) { return G.MAGIC_ELEMENTS.filter(function (e) { return (c.S['el_' + e] || 0) >= 0.15; }).length >= 3; } },
           stat('mag', 95, '魔法攻撃 95 以上'), lv(6)],
     base: { hp: 96, mp: 74, str: 5, int: 18, vit: 7, agi: 10, luk: 9 },
@@ -279,7 +272,7 @@
     id: 'voidSovereign', name: '虚無帝', tier: 3,
     from: ['assassin', 'guardian', 'elementalist', 'alchemist', 'stormcaller', 'berserker', 'exorcist',
            'windrunner', 'hexer', 'spellblade'],
-    req: [mythicN(3), lv(14), { label: 'ミシックを3種類以上「発見」済み',
+    req: [mythicN(3), lv(14), { label: 'ミシックを3種類以上「発見」済み', d: { t: 'metaMythics', v: 3 },
           test: function (c) { return (c.meta.mythics || []).length >= 3; } }],
     base: { hp: 200, mp: 100, str: 18, int: 18, vit: 18, agi: 18, luk: 18 },
     grow: { hp: 16, mp: 6, str: 2.4, int: 2.4, vit: 2.4, agi: 2.4, luk: 2.4 },

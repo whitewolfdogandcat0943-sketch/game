@@ -1,0 +1,1888 @@
+{
+ "swordsman": {
+  "id": "swordsman",
+  "name": "剣士",
+  "tier": 1,
+  "icon": "🗡",
+  "desc": "高い攻撃力と耐久を併せ持つ基本職。物理・会心・反射など幅広いビルドの土台。",
+  "base": {
+   "hp": 120,
+   "mp": 30,
+   "str": 12,
+   "int": 5,
+   "vit": 10,
+   "agi": 7,
+   "luk": 6
+  },
+  "grow": {
+   "hp": 11,
+   "mp": 2,
+   "str": 2,
+   "int": 0.6,
+   "vit": 1.6,
+   "agi": 1,
+   "luk": 0.8
+  },
+  "mods": {
+   "critRate": 0.03,
+   "atkPct": 0.05
+  },
+  "flags": [],
+  "skills": [
+   "slash",
+   "warcry",
+   "heavyBlow"
+  ]
+ },
+ "mage": {
+  "id": "mage",
+  "name": "魔術士",
+  "tier": 1,
+  "icon": "📕",
+  "desc": "全属性魔法の使い手。属性ビルド・範囲ビルドの起点となる。",
+  "base": {
+   "hp": 88,
+   "mp": 60,
+   "str": 5,
+   "int": 13,
+   "vit": 6,
+   "agi": 8,
+   "luk": 8
+  },
+  "grow": {
+   "hp": 7,
+   "mp": 5,
+   "str": 0.6,
+   "int": 2.2,
+   "vit": 0.9,
+   "agi": 1.1,
+   "luk": 1
+  },
+  "mods": {
+   "magPct": 0.06,
+   "mpRegen": 2
+  },
+  "flags": [],
+  "skills": [
+   "fireball",
+   "iceLance",
+   "boltStrike",
+   "manaSurge"
+  ]
+ },
+ "rogue": {
+  "id": "rogue",
+  "name": "盗賊",
+  "tier": 1,
+  "icon": "🗝",
+  "desc": "素早さと会心に優れる。宝箱の中身が良くなり、ゴールド獲得も増える。",
+  "base": {
+   "hp": 100,
+   "mp": 38,
+   "str": 9,
+   "int": 7,
+   "vit": 7,
+   "agi": 13,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 8.5,
+   "mp": 3,
+   "str": 1.5,
+   "int": 1,
+   "vit": 1,
+   "agi": 2,
+   "luk": 1.8
+  },
+  "mods": {
+   "critRate": 0.08,
+   "critDmg": 0.15,
+   "goldUp": 0.2,
+   "dropUp": 0.15
+  },
+  "flags": [],
+  "skills": [
+   "backstab",
+   "venomFang",
+   "shadowStep"
+  ]
+ },
+ "priest": {
+  "id": "priest",
+  "name": "神官",
+  "tier": 1,
+  "icon": "✧",
+  "desc": "回復と光闇の術に長ける。反射・耐久・アイテムなど支援型ビルドに強い。",
+  "base": {
+   "hp": 108,
+   "mp": 52,
+   "str": 7,
+   "int": 11,
+   "vit": 9,
+   "agi": 7,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 9.5,
+   "mp": 4.2,
+   "str": 1,
+   "int": 1.9,
+   "vit": 1.4,
+   "agi": 0.9,
+   "luk": 1.2
+  },
+  "mods": {
+   "el_light": 0.1,
+   "dr": 0.04
+  },
+  "flags": [],
+  "skills": [
+   "heal",
+   "smite",
+   "sanctuary"
+  ]
+ },
+ "berserker": {
+  "id": "berserker",
+  "name": "狂戦士",
+  "tier": 2,
+  "icon": "🪓",
+  "desc": "生命を削って暴威を振るう。吸収と低HP時の爆発力が持ち味。",
+  "from": [
+   "swordsman",
+   "rogue"
+  ],
+  "req": [
+   {
+    "label": "物理攻撃 95 以上",
+    "d": {
+     "t": "stat",
+     "k": "atk",
+     "v": 95
+    },
+    "need": 95,
+    "key": "atk"
+   },
+   {
+    "label": "吸収 10% 以上",
+    "d": {
+     "t": "stat",
+     "k": "lifesteal",
+     "v": 0.1
+    },
+    "need": 0.1,
+    "key": "lifesteal"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 150,
+   "mp": 34,
+   "str": 17,
+   "int": 5,
+   "vit": 12,
+   "agi": 9,
+   "luk": 7
+  },
+  "grow": {
+   "hp": 14,
+   "mp": 2,
+   "str": 2.6,
+   "int": 0.5,
+   "vit": 1.8,
+   "agi": 1.2,
+   "luk": 0.8
+  },
+  "mods": {
+   "atkPct": 0.15,
+   "lifesteal": 0.1,
+   "dr": -0.05,
+   "hpPct": 0.1
+  },
+  "flags": [
+   "lowHpRage"
+  ],
+  "skills": [
+   "slash",
+   "heavyBlow",
+   "bloodRage",
+   "crushArmor"
+  ]
+ },
+ "assassin": {
+  "id": "assassin",
+  "name": "暗殺者",
+  "tier": 2,
+  "icon": "🔪",
+  "desc": "会心特化。低HPの敵を確実に葬る処刑術を持つ。",
+  "from": [
+   "rogue",
+   "swordsman"
+  ],
+  "req": [
+   {
+    "label": "会心率 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "critRate",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "critRate"
+   },
+   {
+    "label": "会心ダメージ 190% 以上",
+    "d": {
+     "t": "stat",
+     "k": "critDmg",
+     "v": 1.9
+    },
+    "need": 1.9,
+    "key": "critDmg"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 108,
+   "mp": 40,
+   "str": 13,
+   "int": 7,
+   "vit": 7,
+   "agi": 16,
+   "luk": 15
+  },
+  "grow": {
+   "hp": 9,
+   "mp": 3,
+   "str": 2,
+   "int": 0.9,
+   "vit": 1,
+   "agi": 2.4,
+   "luk": 2.2
+  },
+  "mods": {
+   "critRate": 0.12,
+   "critDmg": 0.35,
+   "spd": 12
+  },
+  "flags": [
+   "critPierce"
+  ],
+  "skills": [
+   "backstab",
+   "thousandCuts",
+   "shadowStep",
+   "executioner"
+  ]
+ },
+ "elementalist": {
+  "id": "elementalist",
+  "name": "元素使い",
+  "tier": 2,
+  "icon": "🜁",
+  "desc": "複数属性を操る術士。弱点を突き、耐性を貫く。",
+  "from": [
+   "mage",
+   "priest"
+  ],
+  "req": [
+   {
+    "label": "3属性以上のダメージ強化が 15% 以上",
+    "d": {
+     "t": "elemCount",
+     "n": 3,
+     "v": 0.15
+    }
+   },
+   {
+    "label": "魔法攻撃 95 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 95
+    },
+    "need": 95,
+    "key": "mag"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 96,
+   "mp": 74,
+   "str": 5,
+   "int": 18,
+   "vit": 7,
+   "agi": 10,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 8,
+   "mp": 6,
+   "str": 0.5,
+   "int": 2.8,
+   "vit": 1,
+   "agi": 1.2,
+   "luk": 1
+  },
+  "mods": {
+   "magPct": 0.14,
+   "pierce": 0.2,
+   "el_fire": 0.08,
+   "el_ice": 0.08,
+   "el_thunder": 0.08,
+   "el_wind": 0.08
+  },
+  "flags": [
+   "guardBreak"
+  ],
+  "skills": [
+   "fireball",
+   "iceLance",
+   "boltStrike",
+   "galeEdge",
+   "elementalBurst"
+  ]
+ },
+ "guardian": {
+  "id": "guardian",
+  "name": "守護者",
+  "tier": 2,
+  "icon": "🛡",
+  "desc": "反射と鉄壁の体現者。受けたダメージを刃に変える。",
+  "from": [
+   "swordsman",
+   "priest"
+  ],
+  "req": [
+   {
+    "label": "反射率 25% 以上",
+    "d": {
+     "t": "stat",
+     "k": "reflect",
+     "v": 0.25
+    },
+    "need": 0.25,
+    "key": "reflect"
+   },
+   {
+    "label": "物理防御 70 以上",
+    "d": {
+     "t": "stat",
+     "k": "def",
+     "v": 70
+    },
+    "need": 70,
+    "key": "def"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 168,
+   "mp": 40,
+   "str": 11,
+   "int": 8,
+   "vit": 18,
+   "agi": 5,
+   "luk": 7
+  },
+  "grow": {
+   "hp": 16,
+   "mp": 2.6,
+   "str": 1.6,
+   "int": 1,
+   "vit": 2.6,
+   "agi": 0.6,
+   "luk": 0.8
+  },
+  "mods": {
+   "defPct": 0.2,
+   "reflect": 0.15,
+   "dr": 0.08,
+   "hpPct": 0.12,
+   "spd": -5
+  },
+  "flags": [
+   "barrierOnHit"
+  ],
+  "skills": [
+   "thornGuard",
+   "ironWall",
+   "retaliate",
+   "provoke"
+  ]
+ },
+ "stormcaller": {
+  "id": "stormcaller",
+  "name": "嵐使い",
+  "tier": 2,
+  "icon": "🌪",
+  "desc": "範囲殲滅の専門家。単体技すら周囲へ波及させる。",
+  "from": [
+   "mage",
+   "rogue"
+  ],
+  "req": [
+   {
+    "label": "波及率 30% 以上",
+    "d": {
+     "t": "stat",
+     "k": "aoeRatio",
+     "v": 0.3
+    },
+    "need": 0.3,
+    "key": "aoeRatio"
+   },
+   {
+    "label": "範囲威力 30% 以上",
+    "d": {
+     "t": "stat",
+     "k": "aoePower",
+     "v": 0.3
+    },
+    "need": 0.3,
+    "key": "aoePower"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 104,
+   "mp": 66,
+   "str": 8,
+   "int": 15,
+   "vit": 8,
+   "agi": 14,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 9,
+   "mp": 5,
+   "str": 1,
+   "int": 2.3,
+   "vit": 1.1,
+   "agi": 1.9,
+   "luk": 1
+  },
+  "mods": {
+   "aoePower": 0.3,
+   "aoeRatio": 0.25,
+   "el_wind": 0.2,
+   "spd": 10
+  },
+  "flags": [
+   "overkillChain"
+  ],
+  "skills": [
+   "tempest",
+   "shockwave",
+   "stormCall",
+   "gravityWell"
+  ]
+ },
+ "alchemist": {
+  "id": "alchemist",
+  "name": "錬金術士",
+  "tier": 2,
+  "icon": "⚗",
+  "desc": "アイテムを兵器に変える技師。消耗品を消耗させずに戦う。",
+  "from": [
+   "mage",
+   "rogue",
+   "priest"
+  ],
+  "req": [
+   {
+    "label": "アイテム威力 40% 以上",
+    "d": {
+     "t": "stat",
+     "k": "itemPower",
+     "v": 0.4
+    },
+    "need": 0.4,
+    "key": "itemPower"
+   },
+   {
+    "label": "この冒険でアイテムを 10回以上使用",
+    "d": {
+     "t": "runStat",
+     "k": "itemsUsed",
+     "v": 10
+    }
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 112,
+   "mp": 58,
+   "str": 8,
+   "int": 14,
+   "vit": 10,
+   "agi": 10,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 10,
+   "mp": 4,
+   "str": 1,
+   "int": 2,
+   "vit": 1.4,
+   "agi": 1.3,
+   "luk": 1.6
+  },
+  "mods": {
+   "itemPower": 0.45,
+   "itemKeep": 0.15,
+   "dropUp": 0.2
+  },
+  "flags": [
+   "itemRefill"
+  ],
+  "skills": [
+   "throwBomb",
+   "panacea",
+   "transmute",
+   "catalyst",
+   "acidFlask"
+  ]
+ },
+ "exorcist": {
+  "id": "exorcist",
+  "name": "破魔僧",
+  "tier": 2,
+  "icon": "☩",
+  "desc": "光と闇、相反する二極を同時に操る修行者。",
+  "from": [
+   "priest",
+   "mage"
+  ],
+  "req": [
+   {
+    "label": "光＋闇属性強化の合計が 45% 以上",
+    "d": {
+     "t": "pairElem",
+     "a": "light",
+     "b": "dark",
+     "v": 0.45
+    }
+   },
+   {
+    "label": "魔法攻撃 85 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 85
+    },
+    "need": 85,
+    "key": "mag"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 126,
+   "mp": 62,
+   "str": 9,
+   "int": 15,
+   "vit": 11,
+   "agi": 8,
+   "luk": 10
+  },
+  "grow": {
+   "hp": 11,
+   "mp": 4.6,
+   "str": 1.2,
+   "int": 2.2,
+   "vit": 1.5,
+   "agi": 1,
+   "luk": 1.2
+  },
+  "mods": {
+   "el_light": 0.2,
+   "el_dark": 0.2,
+   "lifesteal": 0.08,
+   "dr": 0.06
+  },
+  "flags": [
+   "soulHarvest"
+  ],
+  "skills": [
+   "smite",
+   "darkPact",
+   "judgement",
+   "sanctuary",
+   "holyNova"
+  ]
+ },
+ "windrunner": {
+  "id": "windrunner",
+  "name": "韋駄天",
+  "tier": 2,
+  "icon": "🌬",
+  "desc": "速さこそ攻防のすべて。避けきり、先んじて刻む。",
+  "from": [
+   "rogue",
+   "swordsman"
+  ],
+  "req": [
+   {
+    "label": "素早さ 70 以上",
+    "d": {
+     "t": "stat",
+     "k": "spd",
+     "v": 70
+    },
+    "need": 70,
+    "key": "spd"
+   },
+   {
+    "label": "回避率 20% 以上",
+    "d": {
+     "t": "stat",
+     "k": "evade",
+     "v": 0.2
+    },
+    "need": 0.2,
+    "key": "evade"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 112,
+   "mp": 42,
+   "str": 12,
+   "int": 8,
+   "vit": 8,
+   "agi": 18,
+   "luk": 11
+  },
+  "grow": {
+   "hp": 9.5,
+   "mp": 3,
+   "str": 1.8,
+   "int": 1,
+   "vit": 1.1,
+   "agi": 2.8,
+   "luk": 1.4
+  },
+  "mods": {
+   "spd": 22,
+   "evade": 0.12,
+   "critRate": 0.06
+  },
+  "flags": [
+   "firstHitCrit",
+   "counterEvade"
+  ],
+  "skills": [
+   "shukuchi",
+   "galeFlurry",
+   "backstab",
+   "whirlwind"
+  ]
+ },
+ "hexer": {
+  "id": "hexer",
+  "name": "呪術師",
+  "tier": 2,
+  "icon": "🕯",
+  "desc": "毒と呪いで敵を弱らせ、崩れたところを刈り取る。",
+  "from": [
+   "mage",
+   "priest",
+   "rogue"
+  ],
+  "req": [
+   {
+    "label": "この冒険で状態異常を 12回以上 付与",
+    "d": {
+     "t": "runStat",
+     "k": "statusApplied",
+     "v": 12
+    }
+   },
+   {
+    "label": "魔法攻撃 85 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 85
+    },
+    "need": 85,
+    "key": "mag"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 108,
+   "mp": 66,
+   "str": 7,
+   "int": 16,
+   "vit": 9,
+   "agi": 11,
+   "luk": 10
+  },
+  "grow": {
+   "hp": 9,
+   "mp": 5,
+   "str": 0.8,
+   "int": 2.4,
+   "vit": 1.2,
+   "agi": 1.3,
+   "luk": 1.2
+  },
+  "mods": {
+   "el_dark": 0.22,
+   "magPct": 0.1
+  },
+  "flags": [
+   "statusDamage",
+   "lingering"
+  ],
+  "skills": [
+   "plague",
+   "hexMist",
+   "venomFang",
+   "curseBurst"
+  ]
+ },
+ "spellblade": {
+  "id": "spellblade",
+  "name": "魔剣士",
+  "tier": 2,
+  "icon": "🗡",
+  "desc": "剣に魔を通す。物理と魔法、どちらの数値も無駄にしない。",
+  "from": [
+   "swordsman",
+   "mage"
+  ],
+  "req": [
+   {
+    "label": "物理攻撃 90 以上",
+    "d": {
+     "t": "stat",
+     "k": "atk",
+     "v": 90
+    },
+    "need": 90,
+    "key": "atk"
+   },
+   {
+    "label": "魔法攻撃 90 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 90
+    },
+    "need": 90,
+    "key": "mag"
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 128,
+   "mp": 56,
+   "str": 13,
+   "int": 13,
+   "vit": 10,
+   "agi": 11,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 11,
+   "mp": 4,
+   "str": 2,
+   "int": 2,
+   "vit": 1.4,
+   "agi": 1.3,
+   "luk": 1
+  },
+  "mods": {
+   "atkPct": 0.1,
+   "magPct": 0.1,
+   "el_fire": 0.12,
+   "el_light": 0.12
+  },
+  "flags": [
+   "spellblade"
+  ],
+  "skills": [
+   "spellEdge",
+   "dualPole",
+   "slash",
+   "fireball"
+  ]
+ },
+ "phantomSaint": {
+  "id": "phantomSaint",
+  "name": "絶影剣聖",
+  "tier": 3,
+  "from": [
+   "assassin",
+   "berserker"
+  ],
+  "req": [
+   {
+    "label": "会心率 60% 以上",
+    "d": {
+     "t": "stat",
+     "k": "critRate",
+     "v": 0.6
+    },
+    "need": 0.6,
+    "key": "critRate"
+   },
+   {
+    "label": "会心ダメージ 260% 以上",
+    "d": {
+     "t": "stat",
+     "k": "critDmg",
+     "v": 2.6
+    },
+    "need": 2.6,
+    "key": "critDmg"
+   },
+   {
+    "label": "この冒険で会心を 60回以上発生",
+    "d": {
+     "t": "runStat",
+     "k": "crits",
+     "v": 60
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 150,
+   "mp": 60,
+   "str": 20,
+   "int": 10,
+   "vit": 11,
+   "agi": 22,
+   "luk": 20
+  },
+  "grow": {
+   "hp": 12,
+   "mp": 4,
+   "str": 2.9,
+   "int": 1.2,
+   "vit": 1.5,
+   "agi": 3,
+   "luk": 2.8
+  },
+  "mods": {
+   "critRate": 0.2,
+   "critDmg": 0.9,
+   "spd": 25,
+   "atkPct": 0.25
+  },
+  "flags": [
+   "critPierce",
+   "doubleStrike"
+  ],
+  "skills": [
+   "ult_phantomEdge",
+   "thousandCuts",
+   "executioner",
+   "shadowStep",
+   "backstab"
+  ],
+  "icon": "🌑",
+  "desc": "会心を極めた者だけが至る剣の頂。全ての一撃が必殺となる。"
+ },
+ "mirrorEmperor": {
+  "id": "mirrorEmperor",
+  "name": "鏡獄天帝",
+  "tier": 3,
+  "from": [
+   "guardian"
+  ],
+  "req": [
+   {
+    "label": "反射率 60% 以上",
+    "d": {
+     "t": "stat",
+     "k": "reflect",
+     "v": 0.6
+    },
+    "need": 0.6,
+    "key": "reflect"
+   },
+   {
+    "label": "物理防御 110 以上",
+    "d": {
+     "t": "stat",
+     "k": "def",
+     "v": 110
+    },
+    "need": 110,
+    "key": "def"
+   },
+   {
+    "label": "反射ダメージで 8体以上撃破",
+    "d": {
+     "t": "runStat",
+     "k": "reflectKills",
+     "v": 8
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 230,
+   "mp": 60,
+   "str": 14,
+   "int": 12,
+   "vit": 26,
+   "agi": 7,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 20,
+   "mp": 3.4,
+   "str": 1.8,
+   "int": 1.4,
+   "vit": 3.4,
+   "agi": 0.8,
+   "luk": 1
+  },
+  "mods": {
+   "reflect": 0.35,
+   "reflectPow": 0.6,
+   "defPct": 0.35,
+   "dr": 0.15,
+   "hpPct": 0.2
+  },
+  "flags": [
+   "reflectAll",
+   "healOnReflect",
+   "barrierOnHit"
+  ],
+  "skills": [
+   "ult_mirrorEnd",
+   "thornGuard",
+   "mirrorField",
+   "retaliate",
+   "ironWall"
+  ],
+  "icon": "🪞",
+  "desc": "受けた痛みをそのまま返す不壊の王。反射が敵全体に及ぶ。"
+ },
+ "calamityKing": {
+  "id": "calamityKing",
+  "name": "天災嵐王",
+  "tier": 3,
+  "from": [
+   "stormcaller"
+  ],
+  "req": [
+   {
+    "label": "範囲威力 80% 以上",
+    "d": {
+     "t": "stat",
+     "k": "aoePower",
+     "v": 0.8
+    },
+    "need": 0.8,
+    "key": "aoePower"
+   },
+   {
+    "label": "波及率 55% 以上",
+    "d": {
+     "t": "stat",
+     "k": "aoeRatio",
+     "v": 0.55
+    },
+    "need": 0.55,
+    "key": "aoeRatio"
+   },
+   {
+    "label": "範囲攻撃で 20体以上撃破",
+    "d": {
+     "t": "runStat",
+     "k": "aoeKills",
+     "v": 20
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 150,
+   "mp": 90,
+   "str": 11,
+   "int": 21,
+   "vit": 12,
+   "agi": 19,
+   "luk": 11
+  },
+  "grow": {
+   "hp": 12,
+   "mp": 6.5,
+   "str": 1.2,
+   "int": 3,
+   "vit": 1.6,
+   "agi": 2.4,
+   "luk": 1.2
+  },
+  "mods": {
+   "aoePower": 0.6,
+   "aoeRatio": 0.4,
+   "magPct": 0.25,
+   "el_wind": 0.3,
+   "spd": 15
+  },
+  "flags": [
+   "overkillChain",
+   "fireSplash"
+  ],
+  "skills": [
+   "ult_calamity",
+   "tempest",
+   "meteor",
+   "blizzard",
+   "stormCall"
+  ],
+  "icon": "🌀",
+  "desc": "一振りで戦場を消し飛ばす天災の化身。範囲の極致。"
+ },
+ "astralArchmage": {
+  "id": "astralArchmage",
+  "name": "星辰術皇",
+  "tier": 3,
+  "from": [
+   "elementalist",
+   "exorcist"
+  ],
+  "req": [
+   {
+    "label": "6属性すべてのダメージ強化が 22% 以上",
+    "d": {
+     "t": "allElem",
+     "v": 0.22
+    }
+   },
+   {
+    "label": "耐性貫通 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "pierce",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "pierce"
+   },
+   {
+    "label": "魔法攻撃 160 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 160
+    },
+    "need": 160,
+    "key": "mag"
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 140,
+   "mp": 108,
+   "str": 9,
+   "int": 24,
+   "vit": 11,
+   "agi": 14,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 11,
+   "mp": 7.5,
+   "str": 0.8,
+   "int": 3.4,
+   "vit": 1.4,
+   "agi": 1.6,
+   "luk": 1.4
+  },
+  "mods": {
+   "magPct": 0.3,
+   "pierce": 0.3,
+   "el_fire": 0.18,
+   "el_ice": 0.18,
+   "el_thunder": 0.18,
+   "el_wind": 0.18,
+   "el_light": 0.18,
+   "el_dark": 0.18
+  },
+  "flags": [
+   "guardBreak",
+   "allElemStrike",
+   "freezeOnIce",
+   "shockOnThunder"
+  ],
+  "skills": [
+   "ult_astralBurst",
+   "elementalBurst",
+   "meteor",
+   "blizzard",
+   "chainBolt",
+   "holyNova"
+  ],
+  "icon": "✴",
+  "desc": "六属性すべてを従える星の術皇。あらゆる耐性は意味を成さない。"
+ },
+ "alchemySovereign": {
+  "id": "alchemySovereign",
+  "name": "万象錬成王",
+  "tier": 3,
+  "from": [
+   "alchemist"
+  ],
+  "req": [
+   {
+    "label": "アイテム威力 100% 以上",
+    "d": {
+     "t": "stat",
+     "k": "itemPower",
+     "v": 1
+    },
+    "need": 1,
+    "key": "itemPower"
+   },
+   {
+    "label": "アイテム温存率 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "itemKeep",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "itemKeep"
+   },
+   {
+    "label": "この冒険でアイテムを 25回以上使用",
+    "d": {
+     "t": "runStat",
+     "k": "itemsUsed",
+     "v": 25
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 170,
+   "mp": 84,
+   "str": 12,
+   "int": 19,
+   "vit": 15,
+   "agi": 14,
+   "luk": 18
+  },
+  "grow": {
+   "hp": 14,
+   "mp": 5.6,
+   "str": 1.3,
+   "int": 2.6,
+   "vit": 2,
+   "agi": 1.7,
+   "luk": 2.4
+  },
+  "mods": {
+   "itemPower": 0.9,
+   "itemKeep": 0.25,
+   "magPct": 0.2,
+   "dropUp": 0.4,
+   "goldUp": 0.35
+  },
+  "flags": [
+   "itemRefill",
+   "itemEcho"
+  ],
+  "skills": [
+   "ult_grandElixir",
+   "throwBomb",
+   "acidFlask",
+   "panacea",
+   "catalyst",
+   "transmute"
+  ],
+  "icon": "🏺",
+  "desc": "万物を薬と爆薬に変える錬成の王。アイテムは尽きない。"
+ },
+ "bloodfiend": {
+  "id": "bloodfiend",
+  "name": "血喰鬼神",
+  "tier": 3,
+  "from": [
+   "berserker",
+   "assassin"
+  ],
+  "req": [
+   {
+    "label": "吸収 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "lifesteal",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "lifesteal"
+   },
+   {
+    "label": "物理攻撃 200 以上",
+    "d": {
+     "t": "stat",
+     "k": "atk",
+     "v": 200
+    },
+    "need": 200,
+    "key": "atk"
+   },
+   {
+    "label": "この冒険で 45体以上撃破",
+    "d": {
+     "t": "runStat",
+     "k": "kills",
+     "v": 45
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 210,
+   "mp": 56,
+   "str": 24,
+   "int": 8,
+   "vit": 17,
+   "agi": 15,
+   "luk": 10
+  },
+  "grow": {
+   "hp": 18,
+   "mp": 2.8,
+   "str": 3.4,
+   "int": 0.8,
+   "vit": 2.2,
+   "agi": 1.8,
+   "luk": 1.2
+  },
+  "mods": {
+   "atkPct": 0.4,
+   "lifesteal": 0.3,
+   "hpPct": 0.25,
+   "el_dark": 0.25
+  },
+  "flags": [
+   "lowHpRage",
+   "stackAtkOnKill",
+   "soulHarvest"
+  ],
+  "skills": [
+   "ult_devourFang",
+   "bloodRage",
+   "crushArmor",
+   "heavyBlow",
+   "venomFang"
+  ],
+  "icon": "🩸",
+  "desc": "喰らうほどに強くなる鬼神。奪った生命がそのまま力となる。"
+ },
+ "finalArbiter": {
+  "id": "finalArbiter",
+  "name": "終焉審判者",
+  "tier": 3,
+  "from": [
+   "exorcist",
+   "priest"
+  ],
+  "req": [
+   {
+    "label": "光＋闇属性強化の合計が 95% 以上",
+    "d": {
+     "t": "pairElem",
+     "a": "light",
+     "b": "dark",
+     "v": 0.95
+    }
+   },
+   {
+    "label": "被ダメ軽減 25% 以上",
+    "d": {
+     "t": "stat",
+     "k": "dr",
+     "v": 0.25
+    },
+    "need": 0.25,
+    "key": "dr"
+   },
+   {
+    "label": "魔法攻撃 160 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 160
+    },
+    "need": 160,
+    "key": "mag"
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 190,
+   "mp": 96,
+   "str": 13,
+   "int": 22,
+   "vit": 16,
+   "agi": 12,
+   "luk": 13
+  },
+  "grow": {
+   "hp": 15,
+   "mp": 6.4,
+   "str": 1.4,
+   "int": 3.1,
+   "vit": 2,
+   "agi": 1.3,
+   "luk": 1.5
+  },
+  "mods": {
+   "el_light": 0.4,
+   "el_dark": 0.4,
+   "magPct": 0.25,
+   "dr": 0.12,
+   "lifesteal": 0.15
+  },
+  "flags": [
+   "soulHarvest",
+   "guardBreak",
+   "endure"
+  ],
+  "skills": [
+   "ult_lastJudgement",
+   "judgement",
+   "holyNova",
+   "darkPact",
+   "sanctuary"
+  ],
+  "icon": "⚖",
+  "desc": "光と闇を同時に振るう最終審判者。相反する二極が一つになる。"
+ },
+ "voidSovereign": {
+  "id": "voidSovereign",
+  "name": "虚無帝",
+  "tier": 3,
+  "from": [
+   "assassin",
+   "guardian",
+   "elementalist",
+   "alchemist",
+   "stormcaller",
+   "berserker",
+   "exorcist",
+   "windrunner",
+   "hexer",
+   "spellblade"
+  ],
+  "req": [
+   {
+    "label": "ミシックアクセサリを 3個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "mythic",
+     "v": 3
+    }
+   },
+   {
+    "label": "レベル 14 以上",
+    "d": {
+     "t": "level",
+     "v": 14
+    }
+   },
+   {
+    "label": "ミシックを3種類以上「発見」済み",
+    "d": {
+     "t": "metaMythics",
+     "v": 3
+    }
+   }
+  ],
+  "base": {
+   "hp": 200,
+   "mp": 100,
+   "str": 18,
+   "int": 18,
+   "vit": 18,
+   "agi": 18,
+   "luk": 18
+  },
+  "grow": {
+   "hp": 16,
+   "mp": 6,
+   "str": 2.4,
+   "int": 2.4,
+   "vit": 2.4,
+   "agi": 2.4,
+   "luk": 2.4
+  },
+  "mods": {
+   "atkPct": 0.25,
+   "magPct": 0.25,
+   "defPct": 0.25,
+   "hpPct": 0.25,
+   "spd": 18,
+   "pierce": 0.35,
+   "critRate": 0.15
+  },
+  "flags": [
+   "mythicScaling",
+   "guardBreak",
+   "endure",
+   "soulHarvest"
+  ],
+  "skills": [
+   "ult_voidCollapse",
+   "ult_astralBurst",
+   "elementalBurst",
+   "gravityWell",
+   "executioner"
+  ],
+  "icon": "🕳",
+  "desc": "ミシックの力を束ねた者のみが到達する空位の玉座。"
+ },
+ "skyrunner": {
+  "id": "skyrunner",
+  "name": "神速天翔",
+  "tier": 3,
+  "from": [
+   "windrunner",
+   "assassin"
+  ],
+  "req": [
+   {
+    "label": "素早さ 130 以上",
+    "d": {
+     "t": "stat",
+     "k": "spd",
+     "v": 130
+    },
+    "need": 130,
+    "key": "spd"
+   },
+   {
+    "label": "回避率 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "evade",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "evade"
+   },
+   {
+    "label": "この冒険で敵の攻撃を 35回以上 回避",
+    "d": {
+     "t": "runStat",
+     "k": "evades",
+     "v": 35
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 160,
+   "mp": 70,
+   "str": 18,
+   "int": 12,
+   "vit": 12,
+   "agi": 26,
+   "luk": 16
+  },
+  "grow": {
+   "hp": 13,
+   "mp": 4.4,
+   "str": 2.6,
+   "int": 1.4,
+   "vit": 1.6,
+   "agi": 3.6,
+   "luk": 2.2
+  },
+  "mods": {
+   "spd": 45,
+   "evade": 0.22,
+   "critRate": 0.15,
+   "atkPct": 0.2
+  },
+  "flags": [
+   "speedPower",
+   "counterEvade",
+   "firstHitCrit",
+   "doubleStrike"
+  ],
+  "skills": [
+   "ult_thousandShadow",
+   "shukuchi",
+   "galeFlurry",
+   "thousandCuts",
+   "whirlwind"
+  ],
+  "icon": "💨",
+  "desc": "誰にも捉えられない領域。避け、先んじ、斬り刻む。"
+ },
+ "plaguelord": {
+  "id": "plaguelord",
+  "name": "疫災呪王",
+  "tier": 3,
+  "from": [
+   "hexer",
+   "exorcist"
+  ],
+  "req": [
+   {
+    "label": "この冒険で状態異常を 60回以上 付与",
+    "d": {
+     "t": "runStat",
+     "k": "statusApplied",
+     "v": 60
+    }
+   },
+   {
+    "label": "闇属性ダメージ 50% 以上",
+    "d": {
+     "t": "stat",
+     "k": "el_dark",
+     "v": 0.5
+    },
+    "need": 0.5,
+    "key": "el_dark"
+   },
+   {
+    "label": "耐性貫通 25% 以上",
+    "d": {
+     "t": "stat",
+     "k": "pierce",
+     "v": 0.25
+    },
+    "need": 0.25,
+    "key": "pierce"
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 170,
+   "mp": 96,
+   "str": 10,
+   "int": 23,
+   "vit": 14,
+   "agi": 13,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 14,
+   "mp": 6.6,
+   "str": 1,
+   "int": 3.2,
+   "vit": 1.8,
+   "agi": 1.5,
+   "luk": 1.4
+  },
+  "mods": {
+   "el_dark": 0.4,
+   "magPct": 0.25,
+   "pierce": 0.2,
+   "lifesteal": 0.12
+  },
+  "flags": [
+   "statusDamage",
+   "spreadStatus",
+   "lingering",
+   "statusOnHit"
+  ],
+  "skills": [
+   "ult_pandemic",
+   "hexMist",
+   "curseBurst",
+   "plague",
+   "darkPact"
+  ],
+  "icon": "☣",
+  "desc": "あらゆる呪いを従える災厄の王。蝕まれた敵ほど深く斬れる。"
+ },
+ "poleEmperor": {
+  "id": "poleEmperor",
+  "name": "双極魔剣皇",
+  "tier": 3,
+  "from": [
+   "spellblade",
+   "elementalist",
+   "assassin"
+  ],
+  "req": [
+   {
+    "label": "物理攻撃 180 以上",
+    "d": {
+     "t": "stat",
+     "k": "atk",
+     "v": 180
+    },
+    "need": 180,
+    "key": "atk"
+   },
+   {
+    "label": "魔法攻撃 180 以上",
+    "d": {
+     "t": "stat",
+     "k": "mag",
+     "v": 180
+    },
+    "need": 180,
+    "key": "mag"
+   },
+   {
+    "label": "会心率 35% 以上",
+    "d": {
+     "t": "stat",
+     "k": "critRate",
+     "v": 0.35
+    },
+    "need": 0.35,
+    "key": "critRate"
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 185,
+   "mp": 88,
+   "str": 20,
+   "int": 20,
+   "vit": 14,
+   "agi": 16,
+   "luk": 13
+  },
+  "grow": {
+   "hp": 15,
+   "mp": 5.6,
+   "str": 2.9,
+   "int": 2.9,
+   "vit": 1.9,
+   "agi": 1.9,
+   "luk": 1.5
+  },
+  "mods": {
+   "atkPct": 0.28,
+   "magPct": 0.28,
+   "critRate": 0.12,
+   "el_fire": 0.2,
+   "el_light": 0.2,
+   "el_dark": 0.2
+  },
+  "flags": [
+   "spellblade",
+   "critPierce",
+   "guardBreak"
+  ],
+  "skills": [
+   "ult_duality",
+   "spellEdge",
+   "dualPole",
+   "elementalBurst",
+   "heavyBlow"
+  ],
+  "icon": "⚔",
+  "desc": "剣と魔、二つの極を一振りに束ねた皇。どちらの数値も捨てない。"
+ }
+}

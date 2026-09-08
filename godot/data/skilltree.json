@@ -1,0 +1,847 @@
+[
+ {
+  "id": "crit",
+  "name": "会心の道",
+  "hue": 45,
+  "icon": "weapon",
+  "desc": "急所を見抜き、一撃の質を極める。",
+  "nodes": [
+   {
+    "id": "ct_eye",
+    "name": "鋭い目",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "critRate": 0.06
+    },
+    "branch": "crit"
+   },
+   {
+    "id": "ct_weak",
+    "name": "弱点感知",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "critDmg": 0.25
+    },
+    "branch": "crit"
+   },
+   {
+    "id": "ct_blood",
+    "name": "血の匂い",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "ct_eye"
+    ],
+    "flags": [
+     "executeLow"
+    ],
+    "branch": "crit"
+   },
+   {
+    "id": "ct_breath",
+    "name": "二段の呼吸",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "ct_weak"
+    ],
+    "flags": [
+     "critChain"
+    ],
+    "branch": "crit"
+   },
+   {
+    "id": "ct_form",
+    "name": "必中の型",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "critRate": 0.12,
+     "critDmg": 0.4
+    },
+    "skill": "t_condemn",
+    "branch": "crit"
+   },
+   {
+    "id": "ct_ult",
+    "name": "絶影の境地",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "ct_form"
+    ],
+    "classes": [
+     "assassin",
+     "phantomSaint",
+     "berserker",
+     "bloodfiend",
+     "spellblade",
+     "poleEmperor"
+    ],
+    "mods": {
+     "critRate": 0.15,
+     "critDmg": 0.6
+    },
+    "flags": [
+     "critPierce",
+     "firstHitCrit"
+    ],
+    "branch": "crit"
+   }
+  ]
+ },
+ {
+  "id": "reflect",
+  "name": "反射の道",
+  "hue": 300,
+  "icon": "armor",
+  "desc": "受けた痛みを、そのまま返す。",
+  "nodes": [
+   {
+    "id": "rf_thorn",
+    "name": "棘皮",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "reflect": 0.1
+    },
+    "branch": "reflect"
+   },
+   {
+    "id": "rf_hard",
+    "name": "硬化",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "def": 20,
+     "dr": 0.04
+    },
+    "branch": "reflect"
+   },
+   {
+    "id": "rf_mirror",
+    "name": "鏡面",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "rf_thorn"
+    ],
+    "mods": {
+     "reflectPow": 0.3
+    },
+    "branch": "reflect"
+   },
+   {
+    "id": "rf_aura",
+    "name": "棘の霧",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "rf_hard"
+    ],
+    "flags": [
+     "thornAura"
+    ],
+    "branch": "reflect"
+   },
+   {
+    "id": "rf_vow",
+    "name": "返報の誓い",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "reflect": 0.2
+    },
+    "skill": "t_retribution",
+    "branch": "reflect"
+   },
+   {
+    "id": "rf_ult",
+    "name": "鏡獄の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "rf_vow"
+    ],
+    "classes": [
+     "guardian",
+     "mirrorEmperor"
+    ],
+    "mods": {
+     "reflect": 0.25
+    },
+    "flags": [
+     "reflectAll",
+     "healOnReflect"
+    ],
+    "branch": "reflect"
+   }
+  ]
+ },
+ {
+  "id": "aoe",
+  "name": "範囲の道",
+  "hue": 140,
+  "icon": "weapon",
+  "desc": "一点を面に変え、戦場ごと薙ぎ払う。",
+  "nodes": [
+   {
+    "id": "ao_spread",
+    "name": "拡散",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "aoeRatio": 0.12
+    },
+    "branch": "aoe"
+   },
+   {
+    "id": "ao_blast",
+    "name": "爆風",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "aoePower": 0.15
+    },
+    "branch": "aoe"
+   },
+   {
+    "id": "ao_chain",
+    "name": "連鎖",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "ao_spread"
+    ],
+    "flags": [
+     "overkillChain"
+    ],
+    "branch": "aoe"
+   },
+   {
+    "id": "ao_horde",
+    "name": "群狩り",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "ao_blast"
+    ],
+    "flags": [
+     "hordeSlayer"
+    ],
+    "branch": "aoe"
+   },
+   {
+    "id": "ao_storm",
+    "name": "嵐の型",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "aoeRatio": 0.2,
+     "aoePower": 0.25
+    },
+    "skill": "t_scatterstrike",
+    "branch": "aoe"
+   },
+   {
+    "id": "ao_ult",
+    "name": "天災の眼",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "ao_storm"
+    ],
+    "classes": [
+     "stormcaller",
+     "calamityKing"
+    ],
+    "mods": {
+     "aoePower": 0.35,
+     "aoeRatio": 0.25
+    },
+    "flags": [
+     "deathSpike"
+    ],
+    "branch": "aoe"
+   }
+  ]
+ },
+ {
+  "id": "elem",
+  "name": "属性の道",
+  "hue": 200,
+  "icon": "acc",
+  "desc": "六属性を操り、あらゆる耐性を無意味にする。",
+  "nodes": [
+   {
+    "id": "el_attune",
+    "name": "元素親和",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "el_fire": 0.05,
+     "el_ice": 0.05,
+     "el_thunder": 0.05,
+     "el_wind": 0.05,
+     "el_light": 0.05,
+     "el_dark": 0.05
+    },
+    "branch": "elem"
+   },
+   {
+    "id": "el_pierce",
+    "name": "貫通理論",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "pierce": 0.12
+    },
+    "branch": "elem"
+   },
+   {
+    "id": "el_hunt",
+    "name": "弱点狩り",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "el_attune"
+    ],
+    "flags": [
+     "weakHunter"
+    ],
+    "branch": "elem"
+   },
+   {
+    "id": "el_cycle",
+    "name": "循環詠唱",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "el_pierce"
+    ],
+    "flags": [
+     "elementCycle"
+    ],
+    "branch": "elem"
+   },
+   {
+    "id": "el_shift",
+    "name": "属性転変",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "el_fire": 0.1,
+     "el_ice": 0.1,
+     "el_thunder": 0.1,
+     "el_wind": 0.1,
+     "el_light": 0.1,
+     "el_dark": 0.1,
+     "pierce": 0.12
+    },
+    "skill": "t_elemshift",
+    "branch": "elem"
+   },
+   {
+    "id": "el_ult",
+    "name": "星辰の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "el_shift"
+    ],
+    "classes": [
+     "elementalist",
+     "astralArchmage",
+     "exorcist",
+     "finalArbiter",
+     "spellblade",
+     "poleEmperor"
+    ],
+    "mods": {
+     "el_fire": 0.15,
+     "el_ice": 0.15,
+     "el_thunder": 0.15,
+     "el_wind": 0.15,
+     "el_light": 0.15,
+     "el_dark": 0.15,
+     "pierce": 0.2
+    },
+    "flags": [
+     "guardBreak",
+     "doubleCast"
+    ],
+    "branch": "elem"
+   }
+  ]
+ },
+ {
+  "id": "item",
+  "name": "アイテムの道",
+  "hue": 30,
+  "icon": "item",
+  "desc": "消耗品を兵器に変え、しかも減らさない。",
+  "nodes": [
+   {
+    "id": "it_pouch",
+    "name": "薬袋",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "itemPower": 0.18
+    },
+    "branch": "item"
+   },
+   {
+    "id": "it_thrift",
+    "name": "倹約",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "itemKeep": 0.1
+    },
+    "branch": "item"
+   },
+   {
+    "id": "it_shield",
+    "name": "錬金の守り",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "it_pouch"
+    ],
+    "flags": [
+     "alchemyShield"
+    ],
+    "branch": "item"
+   },
+   {
+    "id": "it_echo",
+    "name": "共鳴",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "it_thrift"
+    ],
+    "flags": [
+     "itemEcho"
+    ],
+    "branch": "item"
+   },
+   {
+    "id": "it_brew",
+    "name": "即席調合",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "itemPower": 0.3
+    },
+    "skill": "t_quickbrew",
+    "branch": "item"
+   },
+   {
+    "id": "it_ult",
+    "name": "万象錬成",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "it_brew"
+    ],
+    "classes": [
+     "alchemist",
+     "alchemySovereign"
+    ],
+    "mods": {
+     "itemPower": 0.45,
+     "itemKeep": 0.2
+    },
+    "flags": [
+     "itemRefill"
+    ],
+    "branch": "item"
+   }
+  ]
+ },
+ {
+  "id": "guard",
+  "name": "堅守の道",
+  "hue": 210,
+  "icon": "armor",
+  "desc": "倒れないことは、それだけで勝ち筋になる。",
+  "nodes": [
+   {
+    "id": "gd_skin",
+    "name": "頑健",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "hp": 60,
+     "def": 12
+    },
+    "branch": "guard"
+   },
+   {
+    "id": "gd_ward",
+    "name": "魔除け",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "res": 20,
+     "dr": 0.04
+    },
+    "branch": "guard"
+   },
+   {
+    "id": "gd_stand",
+    "name": "背水",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "gd_skin"
+    ],
+    "flags": [
+     "lastStand"
+    ],
+    "branch": "guard"
+   },
+   {
+    "id": "gd_all",
+    "name": "万象の護り",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "gd_ward"
+    ],
+    "flags": [
+     "wardAll"
+    ],
+    "branch": "guard"
+   },
+   {
+    "id": "gd_wall",
+    "name": "不動の構え",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "defPct": 0.2,
+     "hpPct": 0.1
+    },
+    "skill": "t_immovable",
+    "branch": "guard"
+   },
+   {
+    "id": "gd_ult",
+    "name": "不壊の証明",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "gd_wall"
+    ],
+    "classes": [
+     "guardian",
+     "mirrorEmperor",
+     "finalArbiter"
+    ],
+    "mods": {
+     "dr": 0.12,
+     "hpPct": 0.15
+    },
+    "flags": [
+     "endure",
+     "barrierOnHit"
+    ],
+    "branch": "guard"
+   }
+  ]
+ },
+ {
+  "id": "speed",
+  "name": "速攻の道",
+  "hue": 170,
+  "icon": "acc",
+  "desc": "当たらなければ意味がなく、速ければ二度打てる。",
+  "nodes": [
+   {
+    "id": "sp_light",
+    "name": "軽身",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "spd": 12
+    },
+    "branch": "speed"
+   },
+   {
+    "id": "sp_dodge",
+    "name": "見切り",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "evade": 0.06
+    },
+    "branch": "speed"
+   },
+   {
+    "id": "sp_first",
+    "name": "先制",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "sp_light"
+    ],
+    "flags": [
+     "firstHitCrit"
+    ],
+    "branch": "speed"
+   },
+   {
+    "id": "sp_counter",
+    "name": "返し技",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "sp_dodge"
+    ],
+    "flags": [
+     "counterEvade"
+    ],
+    "branch": "speed"
+   },
+   {
+    "id": "sp_after",
+    "name": "残影",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "spd": 20,
+     "evade": 0.1
+    },
+    "skill": "t_afterimage",
+    "branch": "speed"
+   },
+   {
+    "id": "sp_ult",
+    "name": "神速の域",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "sp_after"
+    ],
+    "classes": [
+     "windrunner",
+     "skyrunner",
+     "assassin",
+     "phantomSaint",
+     "stormcaller",
+     "calamityKing"
+    ],
+    "mods": {
+     "spd": 25,
+     "evade": 0.12
+    },
+    "flags": [
+     "speedPower"
+    ],
+    "branch": "speed"
+   }
+  ]
+ },
+ {
+  "id": "life",
+  "name": "生命の道",
+  "hue": 350,
+  "icon": "item",
+  "desc": "奪い、溢れさせ、決して尽きさせない。",
+  "nodes": [
+   {
+    "id": "lf_vital",
+    "name": "活力",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "hpPct": 0.08
+    },
+    "branch": "life"
+   },
+   {
+    "id": "lf_drain",
+    "name": "吸血",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "lifesteal": 0.1
+    },
+    "branch": "life"
+   },
+   {
+    "id": "lf_feast",
+    "name": "喰らい取り",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "lf_drain"
+    ],
+    "flags": [
+     "killHeal"
+    ],
+    "branch": "life"
+   },
+   {
+    "id": "lf_over",
+    "name": "溢れる癒し",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "lf_vital"
+    ],
+    "flags": [
+     "overheal"
+    ],
+    "branch": "life"
+   },
+   {
+    "id": "lf_line",
+    "name": "生命線",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "hpPct": 0.12,
+     "lifesteal": 0.1
+    },
+    "skill": "t_lifeline",
+    "branch": "life"
+   },
+   {
+    "id": "lf_ult",
+    "name": "不死の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "lf_line"
+    ],
+    "classes": [
+     "berserker",
+     "bloodfiend",
+     "priest",
+     "exorcist",
+     "finalArbiter"
+    ],
+    "mods": {
+     "lifesteal": 0.2,
+     "hpPct": 0.15
+    },
+    "flags": [
+     "soulHarvest",
+     "lastStand"
+    ],
+    "branch": "life"
+   }
+  ]
+ },
+ {
+  "id": "hex",
+  "name": "呪詛の道",
+  "hue": 285,
+  "icon": "item",
+  "desc": "弱らせ、蝕み、崩れたところを刈り取る。",
+  "nodes": [
+   {
+    "id": "hx_venom",
+    "name": "毒手",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "el_dark": 0.1
+    },
+    "branch": "hex"
+   },
+   {
+    "id": "hx_weaken",
+    "name": "衰弱",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "pierce": 0.08,
+     "mag": 10
+    },
+    "branch": "hex"
+   },
+   {
+    "id": "hx_linger",
+    "name": "執拗",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "hx_venom"
+    ],
+    "flags": [
+     "lingering"
+    ],
+    "branch": "hex"
+   },
+   {
+    "id": "hx_spread",
+    "name": "伝染",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "hx_weaken"
+    ],
+    "flags": [
+     "spreadStatus"
+    ],
+    "branch": "hex"
+   },
+   {
+    "id": "hx_bloom",
+    "name": "呪いの華",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "el_dark": 0.15,
+     "pierce": 0.1
+    },
+    "flags": [
+     "statusDamage"
+    ],
+    "skill": "t_hexbloom",
+    "branch": "hex"
+   },
+   {
+    "id": "hx_ult",
+    "name": "疫災の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "hx_bloom"
+    ],
+    "classes": [
+     "hexer",
+     "plaguelord",
+     "exorcist",
+     "finalArbiter"
+    ],
+    "mods": {
+     "el_dark": 0.25,
+     "magPct": 0.15,
+     "pierce": 0.15
+    },
+    "flags": [
+     "statusOnHit",
+     "soulHarvest"
+    ],
+    "branch": "hex"
+   }
+  ]
+ }
+]

@@ -1,0 +1,1841 @@
+{
+ "swordsman": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "剛剣",
+    "desc": "真っ直ぐ強く振る",
+    "mods": {
+     "atkPct": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "堅陣",
+    "desc": "構えを崩さない",
+    "mods": {
+     "defPct": 0.18,
+     "dr": 0.05
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "連撃",
+    "desc": "手数で押す",
+    "mods": null,
+    "flags": [
+     "doubleStrike"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "必殺",
+    "desc": "一撃に賭ける",
+    "mods": {
+     "critRate": 0.1,
+     "critDmg": 0.3
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "疾駆",
+    "desc": "駆け抜けながら薙ぐ",
+    "mods": {
+     "spd": 20,
+     "aoeRatio": 0.15
+    },
+    "flags": null,
+    "skill": "whirlwind"
+   },
+   "b": {
+    "name": "不屈",
+    "desc": "倒れない体を作る",
+    "mods": {
+     "hpPct": 0.15
+    },
+    "flags": [
+     "endure"
+    ],
+    "skill": "provoke"
+   }
+  }
+ ],
+ "mage": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "集束",
+    "desc": "一点に威力を集める",
+    "mods": {
+     "magPct": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "拡散",
+    "desc": "広く撒く",
+    "mods": {
+     "aoeRatio": 0.18
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "循環詠唱",
+    "desc": "MPを絶やさない",
+    "mods": {
+     "mp": 30,
+     "mpRegen": 6
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "過剰詠唱",
+    "desc": "同じ呪文を二度紡ぐ",
+    "mods": null,
+    "flags": [
+     "doubleCast"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "元素支配",
+    "desc": "全属性を均等に高める",
+    "mods": {
+     "el_fire": 0.1,
+     "el_ice": 0.1,
+     "el_thunder": 0.1,
+     "el_wind": 0.1,
+     "el_light": 0.1,
+     "el_dark": 0.1
+    },
+    "flags": null,
+    "skill": "elementalBurst"
+   },
+   "b": {
+    "name": "貫通理論",
+    "desc": "耐性を理屈で突き崩す",
+    "mods": {
+     "pierce": 0.25
+    },
+    "flags": null,
+    "skill": "chainBolt"
+   }
+  }
+ ],
+ "rogue": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "隠密",
+    "desc": "見つからなければ当たらない",
+    "mods": {
+     "evade": 0.1,
+     "spd": 12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "強奪",
+    "desc": "実入りを最大化する",
+    "mods": {
+     "goldUp": 0.4,
+     "dropUp": 0.3,
+     "atk": 10
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "急所突き",
+    "desc": "会心を安定させる",
+    "mods": {
+     "critRate": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "毒刃",
+    "desc": "刃に毒を塗る",
+    "mods": null,
+    "flags": [
+     "statusOnHit"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "影分身",
+    "desc": "かわして斬り返す",
+    "mods": {
+     "evade": 0.08
+    },
+    "flags": [
+     "counterEvade"
+    ],
+    "skill": "thousandCuts"
+   },
+   "b": {
+    "name": "首狩り",
+    "desc": "弱った敵を逃さない",
+    "mods": null,
+    "flags": [
+     "executeLow"
+    ],
+    "skill": "executioner"
+   }
+  }
+ ],
+ "priest": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "加護",
+    "desc": "受けを固める",
+    "mods": {
+     "dr": 0.08,
+     "res": 20
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "祈祷",
+    "desc": "光の術を高める",
+    "mods": {
+     "magPct": 0.12,
+     "el_light": 0.12
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "慈雨",
+    "desc": "溢れた治癒を捨てない",
+    "mods": null,
+    "flags": [
+     "overheal"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "断罪",
+    "desc": "闇の術に手を伸ばす",
+    "mods": {
+     "el_dark": 0.18,
+     "lifesteal": 0.08
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "聖域",
+    "desc": "被弾を守りに変える",
+    "mods": {
+     "hpPct": 0.1
+    },
+    "flags": [
+     "barrierOnHit"
+    ],
+    "skill": "holyNova"
+   },
+   "b": {
+    "name": "献身",
+    "desc": "倒すたびに癒される",
+    "mods": {
+     "lifesteal": 0.12
+    },
+    "flags": [
+     "killHeal"
+    ],
+    "skill": "darkPact"
+   }
+  }
+ ],
+ "berserker": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "血の渇き",
+    "desc": "奪って戦う",
+    "mods": {
+     "lifesteal": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "剛力",
+    "desc": "純粋な腕力",
+    "mods": {
+     "atkPct": 0.18
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "死線",
+    "desc": "追い詰められて硬くなる",
+    "mods": null,
+    "flags": [
+     "lastStand"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "暴走",
+    "desc": "振り回すほど当たる",
+    "mods": {
+     "critRate": 0.12,
+     "critDmg": 0.4
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "喰らい尽くす",
+    "desc": "倒すほど強くなる",
+    "mods": null,
+    "flags": [
+     "killHeal",
+     "stackAtkOnKill"
+    ],
+    "skill": "shockwave"
+   },
+   "b": {
+    "name": "鬼力",
+    "desc": "速さも力に変える",
+    "mods": {
+     "atkPct": 0.22,
+     "spd": 10
+    },
+    "flags": null,
+    "skill": "executioner"
+   }
+  }
+ ],
+ "assassin": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "精密",
+    "desc": "会心率を底上げする",
+    "mods": {
+     "critRate": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "疾影",
+    "desc": "速さで先を取る",
+    "mods": {
+     "spd": 18,
+     "evade": 0.08
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "追撃",
+    "desc": "会心が会心を呼ぶ",
+    "mods": null,
+    "flags": [
+     "critChain"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "処刑",
+    "desc": "瀕死を確実に刈る",
+    "mods": null,
+    "flags": [
+     "executeLow"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "無音",
+    "desc": "最初の一撃を必殺にする",
+    "mods": {
+     "critDmg": 0.4
+    },
+    "flags": [
+     "firstHitCrit"
+    ],
+    "skill": "galeFlurry"
+   },
+   "b": {
+    "name": "毒刃",
+    "desc": "斬るたび毒を残す",
+    "mods": {
+     "el_dark": 0.15
+    },
+    "flags": [
+     "statusOnHit"
+    ],
+    "skill": "plague"
+   }
+  }
+ ],
+ "elementalist": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "灼雷",
+    "desc": "炎と雷を極める",
+    "mods": {
+     "el_fire": 0.18,
+     "el_thunder": 0.18
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "氷嵐",
+    "desc": "氷と風を極める",
+    "mods": {
+     "el_ice": 0.18,
+     "el_wind": 0.18
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "弱点看破",
+    "desc": "弱点をさらに深く抉る",
+    "mods": null,
+    "flags": [
+     "weakHunter"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "耐性破壊",
+    "desc": "耐性という前提を壊す",
+    "mods": {
+     "pierce": 0.15
+    },
+    "flags": [
+     "guardBreak"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "元素循環",
+    "desc": "通常攻撃すら属性にする",
+    "mods": null,
+    "flags": [
+     "elementCycle"
+    ],
+    "skill": "meteor"
+   },
+   "b": {
+    "name": "大魔法",
+    "desc": "広く重く撃つ",
+    "mods": {
+     "magPct": 0.2,
+     "aoePower": 0.2
+    },
+    "flags": null,
+    "skill": "blizzard"
+   }
+  }
+ ],
+ "guardian": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "鉄壁",
+    "desc": "硬さを積む",
+    "mods": {
+     "defPct": 0.2
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "棘壁",
+    "desc": "硬さを刃に変える",
+    "mods": {
+     "reflect": 0.15
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "反射増幅",
+    "desc": "返す威力を上げる",
+    "mods": {
+     "reflectPow": 0.35
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "万象軽減",
+    "desc": "あらゆる一撃を薄める",
+    "mods": null,
+    "flags": [
+     "wardAll"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "鏡面拡散",
+    "desc": "反射を全体に及ぼす",
+    "mods": null,
+    "flags": [
+     "reflectAll"
+    ],
+    "skill": "mirrorField"
+   },
+   "b": {
+    "name": "不落",
+    "desc": "決して落ちない",
+    "mods": {
+     "hpPct": 0.15
+    },
+    "flags": [
+     "endure"
+    ],
+    "skill": "ironWall"
+   }
+  }
+ ],
+ "stormcaller": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "拡散",
+    "desc": "単体技も面にする",
+    "mods": {
+     "aoeRatio": 0.2
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "爆風",
+    "desc": "範囲技の威力を上げる",
+    "mods": {
+     "aoePower": 0.25
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "連鎖",
+    "desc": "余剰ダメージを流す",
+    "mods": null,
+    "flags": [
+     "overkillChain"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "群狩り",
+    "desc": "数が多いほど強い",
+    "mods": null,
+    "flags": [
+     "hordeSlayer"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "天災",
+    "desc": "倒れた敵が次を巻き込む",
+    "mods": null,
+    "flags": [
+     "deathSpike"
+    ],
+    "skill": "meteor"
+   },
+   "b": {
+    "name": "疾風",
+    "desc": "速く、風を強く",
+    "mods": {
+     "spd": 22,
+     "el_wind": 0.2
+    },
+    "flags": null,
+    "skill": "galeFlurry"
+   }
+  }
+ ],
+ "alchemist": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "増量",
+    "desc": "アイテムの威力を上げる",
+    "mods": {
+     "itemPower": 0.3
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "倹約",
+    "desc": "アイテムを減らさない",
+    "mods": {
+     "itemKeep": 0.2
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "共鳴",
+    "desc": "効果が二度出ることがある",
+    "mods": null,
+    "flags": [
+     "itemEcho"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "開幕調合",
+    "desc": "戦闘開始時に補充する",
+    "mods": null,
+    "flags": [
+     "itemRefill"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "触媒装甲",
+    "desc": "開幕からバリアを張る",
+    "mods": {
+     "dr": 0.08
+    },
+    "flags": [
+     "alchemyShield"
+    ],
+    "skill": "panacea"
+   },
+   "b": {
+    "name": "劇薬",
+    "desc": "当てるたびに蝕む",
+    "mods": {
+     "el_dark": 0.18
+    },
+    "flags": [
+     "statusOnHit"
+    ],
+    "skill": "acidFlask"
+   }
+  }
+ ],
+ "exorcist": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "聖光",
+    "desc": "光を伸ばす",
+    "mods": {
+     "el_light": 0.22
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "冥闇",
+    "desc": "闇を伸ばす",
+    "mods": {
+     "el_dark": 0.22
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "浄化",
+    "desc": "癒しを守りに変える",
+    "mods": {
+     "dr": 0.06
+    },
+    "flags": [
+     "overheal"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "呪縛",
+    "desc": "蝕まれた敵に強く出る",
+    "mods": null,
+    "flags": [
+     "statusDamage"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "二極",
+    "desc": "光と闇を同時に高める",
+    "mods": {
+     "el_light": 0.18,
+     "el_dark": 0.18,
+     "pierce": 0.12
+    },
+    "flags": null,
+    "skill": "judgement"
+   },
+   "b": {
+    "name": "収穫",
+    "desc": "倒すたびに満たされる",
+    "mods": null,
+    "flags": [
+     "soulHarvest",
+     "killHeal"
+    ],
+    "skill": "hexMist"
+   }
+  }
+ ],
+ "windrunner": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "軽業",
+    "desc": "避けることを選ぶ",
+    "mods": {
+     "evade": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "韋駄",
+    "desc": "速さを選ぶ",
+    "mods": {
+     "spd": 24
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "先手",
+    "desc": "最初の一撃を必殺に",
+    "mods": null,
+    "flags": [
+     "firstHitCrit"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "返し",
+    "desc": "かわしざまに斬る",
+    "mods": null,
+    "flags": [
+     "counterEvade"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "縮地",
+    "desc": "速さがそのまま威力になる",
+    "mods": null,
+    "flags": [
+     "speedPower"
+    ],
+    "skill": "thousandCuts"
+   },
+   "b": {
+    "name": "幻影",
+    "desc": "追い詰められるほど捉えられない",
+    "mods": {
+     "evade": 0.15
+    },
+    "flags": [
+     "lastStand"
+    ],
+    "skill": "shadowStep"
+   }
+  }
+ ],
+ "hexer": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "猛毒",
+    "desc": "闇の術を強める",
+    "mods": {
+     "el_dark": 0.18
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "衰弱",
+    "desc": "耐性を削り取る",
+    "mods": {
+     "pierce": 0.18
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "執拗",
+    "desc": "状態異常が長く残る",
+    "mods": null,
+    "flags": [
+     "lingering"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "伝染",
+    "desc": "状態異常が周囲に移る",
+    "mods": null,
+    "flags": [
+     "spreadStatus"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "蝕み",
+    "desc": "弱った敵ほど深く斬れる",
+    "mods": {
+     "magPct": 0.12
+    },
+    "flags": [
+     "statusDamage"
+    ],
+    "skill": "curseBurst"
+   },
+   "b": {
+    "name": "撒種",
+    "desc": "殴るだけで呪いが乗る",
+    "mods": null,
+    "flags": [
+     "statusOnHit"
+    ],
+    "skill": "gravityWell"
+   }
+  }
+ ],
+ "spellblade": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "剣気",
+    "desc": "剣を選ぶ",
+    "mods": {
+     "atkPct": 0.15
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "魔気",
+    "desc": "魔を選ぶ",
+    "mods": {
+     "magPct": 0.15
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "炎剣",
+    "desc": "弱点を焼き抜く",
+    "mods": {
+     "el_fire": 0.22
+    },
+    "flags": [
+     "weakHunter"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "雷剣",
+    "desc": "痺れさせて封じる",
+    "mods": {
+     "el_thunder": 0.22
+    },
+    "flags": [
+     "shockOnThunder"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "双極",
+    "desc": "両極を均等に伸ばす",
+    "mods": {
+     "atkPct": 0.12,
+     "magPct": 0.12,
+     "critRate": 0.1
+    },
+    "flags": null,
+    "skill": "dualPole"
+   },
+   "b": {
+    "name": "魔力刃",
+    "desc": "残り魔力が威力になる",
+    "mods": {
+     "mp": 40
+    },
+    "flags": [
+     "manaPower"
+    ],
+    "skill": "elementalBurst"
+   }
+  }
+ ],
+ "phantomSaint": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "断罪",
+    "desc": "会心の重さを増す",
+    "mods": {
+     "critDmg": 0.5
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "影走",
+    "desc": "速さと回避を得る",
+    "mods": {
+     "spd": 25,
+     "evade": 0.1
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "連鎖斬",
+    "desc": "会心が追撃を呼ぶ",
+    "mods": null,
+    "flags": [
+     "critChain"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "一閃",
+    "desc": "会心率そのものを上げる",
+    "mods": {
+     "critRate": 0.15
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "無明",
+    "desc": "初撃必殺かつ二分割",
+    "mods": null,
+    "flags": [
+     "firstHitCrit",
+     "doubleStrike"
+    ],
+    "skill": "t_condemn"
+   },
+   "b": {
+    "name": "死告",
+    "desc": "瀕死と強敵に強く出る",
+    "mods": null,
+    "flags": [
+     "executeLow",
+     "bossSlayer"
+    ],
+    "skill": "executioner"
+   }
+  }
+ ],
+ "mirrorEmperor": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "増幅",
+    "desc": "返す威力を上げる",
+    "mods": {
+     "reflectPow": 0.4
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "堅牢",
+    "desc": "土台を厚くする",
+    "mods": {
+     "defPct": 0.25,
+     "hpPct": 0.1
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "棘霧",
+    "desc": "毎ラウンド棘を撒く",
+    "mods": null,
+    "flags": [
+     "thornAura"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "反照",
+    "desc": "反射率そのものを上げる",
+    "mods": {
+     "reflect": 0.2
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "万象",
+    "desc": "あらゆる被弾を薄める",
+    "mods": {
+     "dr": 0.1
+    },
+    "flags": [
+     "wardAll"
+    ],
+    "skill": "t_retribution"
+   },
+   "b": {
+    "name": "破鏡",
+    "desc": "砕けた敵が次を巻き込む",
+    "mods": {
+     "aoePower": 0.25
+    },
+    "flags": [
+     "deathSpike"
+    ],
+    "skill": "ult_mirrorEnd"
+   }
+  }
+ ],
+ "calamityKing": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "暴風",
+    "desc": "範囲威力を上げる",
+    "mods": {
+     "aoePower": 0.3
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "波及",
+    "desc": "波及率を上げる",
+    "mods": {
+     "aoeRatio": 0.25
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "連鎖崩壊",
+    "desc": "撃破が連鎖する",
+    "mods": null,
+    "flags": [
+     "overkillChain",
+     "deathSpike"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "数の暴力",
+    "desc": "囲まれるほど強い",
+    "mods": {
+     "atkPct": 0.12
+    },
+    "flags": [
+     "hordeSlayer"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "天雷",
+    "desc": "雷で薙ぎ払う",
+    "mods": {
+     "el_thunder": 0.3
+    },
+    "flags": [
+     "shockOnThunder"
+    ],
+    "skill": "chainBolt"
+   },
+   "b": {
+    "name": "極風",
+    "desc": "風を極める",
+    "mods": {
+     "el_wind": 0.3,
+     "spd": 20
+    },
+    "flags": null,
+    "skill": "t_scatterstrike"
+   }
+  }
+ ],
+ "astralArchmage": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "星輝",
+    "desc": "全属性を伸ばす",
+    "mods": {
+     "el_fire": 0.1,
+     "el_ice": 0.1,
+     "el_thunder": 0.1,
+     "el_wind": 0.1,
+     "el_light": 0.1,
+     "el_dark": 0.1
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "貫星",
+    "desc": "耐性貫通を伸ばす",
+    "mods": {
+     "pierce": 0.25
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "二重詠唱",
+    "desc": "魔法が二度発動する",
+    "mods": null,
+    "flags": [
+     "doubleCast"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "元素循環",
+    "desc": "通常攻撃も属性になる",
+    "mods": null,
+    "flags": [
+     "elementCycle"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "星辰爆",
+    "desc": "広く重く撃つ",
+    "mods": {
+     "magPct": 0.22,
+     "aoePower": 0.25
+    },
+    "flags": null,
+    "skill": "meteor"
+   },
+   "b": {
+    "name": "看破",
+    "desc": "弱点も耐性も意味を成さない",
+    "mods": null,
+    "flags": [
+     "weakHunter",
+     "guardBreak"
+    ],
+    "skill": "t_elemshift"
+   }
+  }
+ ],
+ "alchemySovereign": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "極量",
+    "desc": "アイテム威力を極める",
+    "mods": {
+     "itemPower": 0.5
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "永続",
+    "desc": "在庫を減らさない",
+    "mods": {
+     "itemKeep": 0.25
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "二重反応",
+    "desc": "効果が二度出る",
+    "mods": null,
+    "flags": [
+     "itemEcho"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "万象補充",
+    "desc": "開幕に補充と守りを得る",
+    "mods": null,
+    "flags": [
+     "itemRefill",
+     "alchemyShield"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "劇薬散布",
+    "desc": "呪いを撒き散らす",
+    "mods": null,
+    "flags": [
+     "statusOnHit",
+     "spreadStatus"
+    ],
+    "skill": "curseBurst"
+   },
+   "b": {
+    "name": "黄金律",
+    "desc": "実入りごと威力に変える",
+    "mods": {
+     "goldUp": 0.8,
+     "dropUp": 0.5,
+     "itemPower": 0.25
+    },
+    "flags": null,
+    "skill": "t_quickbrew"
+   }
+  }
+ ],
+ "bloodfiend": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "渇望",
+    "desc": "吸収を伸ばす",
+    "mods": {
+     "lifesteal": 0.18
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "剛腕",
+    "desc": "攻撃力を伸ばす",
+    "mods": {
+     "atkPct": 0.2
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "喰らい取り",
+    "desc": "倒すたびに満ちる",
+    "mods": null,
+    "flags": [
+     "killHeal",
+     "soulHarvest"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "死線",
+    "desc": "追い詰められて硬くなる",
+    "mods": {
+     "hpPct": 0.12
+    },
+    "flags": [
+     "lastStand"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "累積",
+    "desc": "倒すほど攻撃が積み上がる",
+    "mods": {
+     "atkPct": 0.1
+    },
+    "flags": [
+     "stackAtkOnKill"
+    ],
+    "skill": "ult_devourFang"
+   },
+   "b": {
+    "name": "鬼哭",
+    "desc": "瀕死を確実に葬る",
+    "mods": {
+     "critDmg": 0.4
+    },
+    "flags": [
+     "executeLow"
+    ],
+    "skill": "t_lifeline"
+   }
+  }
+ ],
+ "finalArbiter": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "光審",
+    "desc": "光を極める",
+    "mods": {
+     "el_light": 0.28
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "闇断",
+    "desc": "闇を極める",
+    "mods": {
+     "el_dark": 0.28
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "護法",
+    "desc": "被弾を薄める",
+    "mods": {
+     "dr": 0.08
+    },
+    "flags": [
+     "wardAll"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "呪罰",
+    "desc": "蝕んだ敵を裁く",
+    "mods": null,
+    "flags": [
+     "statusDamage",
+     "lingering"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "審判",
+    "desc": "威力と貫通を伸ばす",
+    "mods": {
+     "magPct": 0.2,
+     "pierce": 0.18
+    },
+    "flags": null,
+    "skill": "ult_lastJudgement"
+   },
+   "b": {
+    "name": "慈悲",
+    "desc": "癒しを守りと力に変える",
+    "mods": {
+     "lifesteal": 0.12
+    },
+    "flags": [
+     "overheal",
+     "killHeal"
+    ],
+    "skill": "t_immovable"
+   }
+  }
+ ],
+ "voidSovereign": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "虚無侵食",
+    "desc": "攻めに寄せる",
+    "mods": {
+     "atkPct": 0.12,
+     "magPct": 0.12
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "虚無防壁",
+    "desc": "守りに寄せる",
+    "mods": {
+     "defPct": 0.15,
+     "dr": 0.08
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "深淵",
+    "desc": "貫通と属性を伸ばす",
+    "mods": {
+     "el_fire": 0.08,
+     "el_ice": 0.08,
+     "el_thunder": 0.08,
+     "el_wind": 0.08,
+     "el_light": 0.08,
+     "el_dark": 0.08,
+     "pierce": 0.25
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "崩壊",
+    "desc": "撃破が周囲を巻き込む",
+    "mods": {
+     "aoePower": 0.25
+    },
+    "flags": [
+     "deathSpike"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "支配",
+    "desc": "耐性も状態異常も思うまま",
+    "mods": null,
+    "flags": [
+     "guardBreak",
+     "statusOnHit"
+    ],
+    "skill": "ult_voidCollapse"
+   },
+   "b": {
+    "name": "終焉",
+    "desc": "会心で全てを断つ",
+    "mods": {
+     "critRate": 0.15,
+     "critDmg": 0.5
+    },
+    "flags": [
+     "critChain"
+    ],
+    "skill": "t_condemn"
+   }
+  }
+ ],
+ "skyrunner": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "神速",
+    "desc": "速さを極める",
+    "mods": {
+     "spd": 30
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "幻影",
+    "desc": "回避を極める",
+    "mods": {
+     "evade": 0.18
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "千影",
+    "desc": "通常攻撃が二分割される",
+    "mods": null,
+    "flags": [
+     "doubleStrike"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "迎撃",
+    "desc": "避けて斬り、先手も取る",
+    "mods": null,
+    "flags": [
+     "counterEvade",
+     "firstHitCrit"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "速度支配",
+    "desc": "速さがそのまま威力になる",
+    "mods": {
+     "spd": 15
+    },
+    "flags": [
+     "speedPower"
+    ],
+    "skill": "ult_thousandShadow"
+   },
+   "b": {
+    "name": "空蝉",
+    "desc": "追い詰められるほど捉えられない",
+    "mods": {
+     "evade": 0.12,
+     "dr": 0.08
+    },
+    "flags": [
+     "lastStand"
+    ],
+    "skill": "t_afterimage"
+   }
+  }
+ ],
+ "plaguelord": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "疫毒",
+    "desc": "闇を極める",
+    "mods": {
+     "el_dark": 0.28
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "蝕み",
+    "desc": "貫通を極める",
+    "mods": {
+     "pierce": 0.25
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "蔓延",
+    "desc": "長く、広く効かせる",
+    "mods": null,
+    "flags": [
+     "spreadStatus",
+     "lingering"
+    ],
+    "skill": null
+   },
+   "b": {
+    "name": "撒種",
+    "desc": "殴るだけで呪う",
+    "mods": {
+     "magPct": 0.12
+    },
+    "flags": [
+     "statusOnHit"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "災禍",
+    "desc": "蝕んだ敵に致命を与える",
+    "mods": {
+     "magPct": 0.18
+    },
+    "flags": [
+     "statusDamage"
+    ],
+    "skill": "ult_pandemic"
+   },
+   "b": {
+    "name": "収穫",
+    "desc": "倒すたびに満ちる",
+    "mods": {
+     "lifesteal": 0.15
+    },
+    "flags": [
+     "soulHarvest",
+     "killHeal"
+    ],
+    "skill": "t_hexbloom"
+   }
+  }
+ ],
+ "poleEmperor": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "剣極",
+    "desc": "物理に寄せる",
+    "mods": {
+     "atkPct": 0.2
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "魔極",
+    "desc": "魔法に寄せる",
+    "mods": {
+     "magPct": 0.2
+    },
+    "flags": null,
+    "skill": null
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "双極斬",
+    "desc": "会心を伸ばす",
+    "mods": {
+     "critRate": 0.12,
+     "critDmg": 0.35
+    },
+    "flags": null,
+    "skill": null
+   },
+   "b": {
+    "name": "魔力刃",
+    "desc": "残り魔力が威力になる",
+    "mods": {
+     "mp": 50
+    },
+    "flags": [
+     "manaPower"
+    ],
+    "skill": null
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "万能",
+    "desc": "全属性と貫通を得る",
+    "mods": {
+     "el_fire": 0.12,
+     "el_ice": 0.12,
+     "el_thunder": 0.12,
+     "el_wind": 0.12,
+     "el_light": 0.12,
+     "el_dark": 0.12,
+     "pierce": 0.15
+    },
+    "flags": null,
+    "skill": "ult_duality"
+   },
+   "b": {
+    "name": "覇断",
+    "desc": "強敵と瀕死に極端に強い",
+    "mods": {
+     "critDmg": 0.3
+    },
+    "flags": [
+     "bossSlayer",
+     "executeLow"
+    ],
+    "skill": "t_condemn"
+   }
+  }
+ ]
+}

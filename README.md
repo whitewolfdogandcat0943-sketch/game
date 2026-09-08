@@ -210,6 +210,26 @@ dataURL としてキャッシュしています。
 
 ---
 
+## Godot版（2Dアクション化）
+
+`godot/` に、同じビルドシステムを **2Dアクション**として作り直すための土台があります。
+現状はアリーナ1面の縦切りで、ビルドの数値が操作と手応えに反映されることを確認する段階です。
+遊び方と現状は `godot/README.md` を参照してください。
+
+**データは二重管理しません。** Web版の `js/data/*.js` を唯一の出どころとして、
+JSONとPNGを自動生成しています。
+
+```bash
+node tools/export-data.js         # データ  -> godot/data/*.json（9本）
+node tools/export-sprites.js      # ドット絵 -> godot/assets/sprites/*.png（241枚）
+node tools/validate-godot-data.js # Godot側が読むキーが揃っているかを検証
+```
+
+手続き生成しているドット絵が16×16であることが効いていて、
+そのままGodotのテクスチャとして書き出せています（Web版と完全に同じ絵）。
+
+---
+
 ## ファイル構成
 
 ```
@@ -235,6 +255,8 @@ js/gfx/fx.js          戦闘演出（ダメージ数字・フラッシュ）と�
 js/ui/ui.js           描画ヘルパー（カード・バー・ステータス表）
 js/ui/screens.js      各画面の描画
 js/main.js            状態管理と画面遷移
+tools/                Godot版へのデータ・アセット書き出しと検証
+godot/                Godot 4 プロジェクト（2Dアクション版の土台）
 ```
 
 ### バランス設計メモ

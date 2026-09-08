@@ -85,21 +85,21 @@
   m({ id: 'y_eye', name: '断罪の魔眼', tier: 4, price: 0,
       mods: { critRate: 0.30, critDmg: 1.20 }, flags: ['critPierce'],
       desc: '全てを裁く眼。急所だけが見える。',
-      cond: { when: 'battleEnd', label: '1回の戦闘で会心を8回連続で発生させて勝利する',
+      cond: { when: 'battleEnd', code: 'crit_streak', v: 8, label: '1回の戦闘で会心を8回連続で発生させて勝利する',
               hint: '会心率を上げ、多段攻撃で連続会心を狙え',
               test: function (c) { return c.b.critStreakMax >= 8; } } });
 
   m({ id: 'y_mirrorcore', name: '鏡獄の心核', tier: 4, price: 0,
       mods: { reflect: 0.50, reflectPow: 0.45, dr: 0.10 }, flags: ['reflectAll', 'healOnReflect'],
       desc: '無数の鏡が閉じ込められた核。攻撃という概念を反転させる。',
-      cond: { when: 'battleEnd', label: '1回の戦闘で反射ダメージだけで敵を3体撃破する',
+      cond: { when: 'battleEnd', code: 'reflect_kills', v: 3, label: '1回の戦闘で反射ダメージだけで敵を3体撃破する',
               hint: '反射率を高めて殴られながら勝て',
               test: function (c) { return c.b.reflectKills >= 3; } } });
 
   m({ id: 'y_annihilorder', name: '殲滅の号令', tier: 4, price: 0,
       mods: { aoePower: 0.70, aoeRatio: 0.60 }, flags: ['overkillChain'],
       desc: '一声で戦場を薙ぎ払う号令。',
-      cond: { when: 'battleEnd', label: '1回の攻撃で敵を4体同時に撃破する',
+      cond: { when: 'battleEnd', code: 'multi_kill', v: 4, label: '1回の攻撃で敵を4体同時に撃破する',
               hint: '全体攻撃と範囲威力を積み上げろ',
               test: function (c) { return c.b.maxMultiKill >= 4; } } });
 
@@ -107,35 +107,35 @@
       mods: { 'el_fire': 0.25, 'el_ice': 0.25, 'el_thunder': 0.25, 'el_wind': 0.25, 'el_light': 0.25, 'el_dark': 0.25, pierce: 0.40 },
       flags: ['guardBreak'],
       desc: '星々の巡りを閉じ込めた輪。あらゆる耐性が意味を失う。',
-      cond: { when: 'battleEnd', label: '1回の戦闘で6属性すべてのダメージを与えて勝利する',
+      cond: { when: 'battleEnd', code: 'all_elements', label: '1回の戦闘で6属性すべてのダメージを与えて勝利する',
               hint: '属性武器・属性スキル・属性アイテムを組み合わせよ',
               test: function (c) { return G.MAGIC_ELEMENTS.every(function (e) { return c.b.elementsUsed[e]; }); } } });
 
   m({ id: 'y_flask', name: '賢者の万能瓶', tier: 4, price: 0,
       mods: { itemPower: 1.20, itemKeep: 0.30 }, flags: ['itemRefill', 'itemEcho'],
       desc: '中身が減らない賢者の瓶。',
-      cond: { when: 'battleEnd', label: '1回の戦闘でアイテムを6回使用して勝利する',
+      cond: { when: 'battleEnd', code: 'items_used', v: 6, label: '1回の戦闘でアイテムを6回使用して勝利する',
               hint: 'アイテムを溜め込んで一戦で使い切れ',
               test: function (c) { return c.b.itemsUsed >= 6; } } });
 
   m({ id: 'y_unbroken', name: '不屈の刻印', tier: 4, price: 0,
       mods: { hpPct: 0.30, atkPct: 0.10 }, flags: ['endure', 'lowHpRage'],
       desc: '折れなかった者だけに現れる刻印。',
-      cond: { when: 'battleEnd', label: '残りHP5%以下の状態で戦闘に勝利する',
+      cond: { when: 'battleEnd', code: 'low_hp_win', v: 0.05, label: '残りHP5%以下の状態で戦闘に勝利する',
               hint: '瀕死のまま勝ち切れ',
               test: function (c) { return c.hero.hp > 0 && c.hero.hp <= Math.max(1, Math.floor(c.S.maxHp * 0.05)); } } });
 
   m({ id: 'y_pristine', name: '無傷の証', tier: 4, price: 0,
       mods: { dr: 0.20, hpPct: 0.10 }, flags: ['pristine'],
       desc: '一度も触れられなかった証。',
-      cond: { when: 'battleEnd', label: 'ボスを一度もダメージを受けずに撃破する',
+      cond: { when: 'battleEnd', code: 'boss_no_damage', label: 'ボスを一度もダメージを受けずに撃破する',
               hint: '先手必勝、あるいは完全回避',
               test: function (c) { return c.b.isBoss && c.b.damageTaken <= 0; } } });
 
   m({ id: 'y_voidshard', name: '虚無の欠片', tier: 4, price: 0,
       mods: { atkPct: 0.12, magPct: 0.12, defPct: 0.12, hpPct: 0.12, spd: 10 }, flags: ['mythicScaling'],
       desc: '何もない場所から拾い上げた欠片。',
-      cond: { when: 'progress', label: '第20階層に到達する',
+      cond: { when: 'progress', code: 'floor', v: 20, label: '第20階層に到達する',
               hint: '深く潜れ',
               test: function (c) { return c.run.floor >= 20; } } });
 
@@ -260,63 +260,63 @@
   m({ id: 'y_flashmoment', name: '電光石火の刻', tier: 4, price: 0,
       mods: { spd: 40, critRate: 0.10 }, flags: ['firstHitCrit', 'speedPower'],
       desc: '素早さ+40。素早さの40%が攻撃力になり、各戦闘の初撃は必ず会心。',
-      cond: { when: 'battleEnd', label: '2ターン以内に戦闘に勝利する',
+      cond: { when: 'battleEnd', code: 'fast_win', v: 2, label: '2ターン以内に戦闘に勝利する',
               hint: '先制と火力を極めて一瞬で終わらせろ',
               test: function (c) { return c.b.turns <= 2 && c.b.kills >= 2; } } });
 
   m({ id: 'y_emptymind', name: '無心の数珠', tier: 4, price: 0,
       mods: { mp: 70, mpRegen: 12, magPct: 0.25 }, flags: ['manaPower'],
       desc: 'MP+70／毎ターン12回復。残りMPの割合に応じて与ダメージ最大+30%。',
-      cond: { when: 'battleEnd', label: 'MPを一切消費せずに戦闘に勝利する',
+      cond: { when: 'battleEnd', code: 'no_mp', v: 2, label: 'MPを一切消費せずに戦闘に勝利する',
               hint: '通常攻撃・防御・アイテムだけで勝て',
               test: function (c) { return c.b.mpSpent === 0 && c.b.kills >= 2; } } });
 
   m({ id: 'y_barehand', name: '徒手空拳の証', tier: 4, price: 0,
       mods: { atkPct: 0.35, critDmg: 0.40 }, flags: ['doubleStrike'],
       desc: '物理攻撃+35%／会心ダメージ+40%。通常攻撃が2回に分裂する。',
-      cond: { when: 'battleEnd', label: '通常攻撃と防御だけで戦闘に勝利する',
+      cond: { when: 'battleEnd', code: 'basic_only', v: 3, label: '通常攻撃と防御だけで戦闘に勝利する',
               hint: 'スキルを一切使わず3体以上倒せ',
               test: function (c) { return c.b.onlyBasic && c.b.kills >= 3; } } });
 
   m({ id: 'y_plaguetalisman', name: '万病の呪符', tier: 4, price: 0,
       mods: { 'el_dark': 0.30, pierce: 0.20 }, flags: ['spreadStatus', 'statusDamage'],
       desc: '闇+30%。状態異常が周囲に伝播し、状態異常の敵への与ダメージ+35%。',
-      cond: { when: 'battleEnd', label: '1体の敵に4種類の状態異常を同時に付与する',
+      cond: { when: 'battleEnd', code: 'status_peak', v: 4, label: '1体の敵に4種類の状態異常を同時に付与する',
               hint: '火傷・毒・凍結・麻痺を1体へ',
               test: function (c) { return c.b.statusPeak >= 4; } } });
 
   m({ id: 'y_grimoire', name: '万技の書', tier: 4, price: 0,
       mods: { atkPct: 0.20, magPct: 0.20, mp: 60 }, flags: ['doubleCast'],
       desc: '物理・魔法攻撃+20%／MP+60。魔法スキルが2回発動する。',
-      cond: { when: 'battleEnd', label: '1回の戦闘で7種類以上のスキルを使って勝利する',
+      cond: { when: 'battleEnd', code: 'skill_kinds', v: 7, label: '1回の戦闘で7種類以上のスキルを使って勝利する',
               hint: '手数の多い職ほど狙いやすい',
               test: function (c) { return c.b.skillKinds >= 7; } } });
 
   m({ id: 'y_absolutebarrier', name: '絶対障壁の核', tier: 4, price: 0,
       mods: { dr: 0.12, res: 40 }, flags: ['alchemyShield', 'overheal', 'barrierOnHit'],
       desc: '開幕バリア／回復の超過分がバリアに／被弾時にもバリア。被ダメ-12%。',
-      cond: { when: 'battleEnd', label: 'バリアで最大HP以上のダメージを吸収して勝利する',
+      cond: { when: 'battleEnd', code: 'barrier_absorb', v: 1, label: 'バリアで最大HP以上のダメージを吸収して勝利する',
               hint: '聖障壁や錬金の守りを重ねろ',
               test: function (c) { return c.b.barrierAbsorbed >= c.S.maxHp; } } });
 
   m({ id: 'y_phantommask', name: '幻影の面', tier: 4, price: 0,
       mods: { evade: 0.28, spd: 26 }, flags: ['counterEvade'],
       desc: '回避率+28%／素早さ+26。回避したとき必ず反撃する。',
-      cond: { when: 'battleEnd', label: '敵の攻撃を5回連続で回避する',
+      cond: { when: 'battleEnd', code: 'evade_streak', v: 5, label: '敵の攻撃を5回連続で回避する',
               hint: '回避率を積み上げて避け続けろ',
               test: function (c) { return c.b.evadeStreakMax >= 5; } } });
 
   m({ id: 'y_instantblade', name: '瞬滅の刃', tier: 4, price: 0,
       mods: { critDmg: 0.70, atkPct: 0.15 }, flags: ['executeLow', 'bossSlayer'],
       desc: '会心ダメージ+70%。瀕死の敵へ+60%、ボスへ+25%の与ダメージ。',
-      cond: { when: 'battleEnd', label: 'ボスを1ターンで撃破する',
+      cond: { when: 'battleEnd', code: 'boss_fast', v: 1, label: 'ボスを1ターンで撃破する',
               hint: '開幕の一撃に全てを乗せろ',
               test: function (c) { return c.b.isBoss && c.b.turns <= 1; } } });
 
   m({ id: 'y_immortalspring', name: '不死の泉', tier: 4, price: 0,
       mods: { lifesteal: 0.25, hpPct: 0.15 }, flags: ['overheal', 'killHeal'],
       desc: '吸収+25%／最大HP+15%。撃破時に回復し、超過分はバリアになる。',
-      cond: { when: 'battleEnd', label: '1回の戦闘で最大HPの2倍を回復して勝利する',
+      cond: { when: 'battleEnd', code: 'heal_total', v: 2, label: '1回の戦闘で最大HPの2倍を回復して勝利する',
               hint: '削られながら癒し続けろ',
               test: function (c) { return c.b.healed >= c.S.maxHp * 2; } } });
 
@@ -324,47 +324,47 @@
       mods: { pierce: 0.45, 'el_fire': 0.12, 'el_ice': 0.12, 'el_thunder': 0.12, 'el_wind': 0.12, 'el_light': 0.12, 'el_dark': 0.12 },
       flags: ['weakHunter'],
       desc: '耐性貫通+45%／全属性+12%。弱点を突いたときの与ダメージがさらに+30%。',
-      cond: { when: 'battleEnd', label: '撃破した敵をすべて弱点属性で倒す（3体以上）',
+      cond: { when: 'battleEnd', code: 'all_weak_kills', v: 3, label: '撃破した敵をすべて弱点属性で倒す（3体以上）',
               hint: '属性を選び分けて狩れ',
               test: function (c) { return c.b.kills >= 3 && c.b.weakKills >= c.b.kills; } } });
 
   m({ id: 'y_skybreaker', name: '天砕の一撃', tier: 4, price: 0,
       mods: { critDmg: 1.00 }, flags: ['critChain', 'soloFocus'],
       desc: '会心ダメージ+100%。会心時に追撃が発生し、敵が1体なら与ダメージ+40%。',
-      cond: { when: 'battleEnd', label: '1回の攻撃で自分の最大HPの3倍のダメージを与える',
+      cond: { when: 'battleEnd', code: 'big_hit', v: 3, label: '1回の攻撃で自分の最大HPの3倍のダメージを与える',
               hint: '会心と属性弱点を一撃に束ねろ',
               test: function (c) { return c.b.maxHitDamage >= c.S.maxHp * 3; } } });
 
   m({ id: 'y_enduranceshell', name: '忍耐の甲殻', tier: 4, price: 0,
       mods: { hpPct: 0.35, reflect: 0.20 }, flags: ['wardAll', 'lastStand'],
       desc: '最大HP+35%／反射+20%。被ダメージ-15%、HP50%以下でさらに-25%。',
-      cond: { when: 'battleEnd', label: '最大HPの3倍を超えるダメージを受けて勝利する',
+      cond: { when: 'battleEnd', code: 'endure_damage', v: 3, label: '最大HPの3倍を超えるダメージを受けて勝利する',
               hint: '殴られ続けて、それでも立て',
               test: function (c) { return c.b.damageTaken >= c.S.maxHp * 3; } } });
 
   m({ id: 'y_abysscrown', name: '深淵の王冠', tier: 4, price: 0,
       mods: { atkPct: 0.15, magPct: 0.15, defPct: 0.15, hpPct: 0.15, spd: 12 }, flags: ['mythicScaling'],
       desc: '主要ステータス+15%。装備中のミシック1個につき与ダメージ+10%。',
-      cond: { when: 'progress', label: '第30階層に到達する', hint: '深淵の底を目指せ',
+      cond: { when: 'progress', code: 'floor', v: 30, label: '第30階層に到達する', hint: '深淵の底を目指せ',
               test: function (c) { return c.run.floor >= 30; } } });
 
   m({ id: 'y_masterproof', name: '大成の証', tier: 4, price: 0,
       mods: { atkPct: 0.18, magPct: 0.18, defPct: 0.18, hpPct: 0.18 },
       desc: '物理・魔法攻撃・防御・最大HPを18%上昇させる。',
-      cond: { when: 'progress', label: 'レベル25に到達する', hint: '深く潜り、戦い続けろ',
+      cond: { when: 'progress', code: 'level', v: 25, label: 'レベル25に到達する', hint: '深く潜り、戦い続けろ',
               test: function (c) { return c.hero.level >= 25; } } });
 
   m({ id: 'y_protean', name: '変幻自在の印', tier: 4, price: 0,
       mods: { critRate: 0.12, reflect: 0.15, aoeRatio: 0.20, itemPower: 0.40,
               'el_fire': 0.10, 'el_ice': 0.10, 'el_thunder': 0.10, 'el_wind': 0.10, 'el_light': 0.10, 'el_dark': 0.10 },
       desc: '会心・反射・波及・アイテム・全属性を同時に押し上げる万能の印。',
-      cond: { when: 'progress', label: '1回の冒険で3回転職する', hint: '祭壇を巡り、職を渡り歩け',
+      cond: { when: 'progress', code: 'run_stat', k: 'classChanges', v: 3, label: '1回の冒険で3回転職する', hint: '祭壇を巡り、職を渡り歩け',
               test: function (c) { return (c.run.stats.classChanges || 0) >= 3; } } });
 
   m({ id: 'y_fortunecoin', name: '富貴の金貨', tier: 4, price: 0,
       mods: { goldUp: 1.00, dropUp: 0.60, itemPower: 0.50 }, flags: ['hordeSlayer'],
       desc: '獲得ゴールド2倍／ドロップ率+60%／アイテム威力+50%。敵が3体以上で与ダメ+22%。',
-      cond: { when: 'progress', label: '6000ゴールドを所持する', hint: '使わず貯め込め',
+      cond: { when: 'progress', code: 'gold', v: 6000, label: '6000ゴールドを所持する', hint: '使わず貯め込め',
               test: function (c) { return c.hero.gold >= 6000; } } });
 
   G.ACCESSORIES = ACC;
