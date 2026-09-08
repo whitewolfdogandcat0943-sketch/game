@@ -138,6 +138,18 @@ enemies.forEach(e => checkSprite('enemies', e.id));
 accs.forEach(a => checkSprite('accessories', a.id));
 gear.weapons.concat(gear.armors).forEach(g => checkSprite('gear', g.id));
 
+/* null が残っていないか（GDScriptの型付き変数に入ると実行時エラーになる） */
+function scanNull(obj, path) {
+  if (Array.isArray(obj)) return obj.forEach((v, i) => scanNull(v, `${path}[${i}]`));
+  if (obj && typeof obj === 'object') {
+    for (const [k, v] of Object.entries(obj)) {
+      if (v === null) problems.push(`null が残っている: ${path}.${k}`);
+      else scanNull(v, `${path}.${k}`);
+    }
+  }
+}
+for (const f of fs.readdirSync(DIR)) scanNull(read(f), f);
+
 if (problems.length) {
   console.log('検証NG:', problems.length, '件');
   problems.slice(0, 40).forEach(p => console.log('  -', p));

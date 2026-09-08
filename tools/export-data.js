@@ -14,13 +14,15 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const G = load();
 
-/** 関数を落として素のデータにする */
+/** 関数と null を落として素のデータにする
+ *  （null を残すと GDScript 側で String 型に null が入り実行時エラーになる） */
 function clean(v) {
   if (Array.isArray(v)) return v.map(clean);
   if (v && typeof v === 'object') {
     const o = {};
     for (const k of Object.keys(v)) {
       if (typeof v[k] === 'function') continue;
+      if (v[k] === null) continue;              /* 明示的なnullは落とす */
       if (k === 'branchRef') continue;          /* 循環参照 */
       const c = clean(v[k]);
       if (c !== undefined) o[k] = c;

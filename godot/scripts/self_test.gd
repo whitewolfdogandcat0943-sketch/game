@@ -69,6 +69,18 @@ static func run() -> Array:
 		if not is_finite(float(sc["hp"])) or float(sc["hp"]) <= 0.0:
 			errors.append("敵 %s のスケーリングが異常" % e.get("id", "?"))
 
+	## 共通ツリー: 全ノードの判定が例外なく通るか
+	var tprobe := HeroState.new()
+	tprobe.class_id = "swordsman"
+	tprobe.level = 12
+	tprobe.sp = 999
+	tprobe.recompute()
+	for br in GameData.tree_branches:
+		for nd in br.get("nodes", []):
+			var chk: Dictionary = tprobe.tree_check(str(nd.get("id", "")))
+			if not chk.has("reasons"):
+				errors.append("共通ツリー %s の判定が返らない" % nd.get("id", "?"))
+
 	## 職業ツリーの整合
 	for cid2 in GameData.classtree:
 		var rows: Array = GameData.classtree[cid2]
@@ -79,7 +91,7 @@ static func run() -> Array:
 				var nd: Dictionary = row.get(w, {})
 				if nd.is_empty():
 					errors.append("職業ツリー %s 段%s の %s がない" % [cid2, row.get("tier", "?"), w])
-				elif nd.get("skill", "") != "" and GameData.skill(str(nd["skill"])).is_empty():
+				elif str(nd.get("skill", "")) != "" and GameData.skill(str(nd["skill"])).is_empty():
 					errors.append("職業ツリー %s: スキル %s が存在しない" % [cid2, nd["skill"]])
 
 	if errors.is_empty():

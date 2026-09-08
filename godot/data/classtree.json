@@ -8,9 +8,7 @@
     "desc": "真っ直ぐ強く振る",
     "mods": {
      "atkPct": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "堅陣",
@@ -18,9 +16,7 @@
     "mods": {
      "defPct": 0.18,
      "dr": 0.05
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -29,11 +25,9 @@
    "a": {
     "name": "連撃",
     "desc": "手数で押す",
-    "mods": null,
     "flags": [
      "doubleStrike"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "必殺",
@@ -41,9 +35,7 @@
     "mods": {
      "critRate": 0.1,
      "critDmg": 0.3
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -56,7 +48,6 @@
      "spd": 20,
      "aoeRatio": 0.15
     },
-    "flags": null,
     "skill": "whirlwind"
    },
    "b": {
@@ -81,18 +72,14 @@
     "desc": "一点に威力を集める",
     "mods": {
      "magPct": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "拡散",
     "desc": "広く撒く",
     "mods": {
      "aoeRatio": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -104,18 +91,14 @@
     "mods": {
      "mp": 30,
      "mpRegen": 6
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "過剰詠唱",
     "desc": "同じ呪文を二度紡ぐ",
-    "mods": null,
     "flags": [
      "doubleCast"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -132,7 +115,6 @@
      "el_light": 0.1,
      "el_dark": 0.1
     },
-    "flags": null,
     "skill": "elementalBurst"
    },
    "b": {
@@ -141,7 +123,6 @@
     "mods": {
      "pierce": 0.25
     },
-    "flags": null,
     "skill": "chainBolt"
    }
   }
@@ -156,9 +137,7 @@
     "mods": {
      "evade": 0.1,
      "spd": 12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "強奪",
@@ -167,9 +146,7 @@
      "goldUp": 0.4,
      "dropUp": 0.3,
      "atk": 10
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -180,18 +157,14 @@
     "desc": "会心を安定させる",
     "mods": {
      "critRate": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "毒刃",
     "desc": "刃に毒を塗る",
-    "mods": null,
     "flags": [
      "statusOnHit"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -211,7 +184,6 @@
    "b": {
     "name": "首狩り",
     "desc": "弱った敵を逃さない",
-    "mods": null,
     "flags": [
      "executeLow"
     ],
@@ -229,9 +201,7 @@
     "mods": {
      "dr": 0.08,
      "res": 20
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "祈祷",
@@ -239,9 +209,7 @@
     "mods": {
      "magPct": 0.12,
      "el_light": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -250,11 +218,9 @@
    "a": {
     "name": "慈雨",
     "desc": "溢れた治癒を捨てない",
-    "mods": null,
     "flags": [
      "overheal"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "断罪",
@@ -262,9 +228,7 @@
     "mods": {
      "el_dark": 0.18,
      "lifesteal": 0.08
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -303,18 +267,14 @@
     "desc": "奪って戦う",
     "mods": {
      "lifesteal": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "剛力",
     "desc": "純粋な腕力",
     "mods": {
      "atkPct": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -323,11 +283,9 @@
    "a": {
     "name": "死線",
     "desc": "追い詰められて硬くなる",
-    "mods": null,
     "flags": [
      "lastStand"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "暴走",
@@ -335,9 +293,7 @@
     "mods": {
      "critRate": 0.12,
      "critDmg": 0.4
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -346,7 +302,6 @@
    "a": {
     "name": "喰らい尽くす",
     "desc": "倒すほど強くなる",
-    "mods": null,
     "flags": [
      "killHeal",
      "stackAtkOnKill"
@@ -360,7 +315,6 @@
      "atkPct": 0.22,
      "spd": 10
     },
-    "flags": null,
     "skill": "executioner"
    }
   }
@@ -374,9 +328,7 @@
     "desc": "会心率を底上げする",
     "mods": {
      "critRate": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "疾影",
@@ -384,9 +336,7 @@
     "mods": {
      "spd": 18,
      "evade": 0.08
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -395,20 +345,16 @@
    "a": {
     "name": "追撃",
     "desc": "会心が会心を呼ぶ",
-    "mods": null,
     "flags": [
      "critChain"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "処刑",
     "desc": "瀕死を確実に刈る",
-    "mods": null,
     "flags": [
      "executeLow"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -448,9 +394,7 @@
     "mods": {
      "el_fire": 0.18,
      "el_thunder": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "氷嵐",
@@ -458,9 +402,7 @@
     "mods": {
      "el_ice": 0.18,
      "el_wind": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -469,11 +411,9 @@
    "a": {
     "name": "弱点看破",
     "desc": "弱点をさらに深く抉る",
-    "mods": null,
     "flags": [
      "weakHunter"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "耐性破壊",
@@ -483,8 +423,7 @@
     },
     "flags": [
      "guardBreak"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -493,7 +432,6 @@
    "a": {
     "name": "元素循環",
     "desc": "通常攻撃すら属性にする",
-    "mods": null,
     "flags": [
      "elementCycle"
     ],
@@ -506,7 +444,6 @@
      "magPct": 0.2,
      "aoePower": 0.2
     },
-    "flags": null,
     "skill": "blizzard"
    }
   }
@@ -520,18 +457,14 @@
     "desc": "硬さを積む",
     "mods": {
      "defPct": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "棘壁",
     "desc": "硬さを刃に変える",
     "mods": {
      "reflect": 0.15
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -542,18 +475,14 @@
     "desc": "返す威力を上げる",
     "mods": {
      "reflectPow": 0.35
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "万象軽減",
     "desc": "あらゆる一撃を薄める",
-    "mods": null,
     "flags": [
      "wardAll"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -562,7 +491,6 @@
    "a": {
     "name": "鏡面拡散",
     "desc": "反射を全体に及ぼす",
-    "mods": null,
     "flags": [
      "reflectAll"
     ],
@@ -590,18 +518,14 @@
     "desc": "単体技も面にする",
     "mods": {
      "aoeRatio": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "爆風",
     "desc": "範囲技の威力を上げる",
     "mods": {
      "aoePower": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -610,20 +534,16 @@
    "a": {
     "name": "連鎖",
     "desc": "余剰ダメージを流す",
-    "mods": null,
     "flags": [
      "overkillChain"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "群狩り",
     "desc": "数が多いほど強い",
-    "mods": null,
     "flags": [
      "hordeSlayer"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -632,7 +552,6 @@
    "a": {
     "name": "天災",
     "desc": "倒れた敵が次を巻き込む",
-    "mods": null,
     "flags": [
      "deathSpike"
     ],
@@ -645,7 +564,6 @@
      "spd": 22,
      "el_wind": 0.2
     },
-    "flags": null,
     "skill": "galeFlurry"
    }
   }
@@ -659,18 +577,14 @@
     "desc": "アイテムの威力を上げる",
     "mods": {
      "itemPower": 0.3
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "倹約",
     "desc": "アイテムを減らさない",
     "mods": {
      "itemKeep": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -679,20 +593,16 @@
    "a": {
     "name": "共鳴",
     "desc": "効果が二度出ることがある",
-    "mods": null,
     "flags": [
      "itemEcho"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "開幕調合",
     "desc": "戦闘開始時に補充する",
-    "mods": null,
     "flags": [
      "itemRefill"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -731,18 +641,14 @@
     "desc": "光を伸ばす",
     "mods": {
      "el_light": 0.22
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "冥闇",
     "desc": "闇を伸ばす",
     "mods": {
      "el_dark": 0.22
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -756,17 +662,14 @@
     },
     "flags": [
      "overheal"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "呪縛",
     "desc": "蝕まれた敵に強く出る",
-    "mods": null,
     "flags": [
      "statusDamage"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -780,13 +683,11 @@
      "el_dark": 0.18,
      "pierce": 0.12
     },
-    "flags": null,
     "skill": "judgement"
    },
    "b": {
     "name": "収穫",
     "desc": "倒すたびに満たされる",
-    "mods": null,
     "flags": [
      "soulHarvest",
      "killHeal"
@@ -804,18 +705,14 @@
     "desc": "避けることを選ぶ",
     "mods": {
      "evade": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "韋駄",
     "desc": "速さを選ぶ",
     "mods": {
      "spd": 24
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -824,20 +721,16 @@
    "a": {
     "name": "先手",
     "desc": "最初の一撃を必殺に",
-    "mods": null,
     "flags": [
      "firstHitCrit"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "返し",
     "desc": "かわしざまに斬る",
-    "mods": null,
     "flags": [
      "counterEvade"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -846,7 +739,6 @@
    "a": {
     "name": "縮地",
     "desc": "速さがそのまま威力になる",
-    "mods": null,
     "flags": [
      "speedPower"
     ],
@@ -874,18 +766,14 @@
     "desc": "闇の術を強める",
     "mods": {
      "el_dark": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "衰弱",
     "desc": "耐性を削り取る",
     "mods": {
      "pierce": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -894,20 +782,16 @@
    "a": {
     "name": "執拗",
     "desc": "状態異常が長く残る",
-    "mods": null,
     "flags": [
      "lingering"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "伝染",
     "desc": "状態異常が周囲に移る",
-    "mods": null,
     "flags": [
      "spreadStatus"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -927,7 +811,6 @@
    "b": {
     "name": "撒種",
     "desc": "殴るだけで呪いが乗る",
-    "mods": null,
     "flags": [
      "statusOnHit"
     ],
@@ -944,18 +827,14 @@
     "desc": "剣を選ぶ",
     "mods": {
      "atkPct": 0.15
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "魔気",
     "desc": "魔を選ぶ",
     "mods": {
      "magPct": 0.15
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -969,8 +848,7 @@
     },
     "flags": [
      "weakHunter"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "雷剣",
@@ -980,8 +858,7 @@
     },
     "flags": [
      "shockOnThunder"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -995,7 +872,6 @@
      "magPct": 0.12,
      "critRate": 0.1
     },
-    "flags": null,
     "skill": "dualPole"
    },
    "b": {
@@ -1020,9 +896,7 @@
     "desc": "会心の重さを増す",
     "mods": {
      "critDmg": 0.5
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "影走",
@@ -1030,9 +904,7 @@
     "mods": {
      "spd": 25,
      "evade": 0.1
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1041,20 +913,16 @@
    "a": {
     "name": "連鎖斬",
     "desc": "会心が追撃を呼ぶ",
-    "mods": null,
     "flags": [
      "critChain"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "一閃",
     "desc": "会心率そのものを上げる",
     "mods": {
      "critRate": 0.15
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1063,7 +931,6 @@
    "a": {
     "name": "無明",
     "desc": "初撃必殺かつ二分割",
-    "mods": null,
     "flags": [
      "firstHitCrit",
      "doubleStrike"
@@ -1073,7 +940,6 @@
    "b": {
     "name": "死告",
     "desc": "瀕死と強敵に強く出る",
-    "mods": null,
     "flags": [
      "executeLow",
      "bossSlayer"
@@ -1091,9 +957,7 @@
     "desc": "返す威力を上げる",
     "mods": {
      "reflectPow": 0.4
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "堅牢",
@@ -1101,9 +965,7 @@
     "mods": {
      "defPct": 0.25,
      "hpPct": 0.1
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1112,20 +974,16 @@
    "a": {
     "name": "棘霧",
     "desc": "毎ラウンド棘を撒く",
-    "mods": null,
     "flags": [
      "thornAura"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "反照",
     "desc": "反射率そのものを上げる",
     "mods": {
      "reflect": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1164,18 +1022,14 @@
     "desc": "範囲威力を上げる",
     "mods": {
      "aoePower": 0.3
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "波及",
     "desc": "波及率を上げる",
     "mods": {
      "aoeRatio": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1184,12 +1038,10 @@
    "a": {
     "name": "連鎖崩壊",
     "desc": "撃破が連鎖する",
-    "mods": null,
     "flags": [
      "overkillChain",
      "deathSpike"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "数の暴力",
@@ -1199,8 +1051,7 @@
     },
     "flags": [
      "hordeSlayer"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1224,7 +1075,6 @@
      "el_wind": 0.3,
      "spd": 20
     },
-    "flags": null,
     "skill": "t_scatterstrike"
    }
   }
@@ -1243,18 +1093,14 @@
      "el_wind": 0.1,
      "el_light": 0.1,
      "el_dark": 0.1
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "貫星",
     "desc": "耐性貫通を伸ばす",
     "mods": {
      "pierce": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1263,20 +1109,16 @@
    "a": {
     "name": "二重詠唱",
     "desc": "魔法が二度発動する",
-    "mods": null,
     "flags": [
      "doubleCast"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "元素循環",
     "desc": "通常攻撃も属性になる",
-    "mods": null,
     "flags": [
      "elementCycle"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1289,13 +1131,11 @@
      "magPct": 0.22,
      "aoePower": 0.25
     },
-    "flags": null,
     "skill": "meteor"
    },
    "b": {
     "name": "看破",
     "desc": "弱点も耐性も意味を成さない",
-    "mods": null,
     "flags": [
      "weakHunter",
      "guardBreak"
@@ -1313,18 +1153,14 @@
     "desc": "アイテム威力を極める",
     "mods": {
      "itemPower": 0.5
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "永続",
     "desc": "在庫を減らさない",
     "mods": {
      "itemKeep": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1333,21 +1169,17 @@
    "a": {
     "name": "二重反応",
     "desc": "効果が二度出る",
-    "mods": null,
     "flags": [
      "itemEcho"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "万象補充",
     "desc": "開幕に補充と守りを得る",
-    "mods": null,
     "flags": [
      "itemRefill",
      "alchemyShield"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1356,7 +1188,6 @@
    "a": {
     "name": "劇薬散布",
     "desc": "呪いを撒き散らす",
-    "mods": null,
     "flags": [
      "statusOnHit",
      "spreadStatus"
@@ -1371,7 +1202,6 @@
      "dropUp": 0.5,
      "itemPower": 0.25
     },
-    "flags": null,
     "skill": "t_quickbrew"
    }
   }
@@ -1385,18 +1215,14 @@
     "desc": "吸収を伸ばす",
     "mods": {
      "lifesteal": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "剛腕",
     "desc": "攻撃力を伸ばす",
     "mods": {
      "atkPct": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1405,12 +1231,10 @@
    "a": {
     "name": "喰らい取り",
     "desc": "倒すたびに満ちる",
-    "mods": null,
     "flags": [
      "killHeal",
      "soulHarvest"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "死線",
@@ -1420,8 +1244,7 @@
     },
     "flags": [
      "lastStand"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1460,18 +1283,14 @@
     "desc": "光を極める",
     "mods": {
      "el_light": 0.28
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "闇断",
     "desc": "闇を極める",
     "mods": {
      "el_dark": 0.28
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1485,18 +1304,15 @@
     },
     "flags": [
      "wardAll"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "呪罰",
     "desc": "蝕んだ敵を裁く",
-    "mods": null,
     "flags": [
      "statusDamage",
      "lingering"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1509,7 +1325,6 @@
      "magPct": 0.2,
      "pierce": 0.18
     },
-    "flags": null,
     "skill": "ult_lastJudgement"
    },
    "b": {
@@ -1536,9 +1351,7 @@
     "mods": {
      "atkPct": 0.12,
      "magPct": 0.12
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "虚無防壁",
@@ -1546,9 +1359,7 @@
     "mods": {
      "defPct": 0.15,
      "dr": 0.08
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1565,9 +1376,7 @@
      "el_light": 0.08,
      "el_dark": 0.08,
      "pierce": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "崩壊",
@@ -1577,8 +1386,7 @@
     },
     "flags": [
      "deathSpike"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1587,7 +1395,6 @@
    "a": {
     "name": "支配",
     "desc": "耐性も状態異常も思うまま",
-    "mods": null,
     "flags": [
      "guardBreak",
      "statusOnHit"
@@ -1617,18 +1424,14 @@
     "desc": "速さを極める",
     "mods": {
      "spd": 30
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "幻影",
     "desc": "回避を極める",
     "mods": {
      "evade": 0.18
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1637,21 +1440,17 @@
    "a": {
     "name": "千影",
     "desc": "通常攻撃が二分割される",
-    "mods": null,
     "flags": [
      "doubleStrike"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "迎撃",
     "desc": "避けて斬り、先手も取る",
-    "mods": null,
     "flags": [
      "counterEvade",
      "firstHitCrit"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1691,18 +1490,14 @@
     "desc": "闇を極める",
     "mods": {
      "el_dark": 0.28
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "蝕み",
     "desc": "貫通を極める",
     "mods": {
      "pierce": 0.25
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1711,12 +1506,10 @@
    "a": {
     "name": "蔓延",
     "desc": "長く、広く効かせる",
-    "mods": null,
     "flags": [
      "spreadStatus",
      "lingering"
-    ],
-    "skill": null
+    ]
    },
    "b": {
     "name": "撒種",
@@ -1726,8 +1519,7 @@
     },
     "flags": [
      "statusOnHit"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1767,18 +1559,14 @@
     "desc": "物理に寄せる",
     "mods": {
      "atkPct": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "魔極",
     "desc": "魔法に寄せる",
     "mods": {
      "magPct": 0.2
-    },
-    "flags": null,
-    "skill": null
+    }
    }
   },
   {
@@ -1790,9 +1578,7 @@
     "mods": {
      "critRate": 0.12,
      "critDmg": 0.35
-    },
-    "flags": null,
-    "skill": null
+    }
    },
    "b": {
     "name": "魔力刃",
@@ -1802,8 +1588,7 @@
     },
     "flags": [
      "manaPower"
-    ],
-    "skill": null
+    ]
    }
   },
   {
@@ -1821,7 +1606,6 @@
      "el_dark": 0.12,
      "pierce": 0.15
     },
-    "flags": null,
     "skill": "ult_duality"
    },
    "b": {

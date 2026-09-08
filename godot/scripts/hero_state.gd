@@ -229,16 +229,16 @@ func skill_list() -> Array:
 			if not out.has(s):
 				out.append(s)
 	if weapon_id != "" and GameData.gear.has(weapon_id):
-		var g: String = GameData.gear[weapon_id].get("grant", "")
+		var g := str(GameData.gear[weapon_id].get("grant", ""))
 		if g != "" and not out.has(g):
 			out.append(g)
 	for nid in tree_nodes:
 		var nd: Dictionary = GameData.tree_node_by_id.get(nid, {})
-		var sk: String = nd.get("skill", "")
+		var sk := str(nd.get("skill", ""))
 		if sk != "" and not out.has(sk):
 			out.append(sk)
 	for nd2 in class_tree_picks():
-		var sk2: String = nd2.get("skill", "")
+		var sk2 := str(nd2.get("skill", ""))
 		if sk2 != "" and not out.has(sk2):
 			out.append(sk2)
 	return out
@@ -304,6 +304,135 @@ func equipped_in(slot: String) -> String:
 	if slot.begins_with("acc"):
 		return str(acc_ids[int(slot.substr(3))])
 	return ""
+
+
+## ---------------- 共通スキルツリー ----------------
+
+## その系統に投じたSPの合計
+func branch_spent(branch_id: String) -> int:
+	var sum := 0
+	for br in GameData.tree_branches:
+		if str(br.get("id", "")) != branch_id:
+			continue
+		for nd in br.get("nodes", []):
+			if tree_nodes.get(nd["id"], false):
+				sum += int(nd.get("cost", 0))
+	return sum
+
+
+func tree_total_spent() -> int:
+	var sum := 0
+	for nid in tree_nodes:
+		if tree_nodes[nid]:
+			sum += int(GameData.tree_node_by_id.get(nid, {}).get("cost", 0))
+	return sum
+
+
+## ノードの取得可否を理由付きで返す
+func tree_check(node_id: String) -> Dictionary:
+	var nd: Dictionary = GameData.tree_node_by_id.get(node_id, {})
+	if nd.is_empty():
+		return {"ok": false, "owned": false, "reasons": [], "node": {}}
+	var owned: bool = tree_nodes.get(node_id, false)
+	var reasons: Array = []
+	for r in nd.get("req", []):
+		reasons.append({
+			"label": "「%s」を取得している" % GameData.tree_node_by_id.get(r, {}).get("name", r),
+			"ok": tree_nodes.get(r, false)})
+	if nd.has("branchSpent"):
+		var need := int(nd["branchSpent"])
+		reasons.append({
+			"label": "この系統に %d SP 以上振っている" % need,
+			"ok": branch_spent(str(nd.get("branch", ""))) >= need})
+	if nd.has("classes"):
+		var held: Array = class_history.duplicate()
+		held.append(class_id)
+		var names: Array = []
+		var ok := false
+		for c in nd["classes"]:
+			names.append(GameData.klass(str(c)).get("name", c))
+			if held.has(c):
+				ok = true
+		reasons.append({"label": "職業: " + " / ".join(names), "ok": ok})
+	reasons.append({"label": "SP %d が残っている" % int(nd.get("cost", 0)),
+		"ok": sp >= int(nd.get("cost", 0))})
+
+	var all_ok := true
+	for r2 in reasons:
+		if not r2["ok"]:
+			all_ok = false
+	return {"ok": (not owned) and all_ok, "owned": owned, "reasons": reasons, "node": nd}
+
+
+func tree_take(node_id: String) -> bool:
+	var c := tree_check(node_id)
+	if not c["ok"]:
+		return false
+	tree_nodes[node_id] = true
+	sp -= int(c["node"].get("cost", 0))
+	recompute()
+	return true
+
+
+func tree_respec_cost() -> int:
+	var spent := tree_total_spent()
+	return 0 if spent == 0 else 60 + spent * 25
+
+
+func tree_respec() -> void:
+	sp += tree_total_spent()
+	tree_nodes = {}
+	recompute()
+
+
+## ---------------- 職業ツリー（習熟） ----------------
+
+const MASTERY_NEED := [2, 5, 9]
+
+
+func mastery_wins(cid: String) -> int:
+	return int(mastery.get(cid, {}).get("wins", 0))
+
+
+func mastery_picks(cid: String) -> Dictionary:
+	return mastery.get(cid, {}).get("picks", {})
+
+
+func mastery_gain(cid: String, amount: int) -> int:
+	if not mastery.has(cid):
+		mastery[cid] = {"wins": 0, "picks": {}}
+	mastery[cid]["wins"] = int(mastery[cid]["wins"]) + amount
+	return int(mastery[cid]["wins"])
+
+
+func mastery_unlocked(cid: String, tier: int) -> bool:
+	return mastery_wins(cid) >= MASTERY_NEED[tier - 1]
+
+
+## 各段は片方しか選べない（同じ職業でも分岐するのがこのツリーの狙い）
+func mastery_pick(tier: int, which: String) -> bool:
+	if not GameData.classtree.has(class_id):
+		return false
+	if not mastery_unlocked(class_id, tier):
+		return false
+	if mastery_picks(class_id).has(str(tier)):
+		return false
+	if not mastery.has(class_id):
+		mastery[class_id] = {"wins": 0, "picks": {}}
+	mastery[class_id]["picks"][str(tier)] = which
+	recompute()
+	return true
+
+
+func mastery_respec_cost() -> int:
+	var n := mastery_picks(class_id).size()
+	return 0 if n == 0 else 120 + n * 90
+
+
+func mastery_respec() -> void:
+	if mastery.has(class_id):
+		mastery[class_id]["picks"] = {}
+	recompute()
 
 
 ## 通常攻撃の属性（武器依存）

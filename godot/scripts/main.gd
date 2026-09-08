@@ -22,7 +22,9 @@ var skill_slots: Array = []
 var slot_cd: Array = [0.0, 0.0, 0.0, 0.0]
 
 var equip_screen: EquipScreen
+var tree_screen: TreeScreen
 var paused: bool = false
+var _overlay: CanvasLayer = null
 var _title_root: Control
 var _hitstop: float = 0.0
 var _shake: float = 0.0
@@ -76,7 +78,7 @@ func _build_title() -> void:
 	_title_root.add_child(t)
 
 	var sub := Label.new()
-	sub.text = "はじまりの職を選ぶ（1〜4キー）\n移動 WASD ／ 斬撃 Space・左クリック ／ スキル 1〜4 ／ 回避 Shift ／ 装備 I ／ ビルド Tab"
+	sub.text = "はじまりの職を選ぶ（1〜4キー）\n移動 WASD ／ 斬撃 Space・左クリック ／ スキル 1〜4 ／ 回避 Shift ／ 装備 I ／ ツリー T ／ ビルド Tab"
 	UiTheme.apply(sub, 14, Color(0.6, 0.64, 0.75))
 	sub.position = Vector2(60, 98)
 	_title_root.add_child(sub)
@@ -125,9 +127,16 @@ func _start(cid: String) -> void:
 	equip_screen = EquipScreen.new()
 	equip_screen.setup(hero)
 	equip_screen.visible = false
-	equip_screen.changed.connect(_on_equipment_changed)
-	equip_screen.closed.connect(_toggle_equip)
+	equip_screen.changed.connect(_on_build_changed)
+	equip_screen.closed.connect(_close_overlay)
 	add_child(equip_screen)
+
+	tree_screen = TreeScreen.new()
+	tree_screen.setup(hero)
+	tree_screen.visible = false
+	tree_screen.changed.connect(_on_build_changed)
+	tree_screen.closed.connect(_close_overlay)
+	add_child(tree_screen)
 
 	hud.visible = true
 	hud.set_build_text(hero)
@@ -175,7 +184,19 @@ func _grant_loot() -> void:
 			hero.add_gear(g2["id"])
 
 
-func _on_equipment_changed() -> void:
+## 装備・ツリーのどこを変えても、ここを通して全体へ反映する
+## その職業で戦った分だけ習熟する。職業ツリーの段はこれで開く。
+func _gain_mastery() -> void:
+	var before := hero.mastery_wins(hero.class_id)
+	var after := hero.mastery_gain(hero.class_id, 1)
+	for i in HeroState.MASTERY_NEED.size():
+		var need: int = HeroState.MASTERY_NEED[i]
+		if need > before and need <= after:
+			hud.show_toast("%s の職業ツリー 第%d段が解放された（T）" % [
+				GameData.klass(hero.class_id).get("name", hero.class_id), i + 1])
+
+
+func _on_build_changed() -> void:
 	hero.recompute()
 	if is_instance_valid(player):
 		player.refresh_profile()
@@ -183,18 +204,45 @@ func _on_equipment_changed() -> void:
 	hud.set_build_text(hero)
 
 
+func _open_overlay(o: CanvasLayer) -> void:
+	if _overlay != null and _overlay != o:
+		_overlay.visible = false
+	_overlay = o
+	paused = true
+	o.visible = true
+
+
+func _close_overlay() -> void:
+	if _overlay != null:
+		_overlay.visible = false
+	_overlay = null
+	paused = false
+
+
 func _toggle_equip() -> void:
 	if equip_screen == null:
 		return
-	paused = not paused
-	equip_screen.visible = paused
-	if paused:
+	if _overlay == equip_screen:
+		_close_overlay()
+	else:
 		equip_screen._refresh()
+		_open_overlay(equip_screen)
+
+
+func _toggle_tree() -> void:
+	if tree_screen == null:
+		return
+	if _overlay == tree_screen:
+		_close_overlay()
+	else:
+		tree_screen.refresh()
+		_open_overlay(tree_screen)
 
 
 func _start_floor(n: int) -> void:
 	if n > 1:
 		_grant_loot()
+		_gain_mastery()
 	floor_no = n
 	for e in enemies:
 		if is_instance_valid(e):
@@ -315,6 +363,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif state == State.PLAYING:
 		if k == KEY_I:
 			_toggle_equip()
+		elif k == KEY_T:
+			_toggle_tree()
 		elif paused:
 			return
 		elif k == KEY_TAB:
