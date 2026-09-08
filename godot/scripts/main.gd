@@ -344,7 +344,8 @@ func _process(delta: float) -> void:
 		if not swing.is_empty():
 			_resolve_swing(swing)
 
-	var alive: Array = []
+	## enemies は Array[Enemy] なので、詰め替え用も同じ型にしないと代入時に落ちる
+	var alive: Array[Enemy] = []
 	for e in enemies:
 		if not is_instance_valid(e):
 			continue

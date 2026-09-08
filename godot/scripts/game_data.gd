@@ -30,6 +30,10 @@ var tree_branches: Array = []
 var tree_node_by_id: Dictionary = {}
 var classtree: Dictionary = {}
 
+## 書き出し時に記録された件数。自己診断の期待値をここから取り、
+## データを増やすたびに期待値がズレる事故を防ぐ。
+var expected_counts: Dictionary = {}
+
 var _sprite_cache: Dictionary = {}
 
 
@@ -90,6 +94,10 @@ func _load_all() -> void:
 			tree_node_by_id[nd["id"]] = nd
 
 	classtree = _read_json("classtree.json")
+
+	var idx: Variant = _read_json("index.json")
+	if idx is Dictionary:
+		expected_counts = idx.get("counts", {})
 
 
 func _report() -> void:

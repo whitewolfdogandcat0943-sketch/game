@@ -9,10 +9,24 @@ extends RefCounted
 static func run() -> Array:
 	var errors: Array = []
 
-	if GameData.classes.size() != 25:
-		errors.append("職業が25件でなく %d 件（data/classes.json）" % GameData.classes.size())
-	if GameData.accessories.size() != 142:
-		errors.append("アクセサリが142件でなく %d 件" % GameData.accessories.size())
+	## 期待件数は data/index.json（書き出し時に記録）から取る。
+	## ここに数を直接書くと、データを増やすたびに嘘の失敗が出る。
+	var want: Dictionary = GameData.expected_counts
+	if want.is_empty():
+		errors.append("data/index.json が読めていない（npm run export で書き出す）")
+	else:
+		var pairs := {
+			"classes": GameData.classes.size(),
+			"accessories": GameData.accessories.size(),
+			"skills": GameData.skills.size(),
+			"enemies": GameData.enemies.size(),
+			"tree_branches": GameData.tree_branches.size(),
+			"classtree_classes": GameData.classtree.size(),
+		}
+		for key in pairs:
+			var expect := int(want.get(key, -1))
+			if expect >= 0 and int(pairs[key]) != expect:
+				errors.append("%s が %d 件でなく %d 件" % [key, expect, pairs[key]])
 	if GameData.skills.is_empty():
 		errors.append("スキルが読み込めていない")
 
