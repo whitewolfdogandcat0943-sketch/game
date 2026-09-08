@@ -230,6 +230,8 @@ G.Screens = (function () {
         '<div class="kv"><span>ゴールド</span><span>+' + data.gold + '</span></div>' +
         (data.levels ? '<div class="kv"><span class="r-legend">レベルアップ</span><span class="r-legend">+' + data.levels + '</span></div>' : '') +
         (data.sp ? '<div class="kv"><span style="color:var(--xp)">スキルポイント</span><span style="color:var(--xp)">+' + data.sp + '</span></div>' : '') +
+        (data.mastery ? '<div class="kv"><span>' + G.CLASSES[state.hero.classId].name + ' 習熟度</span><span>+' +
+          data.mastery + '（計 ' + data.masteryTotal + '）</span></div>' : '') +
         '</div>';
       if (data.drops.length) {
         h += '<div class="panel"><h3>ドロップ</h3><div class="grid g3">' + data.drops.map(function (d) {
@@ -447,12 +449,13 @@ G.Screens = (function () {
 
   /* ===================== スキルツリー ===================== */
   function skillTree(state) {
+    if ((state.treeMode || 'common') === 'class') return classTree(state);
     var hero = state.hero;
     var tabId = state.treeTab || G.TREE.branches[0].id;
     var br = G.TREE.branches.filter(function (x) { return x.id === tabId; })[0] || G.TREE.branches[0];
     var spent = G.Tree.totalSpent(hero), cost = G.Tree.respecCost(hero);
 
-    var h = '<h2 style="color:var(--gold);margin-top:0">スキルツリー</h2>';
+    var h = treeHeader(state, 'common');
     h += '<div class="row" style="justify-content:space-between;align-items:center">' +
       '<div class="small">残りSP <b style="color:var(--xp);font-size:16px">' + (hero.sp || 0) + '</b>' +
       ' <span class="muted">／ 使用済み ' + spent + 'SP</span></div>' +
@@ -482,6 +485,81 @@ G.Screens = (function () {
     h += '</div>';
     h += '<div class="center"><button class="btn primary" data-act="closeModal">閉じる</button></div>';
     UI.modal(h);
+  }
+
+  /** 共通／職業ツリーの切り替えヘッダ */
+  function treeHeader(state, mode) {
+    return '<h2 style="color:var(--gold);margin-top:0">スキルツリー</h2>' +
+      '<div class="treetabs" style="margin-bottom:8px">' +
+      '<button class="btn tiny' + (mode === 'common' ? ' primary' : '') + '" data-act="treeMode:common">共通ツリー</button>' +
+      '<button class="btn tiny' + (mode === 'class' ? ' primary' : '') + '" data-act="treeMode:class">職業ツリー</button>' +
+      '</div>';
+  }
+
+  /* ===================== 職業ツリー ===================== */
+  function classTree(state) {
+    var hero = state.hero, cls = G.CLASSES[hero.classId];
+    var rows = G.CLASSTREE[hero.classId] || [];
+    var wins = G.Mastery.wins(hero, hero.classId);
+    var picks = G.Mastery.picks(hero, hero.classId);
+    var cost = G.Mastery.respecCost(hero);
+
+    var h = treeHeader(state, 'class');
+    h += '<div class="row" style="justify-content:space-between;align-items:center">' +
+      '<div class="classcard-head">' + G.Gfx.classImg(hero.classId, 3) +
+      '<div><div style="font-weight:700">' + cls.name + '</div>' +
+      '<div class="tiny muted">習熟度 <b style="color:var(--xp)">' + wins + '</b></div></div></div>' +
+      '<button class="btn tiny" ' + (cost > 0 && hero.gold >= cost ? '' : 'disabled') + ' data-act="classRespec">' +
+      '選び直す（' + cost + 'G）</button></div>';
+    h += '<p class="tiny muted">習熟度はこの職業で戦うと貯まる（通常+1／精鋭+2／ボス+3）。' +
+      '各段は<b>どちらか一方しか選べない</b>。効果が有効なのは<b>今就いている職業</b>の選択だけで、' +
+      '過去の職業の選択は記録として残り、その職業に戻れば復活する。</p>';
+
+    h += '<div class="panel" style="margin-top:8px">';
+    rows.forEach(function (r) {
+      var open = wins >= r.need;
+      var chosen = picks[r.tier];
+      if (r.tier > 1) h += '<div class="treelink"></div>';
+      h += '<div class="tiny muted" style="margin:6px 0 4px">第' + r.tier + '段' +
+        (open ? '' : '　<span class="r-common">習熟 ' + r.need + ' で解放（あと ' + (r.need - wins) + '）</span>') +
+        (open && !chosen ? '　<span class="r-legend">どちらか一方を選択</span>' : '') + '</div>';
+      h += '<div class="treerow">' +
+        ['a', 'b'].map(function (w) { return classNode(state, r, w, open, chosen); }).join('') + '</div>';
+    });
+    h += '</div>';
+
+    /* 他の職業で眠っている選択 */
+    var others = Object.keys(hero.mastery || {}).filter(function (cid) {
+      return cid !== hero.classId && Object.keys(G.Mastery.picks(hero, cid)).length;
+    });
+    if (others.length) {
+      h += '<div class="panel"><h3>他の職業の習熟（現在は効果なし）</h3>' + others.map(function (cid) {
+        var ps = G.Mastery.picks(hero, cid), rw = G.CLASSTREE[cid] || [];
+        var names = rw.filter(function (r) { return ps[r.tier]; })
+          .map(function (r) { return r[ps[r.tier]].name; }).join('・');
+        return '<div class="kv"><span>' + G.CLASSES[cid].name + '（習熟' + G.Mastery.wins(hero, cid) + '）</span>' +
+          '<span>' + names + '</span></div>';
+      }).join('') + '</div>';
+    }
+
+    h += '<div class="center"><button class="btn primary" data-act="closeModal">閉じる</button></div>';
+    UI.modal(h);
+  }
+
+  function classNode(state, row, which, open, chosen) {
+    var n = row[which];
+    var isChosen = chosen === which;
+    var isRejected = chosen && chosen !== which;
+    var cls = isChosen ? 'owned' : ((!open || isRejected) ? 'locked' : '');
+    var body = '<div class="cdesc">' + n.desc + '</div>';
+    if (n.mods) body += '<div class="cdesc">' + UI.modsText(n.mods) + '</div>';
+    if (n.flags) body += '<div class="cdesc">' + UI.flagsText(n.flags) + '</div>';
+    if (n.skill) body += '<div class="cdesc r-legend">スキル習得: 【' + G.SKILLS[n.skill].name + '】</div>';
+    if (isRejected) body += '<div class="cond ng">選ばなかった道</div>';
+    return '<div class="card treenode ' + cls + '" ' +
+      (open && !chosen ? 'data-act="classPick:' + row.tier + ':' + which + '"' : '') + '>' +
+      '<div class="cname">' + (isChosen ? '<span class="r-legend">✔ </span>' : '') + n.name + '</div>' +
+      body + '</div>';
   }
 
   function treeNode(state, n) {

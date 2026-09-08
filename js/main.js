@@ -85,6 +85,15 @@
       var r = G.Run.grantVictory(state, b, state.nodeKind);
       var mys = G.Run.checkMythicUnlocks(state, b.rec, 'battleEnd');
       var cls = G.Run.checkClassUnlocks(state);
+      /* 職業ツリーの段が新たに解放されたら知らせる */
+      if (r.masteryTotal != null) {
+        var before = r.masteryTotal - (r.mastery || 0);
+        G.Mastery.NEED.forEach(function (need, i) {
+          if (need > before && need <= r.masteryTotal) {
+            UI.toast('⚔ ' + G.CLASSES[state.hero.classId].name + ' の職業ツリー 第' + (i + 1) + '段が解放された。', 'class');
+          }
+        });
+      }
       mys.forEach(function (m) { UI.toast('✦ ミシック発見: <b>' + m.name + '</b><br>' + m.cond.label, 'mythic'); });
       cls.forEach(function (c) { UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>（' + (c.tier === 3 ? '最上級職' : '上級職') + '）', 'class'); });
       var cleared = (state.nodeKind === 'boss' && state.run.floor >= 25 && !state.run.clearedGame);
@@ -314,6 +323,31 @@
         state.hero.tree = {};
         refreshBattleStats();
         UI.toast('🌿 スキルポイントを振り直した。');
+        G.Save.saveRun(state);
+        S.skillTree(state); draw(); break;
+      }
+
+      case 'treeMode': state.treeMode = p[1]; S.skillTree(state); break;
+      case 'classPick': {
+        var tier = parseInt(p[1], 10);
+        if (!G.Mastery.pick(state.hero, state.hero.classId, tier, p[2])) { UI.toast('まだ選べない。'); break; }
+        var picked = G.CLASSTREE[state.hero.classId][tier - 1][p[2]];
+        refreshBattleStats();
+        UI.toast('⚔ <b>' + picked.name + '</b> の道を選んだ。', 'class');
+        G.Run.checkClassUnlocks(state).forEach(function (c) {
+          UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class');
+        });
+        G.Save.saveRun(state);
+        S.skillTree(state); draw(); break;
+      }
+      case 'classRespec': {
+        var mc = G.Mastery.respecCost(state.hero);
+        if (mc <= 0) break;
+        if (state.hero.gold < mc) { UI.toast('ゴールドが足りない。'); break; }
+        state.hero.gold -= mc;
+        G.Mastery.reset(state.hero);
+        refreshBattleStats();
+        UI.toast('⚔ 職業ツリーを選び直した。');
         G.Save.saveRun(state);
         S.skillTree(state); draw(); break;
       }

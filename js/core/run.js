@@ -15,7 +15,7 @@ G.Run = (function () {
   function newHero(classId, name) {
     var hero = {
       name: name || '冒険者', classId: classId, classHistory: [], level: 1, exp: 0,
-      hp: 1, mp: 1, gold: 120, sp: 2, tree: {},
+      hp: 1, mp: 1, gold: 120, sp: 2, tree: {}, mastery: {},
       equip: { weapon: null, armor: null, acc: [null, null, null, null] },
       bag: { gear: [], acc: [] },
       items: {}
@@ -188,8 +188,12 @@ G.Run = (function () {
     if (kind === 'boss') { state.run.stats.bosses++; hero.sp = (hero.sp || 0) + 2; }
 
     var choices = (kind === 'elite' || kind === 'boss') ? makeChoices(state, kind) : null;
+    /* その職業での実戦経験＝習熟度 */
+    var mGain = kind === 'boss' ? 3 : (kind === 'elite' ? 2 : 1);
+    G.Mastery.gain(hero, hero.classId, mGain);
     var spGain = levels + (kind === 'boss' ? 2 : (kind === 'elite' ? 1 : 0));
-    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices, sp: spGain };
+    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices,
+             sp: spGain, mastery: mGain, masteryTotal: G.Mastery.wins(hero, hero.classId) };
   }
 
   function applyLevelUps(state) {

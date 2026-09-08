@@ -68,6 +68,8 @@ G.Stats = (function () {
     if (hero.equip.weapon) take(G.GEAR[hero.equip.weapon], '武器');
     if (hero.equip.armor) take(G.GEAR[hero.equip.armor], '防具');
     equippedAccs(hero).forEach(function (a) { take(a, 'アクセサリ'); });
+    /* 職業ツリー（現在の職業で選択中のものだけが有効） */
+    if (G.Mastery) G.Mastery.activeNodes(hero).forEach(function (nd) { take(nd, '職業ツリー'); });
     /* スキルツリーで取得したノード */
     Object.keys(hero.tree || {}).forEach(function (id) {
       var n = G.TREE && G.TREE.byId[id];
@@ -128,6 +130,9 @@ G.Stats = (function () {
     Object.keys(hero.tree || {}).forEach(function (id) {
       var n = G.TREE && G.TREE.byId[id];
       if (n && n.skill && out.indexOf(n.skill) < 0) out.push(n.skill);
+    });
+    if (G.Mastery) G.Mastery.activeNodes(hero).forEach(function (nd) {
+      if (nd.skill && out.indexOf(nd.skill) < 0) out.push(nd.skill);
     });
     return out;
   }

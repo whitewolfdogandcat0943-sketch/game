@@ -50,6 +50,10 @@ G.Save = (function () {
       d.hero.equip.acc = (d.hero.equip.acc || []).map(function (id) { return G.ACC_BY_ID[id] ? id : null; });
       while (d.hero.equip.acc.length < 4) d.hero.equip.acc.push(null);
       if (d.hero.sp == null) d.hero.sp = 0;
+      if (!d.hero.mastery) d.hero.mastery = {};
+      Object.keys(d.hero.mastery).forEach(function (cid) {
+        if (!G.CLASSTREE[cid]) delete d.hero.mastery[cid];
+      });
       if (!d.hero.tree) d.hero.tree = {};
       Object.keys(d.hero.tree).forEach(function (id) {
         if (!G.TREE.byId[id]) delete d.hero.tree[id];
