@@ -291,9 +291,17 @@
     }
   }
 
-  /** 戦闘中に装備を変えたときのステータス反映 */
+  /** 装備変更後のステータス反映（最大値が下がった場合の現在値の丸め込みを含む） */
   function refreshBattleStats() {
-    if (state.battle && !state.battle.over) G.Battle.refresh(state.battle.hero);
+    var S = G.Stats.compute(state.hero).S;
+    state.hero.hp = Math.min(state.hero.hp, S.maxHp);
+    state.hero.mp = Math.min(state.hero.mp, S.maxMp);
+    if (state.battle && !state.battle.over) {
+      var hu = state.battle.hero;
+      hu.hp = Math.min(hu.hp, S.maxHp); hu.mp = Math.min(hu.mp, S.maxMp);
+      G.Battle.refresh(hu);
+      state.hero.hp = hu.hp; state.hero.mp = hu.mp;
+    }
   }
 
   function doAction(a) {

@@ -53,11 +53,27 @@ G.UI = (function () {
     return (flags || []).map(function (f) { return '◆ ' + (G.FLAGS[f] || f); }).join('<br>');
   }
 
+  /* ---------- ドット絵アイコン ---------- */
+  var ELEM_HUE = { fire: 18, ice: 195, thunder: 48, wind: 140, light: 50, dark: 285 };
+
+  /** アクセサリの属性modから色相を決める（属性系は宝石の色が変わる） */
+  function accHue(a) {
+    var best = null, bv = 0;
+    G.MAGIC_ELEMENTS.forEach(function (e) {
+      var v = (a.mods && a.mods['el_' + e]) || 0;
+      if (v > bv) { bv = v; best = e; }
+    });
+    return best ? ELEM_HUE[best] : null;
+  }
+  function accIcon(a, px) { return G.Gfx.iconImg('acc', a.rarity, px || 2, accHue(a)); }
+  function gearIcon(g, px) { return G.Gfx.iconImg(g.slot === 'weapon' ? 'weapon' : 'armor', g.rarity, px || 2); }
+  function itemIcon(it, px) { return G.Gfx.iconImg('item', it && it.tier >= 3 ? 'legend' : 'normal', px || 2); }
+
   /* ---------- 装備・アイテムのカード ---------- */
   function gearCard(g, extra) {
     if (!g) return '';
     return '<div class="card ' + (extra && extra.cls || '') + '" ' + (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
-      '<div class="cname ' + rarityClass(g.rarity) + '">' + (g.slot === 'weapon' ? '🗡' : '🛡') + ' ' + g.name +
+      '<div class="cname ' + rarityClass(g.rarity) + '">' + gearIcon(g) + g.name +
       ' <span class="tag">' + rarityLabel(g.rarity) + '</span></div>' +
       '<div class="cdesc">' + modsText(g.mods) + (g.el && g.el !== 'phys' ? '<br>通常攻撃属性: ' + G.elSpan(g.el) : '') +
       (g.desc ? '<br>' + g.desc : '') + (g.flags ? '<br>' + flagsText(g.flags) : '') +
@@ -73,7 +89,7 @@ G.UI = (function () {
     }
     return '<div class="card bd-' + a.rarity + ' ' + (extra && extra.cls || '') + '" ' +
       (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
-      '<div class="cname ' + rarityClass(a.rarity) + '">💍 ' + a.name +
+      '<div class="cname ' + rarityClass(a.rarity) + '">' + accIcon(a) + a.name +
       ' <span class="tag ' + a.rarity + '">' + rarityLabel(a.rarity) + '</span></div>' +
       '<div class="cdesc">' + modsText(a.mods) + (a.flags ? '<br>' + flagsText(a.flags) : '') +
       (a.desc ? '<br>' + a.desc : '') + cond +
@@ -83,7 +99,7 @@ G.UI = (function () {
 
   function itemCard(it, count, extra) {
     return '<div class="card ' + (extra && extra.cls || '') + '" ' + (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
-      '<div class="cname">🧪 ' + it.name + (count != null ? ' <span class="muted">×' + count + '</span>' : '') + '</div>' +
+      '<div class="cname">' + itemIcon(it) + it.name + (count != null ? ' <span class="muted">×' + count + '</span>' : '') + '</div>' +
       '<div class="cdesc">' + it.desc + (extra && extra.note ? '<br>' + extra.note : '') + '</div></div>';
   }
 
@@ -121,7 +137,7 @@ G.UI = (function () {
       var a = id ? G.ACC_BY_ID[id] : null;
       h += '<div class="slot ' + (a ? 'bd-' + a.rarity : 'empty') + '" data-act="' + actPrefix + ':' + i + '">' +
         '<div class="sl">アクセサリ ' + (i + 1) + '</div>' +
-        '<div class="sv ' + (a ? rarityClass(a.rarity) : '') + '">' + (a ? a.name : '― 空き ―') + '</div>' +
+        '<div class="sv ' + (a ? rarityClass(a.rarity) : '') + '">' + (a ? accIcon(a) + a.name : '― 空き ―') + '</div>' +
         (a ? '<div class="tiny muted">' + modsText(a.mods) + '</div>' : '') +
         '</div>';
     }
@@ -135,7 +151,8 @@ G.UI = (function () {
     if (!state.hero) { el.innerHTML = ''; return; }
     var hero = state.hero, S = G.Stats.compute(hero).S, cls = G.CLASSES[hero.classId];
     el.innerHTML =
-      '<span>' + cls.icon + ' <b>' + U.esc(hero.name) + '</b> / ' + cls.name +
+      '<span>' + G.Gfx.classImg(hero.classId, 2, '', 'style="display:inline-block;vertical-align:-6px;margin-right:4px"') +
+      '<b>' + U.esc(hero.name) + '</b> / ' + cls.name +
       (cls.tier === 3 ? '<span class="r-mythic"> ★最上級</span>' : cls.tier === 2 ? '<span class="r-legend"> ☆上級</span>' : '') + '</span>' +
       '<span>Lv <b>' + hero.level + '</b></span>' +
       '<span>HP <b>' + Math.max(0, hero.hp) + '</b>/' + S.maxHp + '</span>' +
@@ -148,6 +165,7 @@ G.UI = (function () {
     toast: toast, modal: modal, closeModal: closeModal, bar: bar,
     rarityLabel: rarityLabel, rarityClass: rarityClass, modsText: modsText, flagsText: flagsText,
     gearCard: gearCard, accCard: accCard, itemCard: itemCard,
+    accIcon: accIcon, gearIcon: gearIcon, itemIcon: itemIcon, accHue: accHue,
     statTable: statTable, elemTable: elemTable, accSlots: accSlots, runInfo: runInfo
   };
 })();

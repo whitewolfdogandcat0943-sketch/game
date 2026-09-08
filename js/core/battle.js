@@ -61,6 +61,9 @@ G.Battle = (function () {
       var c = G.Stats.compute(u.hero, u.buffs, u.flagBuffs.map(function (f) { return f.f; }));
       u.S = c.S; u.flags = c.flags;
       u.S.maxHp = Math.max(1, u.S.maxHp);
+      /* 装備の付け替えで最大値が下がった場合に現在値がはみ出さないようにする */
+      if (u.hp != null) u.hp = Math.min(u.hp, u.S.maxHp);
+      if (u.mp != null) u.mp = Math.min(u.mp, u.S.maxMp);
     } else {
       var S = {
         maxHp: u.base.maxHp, atk: u.base.atk, mag: u.base.mag, def: u.base.def, res: u.base.res, spd: u.base.spd,
@@ -106,6 +109,8 @@ G.Battle = (function () {
         damageDealt: 0, turns: 0
       }
     };
+    b.units.forEach(function (u, i) { u.idx = i; });
+    b.fx = [];
     log(b, '⚔ 戦闘開始！ ' + enemyUnits.map(function (e) { return e.name; }).join('・') + ' が現れた。', 'sys');
 
     /* itemRefill: 戦闘開始時にアイテム補充 */
@@ -121,6 +126,9 @@ G.Battle = (function () {
   }
 
   function log(b, text, cls) { b.log.push({ t: text, c: cls || '' }); }
+
+  /** 描画後に再生する演出イベントを積む（fx.js が消費する） */
+  function fx(b, o) { if (b && b.fx && o.i != null) b.fx.push(o); }
 
   function alive(u) { return u.hp > 0; }
   function aliveEnemies(b) { return b.enemies.filter(alive); }
@@ -229,7 +237,7 @@ G.Battle = (function () {
 
     /* 回避 */
     if (!o.trueHit && T.evade && U.chance(T.evade)) {
-      if (!o.silent) log(b, '💨 ' + tgt.name + ' は攻撃をかわした！');
+      if (!o.silent) { log(b, '💨 ' + tgt.name + ' は攻撃をかわした！'); fx(b, { t: 'miss', i: tgt.idx }); }
       return 0;
     }
 
@@ -305,6 +313,7 @@ G.Battle = (function () {
       if (meta.crit) t = '💥 会心！ ' + t;
       if (meta.aoe) t = '〈範囲〉' + t;
       log(b, t, meta.crit ? 'crit' : (meta.aoe ? 'aoe' : ''));
+      fx(b, { t: 'dmg', i: tgt.idx, v: dmg, crit: !!meta.crit, aoe: !!meta.aoe, el: meta.el });
     }
     if (src && src.side === 'player') { b.rec.damageDealt += dmg; }
     if (tgt.side === 'player') b.rec.damageTaken += dmg;
@@ -340,6 +349,7 @@ G.Battle = (function () {
     if (!alive(target)) return;
     var before = target.hp;
     target.hp = Math.max(0, target.hp - rd);
+    fx(b, { t: 'dmg', i: target.idx, v: Math.min(before, rd), reflect: true });
     if (reflector.side === 'player') {
       b.rec.reflectDmg += Math.min(before, rd);
       b.rec.damageDealt += Math.min(before, rd);
@@ -351,6 +361,7 @@ G.Battle = (function () {
     if (u._dead) return;
     u._dead = true;
     log(b, '☠ ' + u.name + ' を倒した！', 'good');
+    fx(b, { t: 'die', i: u.idx });
     if (u.side === 'enemy') {
       b.rec.kills++;
       b.state.run.stats.kills++;
@@ -372,7 +383,10 @@ G.Battle = (function () {
     var before = u.hp;
     u.hp = Math.min(u.S.maxHp, u.hp + amount);
     var got = u.hp - before;
-    if (got > 0) log(b, '💚 ' + (label ? label + ': ' : '') + u.name + ' のHPが ' + got + ' 回復した。', 'good');
+    if (got > 0) {
+      log(b, '💚 ' + (label ? label + ': ' : '') + u.name + ' のHPが ' + got + ' 回復した。', 'good');
+      fx(b, { t: 'heal', i: u.idx, v: got });
+    }
     return got;
   }
 
@@ -425,6 +439,7 @@ G.Battle = (function () {
       log(b, '🩸 ' + src.name + ' はHPを ' + c + ' 支払った。', 'bad');
     }
     log(b, '▶ ' + src.name + ' の【' + sk.name + '】', 'sys');
+    fx(b, { t: 'act', i: src.idx });
 
     var targets = targetsFor(b, src, sk, targetIdx);
     var isAoe = (sk.target === 'all');
@@ -579,6 +594,7 @@ G.Battle = (function () {
     if (!keep) G.addItem(hero, itemId, -1);
     b.rec.itemsUsed++;
     b.state.run.stats.itemsUsed++;
+    fx(b, { t: 'act', i: src.idx });
     log(b, '▶ ' + src.name + ' は〈' + it.name + '〉を使った。' + (keep ? '（温存！消費しなかった）' : ''), 'sys');
 
     var repeat = (src.flags.itemEcho && U.chance(0.25)) ? 2 : 1;

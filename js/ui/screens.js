@@ -42,7 +42,8 @@ G.Screens = (function () {
     G.STARTER_CLASSES.forEach(function (id) {
       var c = G.CLASSES[id];
       h += '<div class="card" data-act="start:' + id + '">' +
-        '<div class="cname" style="font-size:15px">' + c.icon + ' ' + c.name + '</div>' +
+        '<div class="classcard-head">' + G.Gfx.classImg(id, 4) +
+        '<div class="cname" style="font-size:15px">' + c.name + '</div></div>' +
         '<div class="cdesc">' + c.desc + '<br><br>' +
         '<b>パッシブ:</b> ' + (UI.modsText(c.mods) || 'なし') + '<br>' +
         '<b>初期スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div></div>';
@@ -50,7 +51,8 @@ G.Screens = (function () {
     h += '</div>';
     h += '<div class="panel"><h3>到達しうる最上級職</h3><div class="grid g2">' +
       G.CLASS_LIST.filter(function (c) { return c.tier === 3; }).map(function (c) {
-        return '<div class="card locked"><div class="cname r-mythic">' + c.icon + ' ' + c.name + '</div>' +
+        return '<div class="card locked"><div class="classcard-head">' + G.Gfx.classImg(c.id, 3) +
+          '<div class="cname r-mythic">' + c.name + '</div></div>' +
           '<div class="cdesc">' + c.desc + '</div></div>';
       }).join('') + '</div></div>';
     render(h);
@@ -59,11 +61,13 @@ G.Screens = (function () {
   /* ===================== マップ ===================== */
   function map(state) {
     var run = state.run, hero = state.hero, S = G.Stats.compute(hero).S;
-    var h = '<h1>第 ' + run.floor + ' 階層' + (G.Run.isBossFloor(run.floor) ? ' <span class="r-mythic">― 主の間 ―</span>' : '') + '</h1>';
+    G.Fx.applyBackground(run.floor);
+    var h = '<h1>第 ' + run.floor + ' 階層 <span class="muted small">' + G.Fx.bandName(run.floor) + '</span>' +
+      (G.Run.isBossFloor(run.floor) ? ' <span class="r-mythic">― 主の間 ―</span>' : '') + '</h1>';
     h += '<p class="muted">進む道を選べ。' + (G.Run.isBossFloor(run.floor) ? '逃げ道はない。' : '同じ階層で複数の道は選べない。') + '</p>';
     h += '<div class="grid g3">';
     run.nodes.forEach(function (n, i) {
-      h += '<div class="node" data-act="node:' + i + '"><div class="ico">' + n.icon + '</div>' +
+      h += '<div class="node" data-act="node:' + i + '">' + G.Gfx.nodeImg(n.kind, 3) +
         '<div class="nn">' + n.name + '</div><div class="nd">' + n.desc + '</div></div>';
     });
     h += '</div>';
@@ -112,9 +116,11 @@ G.Screens = (function () {
     h += '<div class="enemies">';
     b.enemies.forEach(function (e, i) {
       var sel = (state.targetIdx === i) ? 'style="outline:2px solid var(--danger)"' : '';
-      h += '<div class="unit ' + (e.hp > 0 ? 'target' : 'dead') + '" ' + sel + ' data-act="selectTarget:' + i + '">' +
-        '<div class="un"><span>' + e.icon + ' ' + e.name + '</span>' +
+      h += '<div class="unit ' + (e.hp > 0 ? 'target' : 'dead') + '" ' + sel +
+        ' data-unit="' + (i + 1) + '" data-act="selectTarget:' + i + '">' +
+        '<div class="un"><span>' + e.name + '</span>' +
         '<span class="lvtag">' + (e.isBoss ? 'BOSS' : '') + '</span></div>' +
+        '<div class="sprwrap">' + G.Gfx.enemyImg(e.ref.id, e.isBoss ? 5 : 4, e.hp > 0 ? (e.isBoss ? 'boss' : 'idle') : '') + '</div>' +
         UI.bar(e.hp, e.S.maxHp, 'hp', '') +
         '<div class="tiny muted" style="margin-top:3px">弱点: ' + (e.weak.length ? e.weak.map(G.elSpan).join(' ') : 'なし') +
         '<br>耐性: ' + (e.resist.length ? e.resist.map(G.elSpan).join(' ') : 'なし') + '</div>' +
@@ -123,10 +129,11 @@ G.Screens = (function () {
     });
     h += '</div>';
 
-    h += '<div class="grid g2" style="margin-top:10px"><div class="hero-panel">' +
-      '<div class="un" style="font-size:13px"><span>' + G.CLASSES[state.hero.classId].icon + ' ' + U.esc(state.hero.name) +
+    h += '<div class="grid g2" style="margin-top:10px"><div class="hero-panel" data-unit="0">' +
+      '<div class="un" style="font-size:13px"><span>' + U.esc(state.hero.name) +
       ' <span class="muted">Lv' + state.hero.level + ' ' + G.CLASSES[state.hero.classId].name + '</span></span>' +
       (hero.barrier > 0 ? '<span class="tag">🛡 ' + hero.barrier + '</span>' : '') + '</div>' +
+      '<div class="sprwrap">' + G.Gfx.classImg(state.hero.classId, 5, hero.hp > 0 ? 'idle' : '') + '</div>' +
       UI.bar(hero.hp, hero.S.maxHp, 'hp', 'HP') + '<div style="height:5px"></div>' +
       UI.bar(hero.mp, hero.S.maxMp, 'mp', 'MP') +
       '<div class="sts" style="margin-top:6px">' + statusChips(hero) + buffChips(hero) + '</div>' +
@@ -151,9 +158,11 @@ G.Screens = (function () {
       else h += skillActions(state);
       h += '</div></div>';
     }
+    G.Fx.applyBackground(state.run.floor);
     render(h);
     var lg = document.getElementById('battleLog');
     if (lg) lg.scrollTop = lg.scrollHeight;
+    G.Fx.play(b);
   }
 
   function tabBtn(state, id, label) {
@@ -243,7 +252,7 @@ G.Screens = (function () {
       if (data.classes && data.classes.length) {
         h += '<div class="panel"><h3 class="r-legend">☆ 転職条件を満たした職業</h3><div class="grid g2">' +
           data.classes.map(function (c) {
-            return '<div class="card"><div class="cname ' + (c.tier === 3 ? 'r-mythic' : 'r-legend') + '">' + c.icon + ' ' + c.name +
+            return '<div class="card"><div class="cname ' + (c.tier === 3 ? 'r-mythic' : 'r-legend') + '">' + G.Gfx.classImg(c.id, 2, '', 'style="display:inline-block;vertical-align:-8px"') + c.name +
               ' <span class="tag">' + (c.tier === 3 ? '最上級職' : '上級職') + '</span></div>' +
               '<div class="cdesc">' + c.desc + '<br>「転職の祭壇」で転職できる。</div></div>';
           }).join('') + '</div></div>';
@@ -288,9 +297,9 @@ G.Screens = (function () {
   /* ===================== 焚き火 ===================== */
   function rest(state) {
     var h = '<h1>🔥 焚き火</h1><p class="muted">束の間の休息。何をする？</p><div class="grid g3">';
-    h += '<div class="node" data-act="rest:heal"><div class="ico">💤</div><div class="nn">休む</div><div class="nd">HP/MPを最大値の60%回復する。</div></div>';
-    h += '<div class="node" data-act="rest:train"><div class="ico">📖</div><div class="nn">鍛錬する</div><div class="nd">次のレベルまでの経験値の70%を得る。</div></div>';
-    h += '<div class="node" data-act="rest:forge"><div class="ico">⚒</div><div class="nn">装備を見直す</div><div class="nd">装備画面を開く（この後もう一度選べる）。</div></div>';
+    h += '<div class="node" data-act="rest:heal">' + G.Gfx.nodeImg('rest', 3) + '<div class="nn">休む</div><div class="nd">HP/MPを最大値の60%回復する。</div></div>';
+    h += '<div class="node" data-act="rest:train">' + G.Gfx.nodeImg('event', 3) + '<div class="nn">鍛錬する</div><div class="nd">次のレベルまでの経験値の70%を得る。</div></div>';
+    h += '<div class="node" data-act="rest:forge">' + G.Gfx.iconImg('weapon', 'legend', 3) + '<div class="nn">装備を見直す</div><div class="nd">装備画面を開く（この後もう一度選べる）。</div></div>';
     h += '</div><div class="panel center"><button class="btn" data-act="leaveNode">先へ進む</button></div>';
     render(h);
   }
@@ -300,7 +309,7 @@ G.Screens = (function () {
     var checks = G.Unlock.availableClasses(state);
     var cur = G.CLASSES[state.hero.classId];
     var h = '<h1>⛩ 転職の祭壇</h1>';
-    h += '<p class="muted">現在の職業: <b>' + cur.icon + ' ' + cur.name + '</b>（' +
+    h += '<p class="muted">現在の職業: <b>' + cur.name + '</b>（' +
       (cur.tier === 3 ? '最上級職' : cur.tier === 2 ? '上級職' : '初級職') + '）／ ' +
       'これまでの職業のスキルは全て使用できる。</p>';
 
@@ -314,8 +323,9 @@ G.Screens = (function () {
         var isCur = state.hero.classId === c.id;
         h += '<div class="card ' + (r.ok ? '' : 'locked') + ' ' + (tier === 3 ? 'bd-mythic' : tier === 2 ? 'bd-legend' : '') + '" ' +
           (r.ok && !standalone ? 'data-act="changeClass:' + c.id + '"' : '') + '>' +
-          '<div class="cname ' + (tier === 3 ? 'r-mythic' : tier === 2 ? 'r-legend' : '') + '">' + c.icon + ' ' + c.name +
-          (isCur ? ' <span class="tag">現在</span>' : '') + (r.ok && !isCur ? ' <span class="tag legend">転職可能</span>' : '') + '</div>' +
+          '<div class="classcard-head">' + G.Gfx.classImg(c.id, 3) +
+          '<div class="cname ' + (tier === 3 ? 'r-mythic' : tier === 2 ? 'r-legend' : '') + '">' + c.name +
+          (isCur ? ' <span class="tag">現在</span>' : '') + (r.ok && !isCur ? ' <span class="tag legend">転職可能</span>' : '') + '</div></div>' +
           '<div class="cdesc">' + c.desc + '<br><b>パッシブ:</b> ' + (UI.modsText(c.mods) || 'なし') +
           (c.flags && c.flags.length ? '<br>' + UI.flagsText(c.flags) : '') +
           '<br><b>習得スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div>' +
@@ -385,7 +395,7 @@ G.Screens = (function () {
   function slotBox(label, g, act) {
     return '<div class="slot ' + (g ? '' : 'empty') + '" data-act="' + act + '">' +
       '<div class="sl">' + label + '</div>' +
-      '<div class="sv ' + (g ? UI.rarityClass(g.rarity) : '') + '">' + (g ? g.name : '― 空き ―') + '</div>' +
+      '<div class="sv ' + (g ? UI.rarityClass(g.rarity) : '') + '">' + (g ? UI.gearIcon(g) + g.name : '― 空き ―') + '</div>' +
       (g ? '<div class="tiny muted">' + UI.modsText(g.mods) + '</div>' : '') + '</div>';
   }
 
@@ -441,7 +451,7 @@ G.Screens = (function () {
     G.MYTHICS.forEach(function (m) {
       var found = meta.mythics.indexOf(m.id) >= 0;
       if (found) h += UI.accCard(m, { note: '<span class="r-mythic">発見済</span>' });
-      else h += '<div class="card locked bd-mythic"><div class="cname r-mythic">💍 ??????? <span class="tag mythic">ミシック</span></div>' +
+      else h += '<div class="card locked bd-mythic"><div class="cname r-mythic">' + G.Gfx.iconImg('acc', 'mythic', 2) + '??????? <span class="tag mythic">ミシック</span></div>' +
         '<div class="cdesc"><span class="r-mythic">【取得条件】' + m.cond.label + '</span><br><span class="muted">ヒント: ' + m.cond.hint + '</span></div></div>';
     });
     h += '</div>';
@@ -451,8 +461,9 @@ G.Screens = (function () {
       G.CLASS_LIST.filter(function (c) { return c.tier === t; }).forEach(function (c) {
         var seen = t === 1 || meta.classesSeen.indexOf(c.id) >= 0;
         h += '<div class="card ' + (seen ? '' : 'locked') + ' ' + (t === 3 ? 'bd-mythic' : t === 2 ? 'bd-legend' : '') + '">' +
-          '<div class="cname ' + (t === 3 ? 'r-mythic' : t === 2 ? 'r-legend' : '') + '">' + c.icon + ' ' + c.name +
-          ' <span class="tag">' + (t === 3 ? '最上級職' : t === 2 ? '上級職' : '初級職') + '</span></div>' +
+          '<div class="classcard-head">' + G.Gfx.classImg(c.id, 3, seen ? '' : 'dim') +
+          '<div class="cname ' + (t === 3 ? 'r-mythic' : t === 2 ? 'r-legend' : '') + '">' + c.name +
+          ' <span class="tag">' + (t === 3 ? '最上級職' : t === 2 ? '上級職' : '初級職') + '</span></div></div>' +
           '<div class="cdesc">' + c.desc +
           (c.req ? '<br><b>解放条件:</b><br>' + c.req.map(function (r) { return '・' + r.label; }).join('<br>') +
             (c.from ? '<br>・前提職: ' + c.from.map(function (f) { return G.CLASSES[f].name; }).join(' / ') : '') : '') +
