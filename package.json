@@ -1,0 +1,18 @@
+{
+  "name": "build-saga",
+  "version": "1.0.0",
+  "private": true,
+  "description": "相剋のビルドサーガ - ビルド構築特化のローグライトRPG（Web版とGodot版）",
+  "scripts": {
+    "export": "node tools/export-data.js && node tools/validate-godot-data.js",
+    "export:data": "node tools/export-data.js",
+    "export:sprites": "node tools/export-sprites.js",
+    "validate": "node tools/validate-godot-data.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -9,6 +9,8 @@ git clone <this repo> && cd game
 python3 -m http.server 8000   # → http://localhost:8000
 ```
 
+PCで開発する場合の環境構築（Godot版を含む）は **[SETUP.md](SETUP.md)** を参照してください。
+
 進行状況（発見したミシック・到達した職業・最深階層・冒険の途中経過）は
 ブラウザの localStorage に自動保存されます。
 

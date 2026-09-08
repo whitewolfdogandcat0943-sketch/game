@@ -7,7 +7,17 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('/opt/node22/lib/node_modules/playwright');
+/* Playwright はこのツールだけが使う。未導入なら導入方法を案内して終わる。 */
+let chromium;
+try {
+  chromium = require('playwright').chromium;
+} catch (e) {
+  console.error('Playwright が見つかりません。スプライトの書き出しにだけ必要です。\n' +
+    '  npm install            （このリポジトリの devDependencies を入れる）\n' +
+    '  npx playwright install chromium\n' +
+    'データだけを更新したい場合は tools/export-data.js を使ってください。');
+  process.exit(1);
+}
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, 'godot', 'assets', 'sprites');
