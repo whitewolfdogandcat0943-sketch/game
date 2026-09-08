@@ -11,8 +11,8 @@ static func run() -> Array:
 
 	if GameData.classes.size() != 25:
 		errors.append("職業が25件でなく %d 件（data/classes.json）" % GameData.classes.size())
-	if GameData.accessories.size() != 138:
-		errors.append("アクセサリが138件でなく %d 件" % GameData.accessories.size())
+	if GameData.accessories.size() != 142:
+		errors.append("アクセサリが142件でなく %d 件" % GameData.accessories.size())
 	if GameData.skills.is_empty():
 		errors.append("スキルが読み込めていない")
 
