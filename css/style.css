@@ -218,3 +218,13 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 }
 .spr.dim{opacity:.35;filter:grayscale(1) brightness(.6)}
 .node .node-ico{margin:0 auto 4px}
+
+/* ===================== スキルツリー ===================== */
+.treetabs{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.treerow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.treelink{width:2px;height:16px;margin:0 auto;background:linear-gradient(180deg,var(--line),var(--acc))}
+.treenode{cursor:pointer}
+.treenode.owned{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;background:#232640}
+.treenode.owned .cname{color:var(--gold)}
+.treenode.locked{opacity:.5;cursor:not-allowed}
+.treenode.locked:hover{transform:none;border-color:var(--line)}

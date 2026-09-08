@@ -49,6 +49,11 @@ G.Save = (function () {
       d.hero.bag.acc = d.hero.bag.acc.filter(function (id) { return !!G.ACC_BY_ID[id]; });
       d.hero.equip.acc = (d.hero.equip.acc || []).map(function (id) { return G.ACC_BY_ID[id] ? id : null; });
       while (d.hero.equip.acc.length < 4) d.hero.equip.acc.push(null);
+      if (d.hero.sp == null) d.hero.sp = 0;
+      if (!d.hero.tree) d.hero.tree = {};
+      Object.keys(d.hero.tree).forEach(function (id) {
+        if (!G.TREE.byId[id]) delete d.hero.tree[id];
+      });
       if (d.hero.equip.weapon && !G.GEAR[d.hero.equip.weapon]) d.hero.equip.weapon = null;
       if (d.hero.equip.armor && !G.GEAR[d.hero.equip.armor]) d.hero.equip.armor = null;
       return d;

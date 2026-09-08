@@ -5,6 +5,8 @@ G.UI = (function () {
   /* ---------- トースト ---------- */
   function toast(text, cls) {
     var box = document.getElementById('toaster');
+    /* 画面を埋め尽くさないよう、同時表示は5件までにする */
+    while (box.children.length >= 5) box.removeChild(box.firstChild);
     var d = document.createElement('div');
     d.className = 'toast ' + (cls || '');
     d.innerHTML = text;
@@ -158,6 +160,7 @@ G.UI = (function () {
       '<span>HP <b>' + Math.max(0, hero.hp) + '</b>/' + S.maxHp + '</span>' +
       '<span>MP <b>' + hero.mp + '</b>/' + S.maxMp + '</span>' +
       '<span>💰 <b>' + hero.gold + '</b></span>' +
+      (hero.sp ? '<span style="color:var(--xp)">SP <b>' + hero.sp + '</b></span>' : '') +
       '<span>階層 <b>' + state.run.floor + '</b>F</span>';
   }
 

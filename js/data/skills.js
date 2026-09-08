@@ -137,6 +137,33 @@ G.SKILLS = {};
       special: 'mythicScale', desc: '【奥義】装備中のミシック1個につき威力+45%。耐性を完全に無視。',
       eff: { fullPierce: true } });
 
+  /* ---------- スキルツリーで習得するスキル ---------- */
+  S({ id: 't_condemn', name: '断罪の型', mp: 14, kind: 'phys', el: 'phys', power: 200, target: 'one',
+      desc: '会心率+50%／会心ダメージ+30%の一撃。', eff: { critBonus: 0.50, critBonusDmg: 0.30 } });
+  S({ id: 't_retribution', name: '返報の誓い', mp: 14, kind: 'buff', target: 'self',
+      desc: '3ターン、反射率+70%／被ダメ軽減+30%。',
+      eff: { buffs: [{ k: 'reflect', v: 0.70, t: 3 }, { k: 'dr', v: 0.30, t: 3 }] } });
+  S({ id: 't_scatterstrike', name: '拡散連撃', mp: 18, kind: 'phys', el: 'wind', power: 120, target: 'all', hits: 2,
+      desc: '敵全体を2連続で薙ぎ払う。' });
+  S({ id: 't_elemshift', name: '属性転変', mp: 16, kind: 'buff', target: 'self',
+      desc: '3ターン、全属性+35%／耐性貫通+30%。',
+      eff: { buffs: [{ k: 'el_fire', v: 0.35, t: 3 }, { k: 'el_ice', v: 0.35, t: 3 }, { k: 'el_thunder', v: 0.35, t: 3 },
+                     { k: 'el_wind', v: 0.35, t: 3 }, { k: 'el_light', v: 0.35, t: 3 }, { k: 'el_dark', v: 0.35, t: 3 },
+                     { k: 'pierce', v: 0.30, t: 3 }] } });
+  S({ id: 't_quickbrew', name: '即席調合', mp: 12, kind: 'util', target: 'self',
+      desc: 'アイテムを2個生成し、3ターン アイテム威力+60%。',
+      eff: { makeItem: 2, buffs: [{ k: 'itemPower', v: 0.60, t: 3 }] } });
+  S({ id: 't_immovable', name: '不動明王', mp: 16, kind: 'buff', target: 'self',
+      desc: '最大HPの20%回復。3ターン、被ダメ軽減+45%／反射率+25%。',
+      eff: { healMaxPct: 0.20, buffs: [{ k: 'dr', v: 0.45, t: 3 }, { k: 'reflect', v: 0.25, t: 3 }] } });
+  S({ id: 't_afterimage', name: '残影', mp: 13, kind: 'buff', target: 'self',
+      desc: '3ターン、回避+35%／素早さ+40。回避時に反撃するようになる。',
+      eff: { buffs: [{ k: 'evade', v: 0.35, t: 3 }, { k: 'spd', v: 40, t: 3 }],
+             flagBuff: { f: 'counterEvade', t: 3 } } });
+  S({ id: 't_lifeline', name: '生命線', mp: 15, kind: 'buff', target: 'self',
+      desc: '最大HPの40%回復。3ターン、吸収+30%。',
+      eff: { healMaxPct: 0.40, buffs: [{ k: 'lifesteal', v: 0.30, t: 3 }] } });
+
   /* ---------- 敵専用 ---------- */
   S({ id: 'e_bite', name: '噛みつき', mp: 0, kind: 'phys', el: 'phys', power: 105, target: 'one', desc: '' });
   S({ id: 'e_claw', name: '爪撃', mp: 0, kind: 'phys', el: 'phys', power: 125, target: 'one', desc: '' });

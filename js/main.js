@@ -288,6 +288,35 @@
         S.buildModal(state); draw(); break;
       }
 
+      /* --- スキルツリー --- */
+      case 'treeOpen': S.skillTree(state); break;
+      case 'treeTab': state.treeTab = p[1]; S.skillTree(state); break;
+      case 'treeTake': {
+        var chk = G.Tree.check(state.hero, p[1]);
+        if (!chk.ok) { UI.toast('まだ取得できない。'); break; }
+        state.hero.tree[p[1]] = true;
+        state.hero.sp -= chk.node.cost;
+        refreshBattleStats();
+        UI.toast('🌿 <b>' + chk.node.name + '</b> を習得した。', 'class');
+        G.Run.checkClassUnlocks(state).forEach(function (c) {
+          UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class');
+        });
+        G.Save.saveRun(state);
+        S.skillTree(state); draw(); break;
+      }
+      case 'treeRespec': {
+        var rc = G.Tree.respecCost(state.hero);
+        if (rc <= 0) break;
+        if (state.hero.gold < rc) { UI.toast('ゴールドが足りない。'); break; }
+        state.hero.gold -= rc;
+        state.hero.sp = (state.hero.sp || 0) + G.Tree.totalSpent(state.hero);
+        state.hero.tree = {};
+        refreshBattleStats();
+        UI.toast('🌿 スキルポイントを振り直した。');
+        G.Save.saveRun(state);
+        S.skillTree(state); draw(); break;
+      }
+
       /* --- 情報 --- */
       case 'codex': S.codex(state); break;
       case 'help': S.help(); break;
@@ -329,6 +358,7 @@
   U.delegate(document.getElementById('app'), 'data-open', function (cmd) {
     if (!state.hero && cmd !== 'codex' && cmd !== 'help') { UI.toast('冒険を始めてください。'); return; }
     if (cmd === 'build') S.buildModal(state);
+    if (cmd === 'tree') S.skillTree(state);
     if (cmd === 'codex') S.codex(state);
     if (cmd === 'help') S.help();
   });

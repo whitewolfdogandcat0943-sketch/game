@@ -605,6 +605,7 @@ G.Battle = (function () {
       src.flagBuffs.push({ f: eff.flagBuff.f, t: eff.flagBuff.t + 1 }); refresh(src);
       log(b, '✨ ' + src.name + ': ' + (G.FLAGS[eff.flagBuff.f] || eff.flagBuff.f), 'good');
     }
+    if (eff.healMaxPct) heal(b, src, Math.round(src.S.maxHp * eff.healMaxPct), sk.name);
     if (eff.barrier) {
       src.barrier += Math.round(src.S.mag * eff.barrier + src.S.maxHp * 0.05);
       log(b, '🛡 バリアを展開した（' + src.barrier + '）。', 'good');

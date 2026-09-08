@@ -74,6 +74,8 @@ G.Screens = (function () {
     h += '<div class="panel"><div class="row" style="justify-content:space-between;align-items:center">' +
       '<h3 style="margin:0">現在のビルド</h3>' +
       '<div><button class="btn tiny" data-act="buildOpen">装備を組み替える</button> ' +
+      '<button class="btn tiny" data-act="treeOpen">スキルツリー' +
+      (hero.sp ? ' <span class="r-legend">+' + hero.sp + '</span>' : '') + '</button> ' +
       '<button class="btn tiny" data-act="altarPreview">転職条件を見る</button></div></div>';
     h += '<div class="sep"></div>';
     h += '<div class="grid g2"><div>' + UI.bar(hero.hp, S.maxHp, 'hp', 'HP') + '<div style="height:6px"></div>' +
@@ -227,6 +229,7 @@ G.Screens = (function () {
         '<div class="kv"><span>経験値</span><span>+' + data.exp + '</span></div>' +
         '<div class="kv"><span>ゴールド</span><span>+' + data.gold + '</span></div>' +
         (data.levels ? '<div class="kv"><span class="r-legend">レベルアップ</span><span class="r-legend">+' + data.levels + '</span></div>' : '') +
+        (data.sp ? '<div class="kv"><span style="color:var(--xp)">スキルポイント</span><span style="color:var(--xp)">+' + data.sp + '</span></div>' : '') +
         '</div>';
       if (data.drops.length) {
         h += '<div class="panel"><h3>ドロップ</h3><div class="grid g3">' + data.drops.map(function (d) {
@@ -441,6 +444,65 @@ G.Screens = (function () {
     UI.modal(h);
   }
 
+
+  /* ===================== スキルツリー ===================== */
+  function skillTree(state) {
+    var hero = state.hero;
+    var tabId = state.treeTab || G.TREE.branches[0].id;
+    var br = G.TREE.branches.filter(function (x) { return x.id === tabId; })[0] || G.TREE.branches[0];
+    var spent = G.Tree.totalSpent(hero), cost = G.Tree.respecCost(hero);
+
+    var h = '<h2 style="color:var(--gold);margin-top:0">スキルツリー</h2>';
+    h += '<div class="row" style="justify-content:space-between;align-items:center">' +
+      '<div class="small">残りSP <b style="color:var(--xp);font-size:16px">' + (hero.sp || 0) + '</b>' +
+      ' <span class="muted">／ 使用済み ' + spent + 'SP</span></div>' +
+      '<button class="btn tiny" ' + (spent > 0 && hero.gold >= cost ? '' : 'disabled') + ' data-act="treeRespec">' +
+      '振り直す（' + cost + 'G）</button></div>';
+    h += '<p class="tiny muted">SPはレベルアップで1、精鋭撃破で1、ボス撃破で2 手に入る。' +
+      'ここで伸ばした数値はそのまま職業の解放条件に反映される。</p>';
+
+    /* 系統タブ */
+    h += '<div class="treetabs">';
+    G.TREE.branches.forEach(function (b2) {
+      var inv = G.Tree.branchSpent(hero, b2.id);
+      h += '<button class="btn tiny' + (b2.id === br.id ? ' primary' : '') + '" data-act="treeTab:' + b2.id + '">' +
+        b2.name + (inv ? ' <span class="r-legend">' + inv + '</span>' : '') + '</button>';
+    });
+    h += '</div>';
+
+    h += '<div class="panel" style="margin-top:10px"><h3 style="margin-bottom:4px">' + br.name + '</h3>' +
+      '<div class="tiny muted" style="margin-bottom:10px">' + br.desc + '</div>';
+
+    [1, 2, 3, 4].forEach(function (row) {
+      var nodes = br.nodes.filter(function (n) { return n.row === row; });
+      if (!nodes.length) return;
+      if (row > 1) h += '<div class="treelink"></div>';
+      h += '<div class="treerow">' + nodes.map(function (n) { return treeNode(state, n); }).join('') + '</div>';
+    });
+    h += '</div>';
+    h += '<div class="center"><button class="btn primary" data-act="closeModal">閉じる</button></div>';
+    UI.modal(h);
+  }
+
+  function treeNode(state, n) {
+    var hero = state.hero;
+    var chk = G.Tree.check(hero, n.id);
+    var cls = chk.owned ? 'owned' : (chk.ok ? '' : 'locked');
+    var body = '';
+    if (n.mods) body += '<div class="cdesc">' + UI.modsText(n.mods) + '</div>';
+    if (n.flags) body += '<div class="cdesc">' + UI.flagsText(n.flags) + '</div>';
+    if (n.skill) body += '<div class="cdesc r-legend">スキル習得: 【' + G.SKILLS[n.skill].name + '】<br>' +
+      '<span class="muted">' + G.SKILLS[n.skill].desc + '</span></div>';
+    if (!chk.owned) {
+      body += chk.reasons.filter(function (r) { return !r.ok; })
+        .map(function (r) { return '<div class="cond ng">' + r.label + '</div>'; }).join('');
+    }
+    return '<div class="card treenode ' + cls + '" ' + (chk.ok ? 'data-act="treeTake:' + n.id + '"' : '') + '>' +
+      '<div class="cname">' + (chk.owned ? '<span class="r-legend">✔ </span>' : '') + n.name +
+      (n.row === 4 ? ' <span class="tag mythic">奥義</span>' : '') +
+      ' <span class="tag">' + n.cost + 'SP</span></div>' + body + '</div>';
+  }
+
   /* ===================== 図鑑 ===================== */
   function codex(state) {
     var meta = state.meta;
@@ -492,6 +554,7 @@ G.Screens = (function () {
     title: title, classSelect: classSelect, map: map, battle: battle, reward: reward,
     shop: shop, rest: rest, altar: altar, event: event,
     buildModal: buildModal, accPicker: accPicker, gearPicker: gearPicker, codex: codex, help: help,
+    skillTree: skillTree,
     render: render
   };
 })();

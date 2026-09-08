@@ -15,7 +15,7 @@ G.Run = (function () {
   function newHero(classId, name) {
     var hero = {
       name: name || '冒険者', classId: classId, classHistory: [], level: 1, exp: 0,
-      hp: 1, mp: 1, gold: 120,
+      hp: 1, mp: 1, gold: 120, sp: 2, tree: {},
       equip: { weapon: null, armor: null, acc: [null, null, null, null] },
       bag: { gear: [], acc: [] },
       items: {}
@@ -183,11 +183,12 @@ G.Run = (function () {
       var it = rollItem(state.run.floor);
       G.addItem(hero, it.id, 1); drops.push({ type: 'item', ref: it });
     }
-    if (kind === 'elite') state.run.stats.elites++;
-    if (kind === 'boss') state.run.stats.bosses++;
+    if (kind === 'elite') { state.run.stats.elites++; hero.sp = (hero.sp || 0) + 1; }
+    if (kind === 'boss') { state.run.stats.bosses++; hero.sp = (hero.sp || 0) + 2; }
 
     var choices = (kind === 'elite' || kind === 'boss') ? makeChoices(state, kind) : null;
-    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices };
+    var spGain = levels + (kind === 'boss' ? 2 : (kind === 'elite' ? 1 : 0));
+    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices, sp: spGain };
   }
 
   function applyLevelUps(state) {
@@ -197,6 +198,7 @@ G.Run = (function () {
       hero.level++; gained++;
     }
     if (gained) {
+      hero.sp = (hero.sp || 0) + gained;   /* レベルアップ1回につき1SP */
       var S = G.Stats.compute(hero).S;
       hero.hp = Math.min(S.maxHp, hero.hp + Math.round(S.maxHp * 0.5 * gained));
       hero.mp = Math.min(S.maxMp, hero.mp + Math.round(S.maxMp * 0.5 * gained));

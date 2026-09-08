@@ -68,6 +68,11 @@ G.Stats = (function () {
     if (hero.equip.weapon) take(G.GEAR[hero.equip.weapon], '武器');
     if (hero.equip.armor) take(G.GEAR[hero.equip.armor], '防具');
     equippedAccs(hero).forEach(function (a) { take(a, 'アクセサリ'); });
+    /* スキルツリーで取得したノード */
+    Object.keys(hero.tree || {}).forEach(function (id) {
+      var n = G.TREE && G.TREE.byId[id];
+      if (n && hero.tree[id]) take(n, 'スキルツリー');
+    });
 
     (buffs || []).forEach(function (b) { mods[b.k] = (mods[b.k] || 0) + b.v; });
     (bflags || []).forEach(function (f) { flags[f] = true; });
@@ -120,6 +125,10 @@ G.Stats = (function () {
     });
     var w = hero.equip.weapon && G.GEAR[hero.equip.weapon];
     if (w && w.grant && out.indexOf(w.grant) < 0) out.push(w.grant);
+    Object.keys(hero.tree || {}).forEach(function (id) {
+      var n = G.TREE && G.TREE.byId[id];
+      if (n && n.skill && out.indexOf(n.skill) < 0) out.push(n.skill);
+    });
     return out;
   }
 
