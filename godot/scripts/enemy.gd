@@ -26,6 +26,10 @@ var attack_cd: float = 2.0
 var pending_shot: bool = false
 var _hit_flash: float = 0.0
 var _telegraph: float = 0.0
+var _impact: float = 0.0
+var _time: float = 0.0
+var _base_scale: Vector2 = Vector2(2.0, 2.0)
+var _move_dir: Vector2 = Vector2.ZERO
 var _contact_cd: float = 0.0
 var _sprite: Sprite2D
 
@@ -68,7 +72,8 @@ func setup(d: Dictionary, floor_no: int) -> void:
 
 	_sprite = Sprite2D.new()
 	_sprite.texture = GameData.sprite("enemies", d.get("id", ""))
-	_sprite.scale = Vector2(3.0, 3.0) if is_boss else Vector2(2.0, 2.0)
+	_base_scale = Vector2(3.0, 3.0) if is_boss else Vector2(2.0, 2.0)
+	_sprite.scale = _base_scale
 	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_child(_sprite)
 
@@ -76,6 +81,7 @@ func setup(d: Dictionary, floor_no: int) -> void:
 func hurt(amount: float, push: Vector2 = Vector2.ZERO) -> void:
 	hp -= amount
 	_hit_flash = 0.16
+	_impact = 1.0
 	knockback += push
 	if hp <= 0.0:
 		died.emit(self)
@@ -105,9 +111,11 @@ func touched() -> void:
 
 ## 継続ダメージが出たらその値を返す（撃破判定は呼び出し側）
 func tick(delta: float, target: Vector2) -> float:
+	_time += delta
 	_contact_cd = maxf(0.0, _contact_cd - delta)
 	_hit_flash = maxf(0.0, _hit_flash - delta)
 	_telegraph = maxf(0.0, _telegraph - delta)
+	_impact = maxf(0.0, _impact - delta * 6.0)
 	attack_cd = maxf(0.0, attack_cd - delta)
 
 	var dot := StatusFx.tick(self, delta)
@@ -127,8 +135,10 @@ func tick(delta: float, target: Vector2) -> float:
 	if _telegraph > 0.0:
 		mult *= 0.2
 	var dir := (target - global_position)
+	_move_dir = Vector2.ZERO
 	if dir.length() > 1.0 and mult > 0.0:
-		global_position += dir.normalized() * speed * mult * delta
+		_move_dir = dir.normalized()
+		global_position += _move_dir * speed * mult * delta
 
 	if is_instance_valid(_sprite):
 		if _hit_flash > 0.0:
@@ -143,8 +153,18 @@ func tick(delta: float, target: Vector2) -> float:
 			_sprite.modulate = Color(1.2, 0.95, 1.05)
 		else:
 			_sprite.modulate = Color.WHITE
-		## 待機の微揺れ（Web版と同じく控えめに）
-		_sprite.position.y = sin(float(Time.get_ticks_msec()) * 0.004 + global_position.x) * 1.5
+		## 1枚絵なので、傾きと伸縮で歩いているように見せる
+		if _impact > 0.0:
+			Visual.impact(_sprite, _impact, _base_scale, 0.32)
+		else:
+			Visual.locomotion(_sprite, _move_dir, _move_dir.length() * mult, _time, _base_scale)
+		if _telegraph > 0.0:
+			## 撃つ直前だけ大きく膨らませる（予告が目で分かるように）
+			var k := 1.0 + sin(_time * 34.0) * 0.10
+			_sprite.scale = _base_scale * k
+		if _move_dir.x != 0.0:
+			_sprite.flip_h = _move_dir.x < 0.0
+	queue_redraw()
 	return dot
 
 
@@ -158,6 +178,14 @@ func _debuff_sum(key: String) -> float:
 		if d["k"] == key:
 			v += float(d["v"])
 	return v
+
+
+func _draw() -> void:
+	Visual.draw_shadow(self, radius + 4.0, radius * 0.95, 0.38)
+	## 予備動作中は足元に赤い輪を出す（何か来ると分かる）
+	if _telegraph > 0.0:
+		draw_arc(Vector2(0, radius + 4.0), radius * 1.6, 0.0, TAU, 20,
+			Color(1.0, 0.35, 0.35, 0.7), 2.0)
 
 
 func stat_block() -> Dictionary:

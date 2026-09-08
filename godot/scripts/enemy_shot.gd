@@ -7,6 +7,7 @@ var damage: float = 5.0
 var element: String = "phys"
 var radius: float = 5.0
 var life: float = 4.0
+var _trail: Array = []
 
 
 func setup(dir: Vector2, speed: float, dmg: float, el: String) -> void:
@@ -16,6 +17,9 @@ func setup(dir: Vector2, speed: float, dmg: float, el: String) -> void:
 
 
 func tick(delta: float) -> void:
+	_trail.push_front(global_position)
+	if _trail.size() > 8:
+		_trail.resize(8)
 	global_position += velocity * delta
 	life -= delta
 	queue_redraw()
@@ -32,5 +36,11 @@ func _draw() -> void:
 		"wind": c = Color(0.56, 0.94, 0.72)
 		"light": c = Color(1.0, 0.95, 0.77)
 		"dark": c = Color(0.75, 0.55, 1.0)
+	## 軌跡（どこから飛んできたかが読めるように）
+	for i in _trail.size():
+		var t: float = 1.0 - float(i) / float(_trail.size())
+		var tc := c
+		tc.a = 0.35 * t
+		draw_circle(to_local(_trail[i]), radius * (0.3 + 0.5 * t), tc)
 	draw_circle(Vector2.ZERO, radius, c)
 	draw_circle(Vector2.ZERO, radius * 0.5, Color(1, 1, 1, 0.8))

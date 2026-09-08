@@ -6,7 +6,8 @@ extends Node2D
 
 enum State { TITLE, PLAYING, GAMEOVER }
 
-const ARENA := Rect2(Vector2(40, 70), Vector2(880, 440))
+## 世界を窓より大きく取り、カメラで追う（画面＝箱、に見えないように）
+const ARENA := Rect2(Vector2(0, 0), Vector2(1680, 960))
 const STARTERS := ["swordsman", "mage", "rogue", "priest"]
 
 var state: int = State.TITLE
@@ -25,6 +26,8 @@ var equip_screen: EquipScreen
 var tree_screen: TreeScreen
 var paused: bool = false
 var _overlay: CanvasLayer = null
+var fx: FxLayer
+var cam: Camera2D
 var _title_root: Control
 var _hitstop: float = 0.0
 var _shake: float = 0.0
@@ -33,6 +36,9 @@ var _status_applied: int = 0
 
 func _ready() -> void:
 	randomize()
+	fx = FxLayer.new()
+	fx.z_index = 20
+	add_child(fx)
 	hud = Hud.new()
 	add_child(hud)
 	hud.visible = false
@@ -70,6 +76,11 @@ func _build_title() -> void:
 	_title_root = Control.new()
 	_title_root.size = Vector2(960, 540)
 	add_child(_title_root)
+
+	var backdrop := ColorRect.new()
+	backdrop.color = Color(0.03, 0.035, 0.055, 0.92)
+	backdrop.size = Vector2(960, 540)
+	_title_root.add_child(backdrop)
 
 	var t := Label.new()
 	t.text = "相剋のビルドサーガ  ACTION"
@@ -120,9 +131,21 @@ func _start(cid: String) -> void:
 
 	player = Player.new()
 	player.setup(hero)
+	player.fx = fx
 	player.global_position = ARENA.get_center()
 	player.died.connect(_on_player_died)
 	add_child(player)
+
+	cam = Camera2D.new()
+	cam.position_smoothing_enabled = true
+	cam.position_smoothing_speed = 6.0
+	cam.limit_left = int(ARENA.position.x)
+	cam.limit_top = int(ARENA.position.y)
+	cam.limit_right = int(ARENA.end.x)
+	cam.limit_bottom = int(ARENA.end.y)
+	cam.global_position = player.global_position
+	add_child(cam)
+	cam.make_current()
 
 	equip_screen = EquipScreen.new()
 	equip_screen.setup(hero)
@@ -288,11 +311,12 @@ func _spawn_enemy() -> void:
 
 func _process(delta: float) -> void:
 	## 画面の揺れ（当てた実感のためのごく短い揺れ。常時は揺らさない）
-	if _shake > 0.0:
-		_shake = maxf(0.0, _shake - delta * 4.0)
-		position = Vector2(randf_range(-_shake, _shake), randf_range(-_shake, _shake))
-	elif position != Vector2.ZERO:
-		position = Vector2.ZERO
+	if is_instance_valid(cam):
+		if _shake > 0.0:
+			_shake = maxf(0.0, _shake - delta * 4.0)
+			cam.offset = Vector2(randf_range(-_shake, _shake), randf_range(-_shake, _shake))
+		elif cam.offset != Vector2.ZERO:
+			cam.offset = Vector2.ZERO
 
 	if state != State.PLAYING or paused or not is_instance_valid(player):
 		return
@@ -310,7 +334,10 @@ func _process(delta: float) -> void:
 		hero.mp + (1.2 + float(hero.stats["mp_regen"]) * 0.5) * delta)
 
 	player.tick(delta)
-	player.global_position = player.global_position.clamp(ARENA.position, ARENA.end)
+	player.global_position = player.global_position.clamp(
+		ARENA.position + Vector2(24, 24), ARENA.end - Vector2(24, 24))
+	if is_instance_valid(cam):
+		cam.global_position = player.global_position
 
 	if Input.is_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var swing := player.try_attack()
@@ -450,8 +477,13 @@ func hit_enemy_with(e: Enemy, power: float, el: String, kind: String,
 	var push := (e.global_position - player.global_position).normalized() * (90.0 if r["crit"] else 55.0)
 	e.hurt(dmg, push)
 
-	_popup(e.global_position, str(int(dmg)),
-		Color(1.0, 0.81, 0.42) if r["crit"] else (Color(0.56, 0.94, 0.72) if is_aoe else Color.WHITE))
+	var col: Color = Color(1.0, 0.81, 0.42) if r["crit"] else (Color(0.56, 0.94, 0.72) if is_aoe else Color.WHITE)
+	_popup(e.global_position, str(int(dmg)), col, r["crit"])
+	if fx != null:
+		var d := (e.global_position - player.global_position).normalized()
+		fx.hit_spark(e.global_position, d, col, 10 if r["crit"] else 6)
+		if r["crit"]:
+			fx.crit_burst(e.global_position)
 
 	## 当てた瞬間の重み。会心だけ少し強くする（常時だともたつくので控えめに）
 	_hitstop = 0.055 if r["crit"] else 0.025
@@ -530,6 +562,9 @@ func _player_hit(raw_power: float, el: String, from: Vector2, src: Enemy = null)
 	if dealt <= 0.0:
 		return
 	_popup(player.global_position, str(int(dealt)), Color(1.0, 0.42, 0.45))
+	if fx != null:
+		fx.hit_spark(player.global_position, (player.global_position - from).normalized(),
+			Color(1.0, 0.42, 0.45), 10)
 	_shake = 3.0
 
 	## 反射（接触してきた相手に返す）
@@ -585,9 +620,9 @@ func on_status_applied() -> void:
 	_status_applied += 1
 
 
-func _popup(pos: Vector2, text: String, color: Color) -> void:
+func _popup(pos: Vector2, text: String, color: Color, big: bool = false) -> void:
 	var p := DamagePopup.new()
-	p.setup(text, color)
+	p.setup(text, color, big)
 	p.global_position = pos + Vector2(0, -18)
 	add_child(p)
 
@@ -595,6 +630,10 @@ func _popup(pos: Vector2, text: String, color: Color) -> void:
 ## ---------------- イベント ----------------
 
 func _on_enemy_died(e: Enemy) -> void:
+	if fx != null:
+		fx.shatter(e.global_position, GameData.sprite("enemies", str(e.def_data.get("id", ""))),
+			3.0 if e.is_boss else 2.0)
+	_shake = maxf(_shake, 1.6)
 	kill_stacks += 1
 	hero.exp += e.exp_value
 	hero.gold += e.gold_value
@@ -638,5 +677,31 @@ func _on_player_died() -> void:
 
 
 func _draw() -> void:
-	draw_rect(ARENA, Color(0.09, 0.11, 0.17), true)
-	draw_rect(ARENA, Color(0.18, 0.21, 0.31), false, 2.0)
+	## 床。単色の四角ではなく、タイルの濃淡と汚れで「場所」に見せる。
+	## main の _draw は再描画を呼ばない限り一度きりなので、毎フレームの負荷にはならない。
+	draw_rect(ARENA, Color(0.075, 0.085, 0.125), true)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20260908
+	var tile := 48.0
+	var cols := int(ARENA.size.x / tile)
+	var rows := int(ARENA.size.y / tile)
+	for gy in rows:
+		for gx in cols:
+			var shade := rng.randf_range(-0.012, 0.012)
+			var c := Color(0.095 + shade, 0.108 + shade, 0.155 + shade)
+			draw_rect(Rect2(ARENA.position + Vector2(gx * tile, gy * tile),
+				Vector2(tile - 1.0, tile - 1.0)), c, true)
+	## 床の汚れ
+	for i in 260:
+		var p := ARENA.position + Vector2(rng.randf_range(0, ARENA.size.x), rng.randf_range(0, ARENA.size.y))
+		draw_rect(Rect2(p, Vector2(rng.randf_range(2, 6), rng.randf_range(1, 3))),
+			Color(0.13, 0.15, 0.20, 0.5), true)
+	## 外周を暗く落として、闘技場の縁を作る
+	var band := 90.0
+	for i in 9:
+		var t := float(i) / 9.0
+		var inset := band * t
+		draw_rect(Rect2(ARENA.position + Vector2(inset, inset),
+			ARENA.size - Vector2(inset, inset) * 2.0),
+			Color(0, 0, 0, 0.055), false, band / 9.0)
+	draw_rect(ARENA, Color(0.22, 0.26, 0.38), false, 3.0)
