@@ -45,7 +45,15 @@
   function aoeKills(n) {
     return { label: '範囲攻撃で ' + n + '体以上撃破', test: function (c) { return (c.run.stats.aoeKills || 0) >= n; } };
   }
-  G.COND = { stat: stat, allElem: allElem, pairElem: pairElem, mythicN: mythicN, legendN: legendN, lv: lv,
+  function statusApplied(n) {
+    return { label: 'この冒険で状態異常を ' + n + '回以上 付与',
+             test: function (c) { return (c.run.stats.statusApplied || 0) >= n; } };
+  }
+  function evades(n) {
+    return { label: 'この冒険で敵の攻撃を ' + n + '回以上 回避',
+             test: function (c) { return (c.run.stats.evades || 0) >= n; } };
+  }
+  G.COND = { statusApplied: statusApplied, evades: evades, stat: stat, allElem: allElem, pairElem: pairElem, mythicN: mythicN, legendN: legendN, lv: lv,
              itemsUsed: itemsUsed, kills: kills, reflectKills: reflectKills, critCount: critCount, aoeKills: aoeKills };
 
   var C = {};
@@ -160,6 +168,37 @@
     skills: ['smite', 'darkPact', 'judgement', 'sanctuary', 'holyNova']
   });
 
+  def({
+    id: 'windrunner', name: '韋駄天', tier: 2, icon: '🌬',
+    desc: '速さこそ攻防のすべて。避けきり、先んじて刻む。',
+    from: ['rogue', 'swordsman'],
+    req: [stat('spd', 70, '素早さ 70 以上'), stat('evade', 0.20, '回避率 20% 以上'), lv(6)],
+    base: { hp: 112, mp: 42, str: 12, int: 8, vit: 8, agi: 18, luk: 11 },
+    grow: { hp: 9.5, mp: 3, str: 1.8, int: 1.0, vit: 1.1, agi: 2.8, luk: 1.4 },
+    mods: { spd: 22, evade: 0.12, critRate: 0.06 }, flags: ['firstHitCrit', 'counterEvade'],
+    skills: ['shukuchi', 'galeFlurry', 'backstab', 'whirlwind']
+  });
+  def({
+    id: 'hexer', name: '呪術師', tier: 2, icon: '🕯',
+    desc: '毒と呪いで敵を弱らせ、崩れたところを刈り取る。',
+    from: ['mage', 'priest', 'rogue'],
+    req: [statusApplied(12), stat('mag', 85, '魔法攻撃 85 以上'), lv(6)],
+    base: { hp: 108, mp: 66, str: 7, int: 16, vit: 9, agi: 11, luk: 10 },
+    grow: { hp: 9, mp: 5, str: 0.8, int: 2.4, vit: 1.2, agi: 1.3, luk: 1.2 },
+    mods: { 'el_dark': 0.22, magPct: 0.10 }, flags: ['statusDamage', 'lingering'],
+    skills: ['plague', 'hexMist', 'venomFang', 'curseBurst']
+  });
+  def({
+    id: 'spellblade', name: '魔剣士', tier: 2, icon: '🗡',
+    desc: '剣に魔を通す。物理と魔法、どちらの数値も無駄にしない。',
+    from: ['swordsman', 'mage'],
+    req: [stat('atk', 90, '物理攻撃 90 以上'), stat('mag', 90, '魔法攻撃 90 以上'), lv(6)],
+    base: { hp: 128, mp: 56, str: 13, int: 13, vit: 10, agi: 11, luk: 9 },
+    grow: { hp: 11, mp: 4, str: 2.0, int: 2.0, vit: 1.4, agi: 1.3, luk: 1.0 },
+    mods: { atkPct: 0.10, magPct: 0.10, 'el_fire': 0.12, 'el_light': 0.12 }, flags: ['spellblade'],
+    skills: ['spellEdge', 'dualPole', 'slash', 'fireball']
+  });
+
   /* =================== 最上級職 (Tier 3) =================== */
   def({
     id: 'phantomSaint', name: '絶影剣聖', tier: 3,
@@ -238,7 +277,8 @@
   });
   def({
     id: 'voidSovereign', name: '虚無帝', tier: 3,
-    from: ['assassin', 'guardian', 'elementalist', 'alchemist', 'stormcaller', 'berserker', 'exorcist'],
+    from: ['assassin', 'guardian', 'elementalist', 'alchemist', 'stormcaller', 'berserker', 'exorcist',
+           'windrunner', 'hexer', 'spellblade'],
     req: [mythicN(3), lv(14), { label: 'ミシックを3種類以上「発見」済み',
           test: function (c) { return (c.meta.mythics || []).length >= 3; } }],
     base: { hp: 200, mp: 100, str: 18, int: 18, vit: 18, agi: 18, luk: 18 },
@@ -246,6 +286,40 @@
     mods: { atkPct: 0.25, magPct: 0.25, defPct: 0.25, hpPct: 0.25, spd: 18, pierce: 0.35, critRate: 0.15 },
     flags: ['mythicScaling', 'guardBreak', 'endure', 'soulHarvest'],
     skills: ['ult_voidCollapse', 'ult_astralBurst', 'elementalBurst', 'gravityWell', 'executioner']
+  });
+
+  def({
+    id: 'skyrunner', name: '神速天翔', tier: 3,
+    from: ['windrunner', 'assassin'],
+    req: [stat('spd', 130, '素早さ 130 以上'), stat('evade', 0.35, '回避率 35% 以上'),
+          evades(35), legendN(1), lv(12)],
+    base: { hp: 160, mp: 70, str: 18, int: 12, vit: 12, agi: 26, luk: 16 },
+    grow: { hp: 13, mp: 4.4, str: 2.6, int: 1.4, vit: 1.6, agi: 3.6, luk: 2.2 },
+    mods: { spd: 45, evade: 0.22, critRate: 0.15, atkPct: 0.20 },
+    flags: ['speedPower', 'counterEvade', 'firstHitCrit', 'doubleStrike'],
+    skills: ['ult_thousandShadow', 'shukuchi', 'galeFlurry', 'thousandCuts', 'whirlwind']
+  });
+  def({
+    id: 'plaguelord', name: '疫災呪王', tier: 3,
+    from: ['hexer', 'exorcist'],
+    req: [statusApplied(60), stat('el_dark', 0.50, '闇属性ダメージ 50% 以上'),
+          stat('pierce', 0.25, '耐性貫通 25% 以上'), legendN(1), lv(12)],
+    base: { hp: 170, mp: 96, str: 10, int: 23, vit: 14, agi: 13, luk: 12 },
+    grow: { hp: 14, mp: 6.6, str: 1.0, int: 3.2, vit: 1.8, agi: 1.5, luk: 1.4 },
+    mods: { 'el_dark': 0.40, magPct: 0.25, pierce: 0.20, lifesteal: 0.12 },
+    flags: ['statusDamage', 'spreadStatus', 'lingering', 'statusOnHit'],
+    skills: ['ult_pandemic', 'hexMist', 'curseBurst', 'plague', 'darkPact']
+  });
+  def({
+    id: 'poleEmperor', name: '双極魔剣皇', tier: 3,
+    from: ['spellblade', 'elementalist', 'assassin'],
+    req: [stat('atk', 180, '物理攻撃 180 以上'), stat('mag', 180, '魔法攻撃 180 以上'),
+          stat('critRate', 0.35, '会心率 35% 以上'), legendN(1), lv(12)],
+    base: { hp: 185, mp: 88, str: 20, int: 20, vit: 14, agi: 16, luk: 13 },
+    grow: { hp: 15, mp: 5.6, str: 2.9, int: 2.9, vit: 1.9, agi: 1.9, luk: 1.5 },
+    mods: { atkPct: 0.28, magPct: 0.28, critRate: 0.12, 'el_fire': 0.20, 'el_light': 0.20, 'el_dark': 0.20 },
+    flags: ['spellblade', 'critPierce', 'guardBreak'],
+    skills: ['ult_duality', 'spellEdge', 'dualPole', 'elementalBurst', 'heavyBlow']
   });
 
   /* 説明文・アイコンの補完 */
@@ -257,7 +331,10 @@
     alchemySovereign:['🏺', '万物を薬と爆薬に変える錬成の王。アイテムは尽きない。'],
     bloodfiend:     ['🩸', '喰らうほどに強くなる鬼神。奪った生命がそのまま力となる。'],
     finalArbiter:   ['⚖', '光と闇を同時に振るう最終審判者。相反する二極が一つになる。'],
-    voidSovereign:  ['🕳', 'ミシックの力を束ねた者のみが到達する空位の玉座。']
+    voidSovereign:  ['🕳', 'ミシックの力を束ねた者のみが到達する空位の玉座。'],
+    skyrunner:      ['💨', '誰にも捉えられない領域。避け、先んじ、斬り刻む。'],
+    plaguelord:     ['☣', 'あらゆる呪いを従える災厄の王。蝕まれた敵ほど深く斬れる。'],
+    poleEmperor:    ['⚔', '剣と魔、二つの極を一振りに束ねた皇。どちらの数値も捨てない。']
   };
   Object.keys(META).forEach(function (k) {
     if (C[k]) { C[k].icon = META[k][0]; C[k].desc = META[k][1]; }

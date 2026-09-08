@@ -30,7 +30,7 @@
   node(crit, { id: 'ct_form', name: '必中の型', row: 3, cost: 3, branchSpent: 3,
     mods: { critRate: 0.12, critDmg: 0.40 }, skill: 't_condemn' });
   node(crit, { id: 'ct_ult', name: '絶影の境地', row: 4, cost: 3, req: ['ct_form'],
-    classes: ['assassin', 'phantomSaint', 'berserker', 'bloodfiend'],
+    classes: ['assassin', 'phantomSaint', 'berserker', 'bloodfiend', 'spellblade', 'poleEmperor'],
     mods: { critRate: 0.15, critDmg: 0.60 }, flags: ['critPierce', 'firstHitCrit'] });
 
   /* ===================== 反射の道 ===================== */
@@ -69,7 +69,7 @@
   node(elem, { id: 'el_shift', name: '属性転変', row: 3, cost: 3, branchSpent: 3,
     mods: (function () { var m = allElem(0.10); m.pierce = 0.12; return m; })(), skill: 't_elemshift' });
   node(elem, { id: 'el_ult', name: '星辰の理', row: 4, cost: 3, req: ['el_shift'],
-    classes: ['elementalist', 'astralArchmage', 'exorcist', 'finalArbiter'],
+    classes: ['elementalist', 'astralArchmage', 'exorcist', 'finalArbiter', 'spellblade', 'poleEmperor'],
     mods: (function () { var m = allElem(0.15); m.pierce = 0.20; return m; })(),
     flags: ['guardBreak', 'doubleCast'] });
 
@@ -109,7 +109,7 @@
   node(speed, { id: 'sp_after', name: '残影', row: 3, cost: 3, branchSpent: 3,
     mods: { spd: 20, evade: 0.10 }, skill: 't_afterimage' });
   node(speed, { id: 'sp_ult', name: '神速の域', row: 4, cost: 3, req: ['sp_after'],
-    classes: ['assassin', 'phantomSaint', 'stormcaller', 'calamityKing'],
+    classes: ['windrunner', 'skyrunner', 'assassin', 'phantomSaint', 'stormcaller', 'calamityKing'],
     mods: { spd: 25, evade: 0.12 }, flags: ['speedPower'] });
 
   /* ===================== 生命の道 ===================== */
@@ -124,6 +124,19 @@
   node(life, { id: 'lf_ult', name: '不死の理', row: 4, cost: 3, req: ['lf_line'],
     classes: ['berserker', 'bloodfiend', 'priest', 'exorcist', 'finalArbiter'],
     mods: { lifesteal: 0.20, hpPct: 0.15 }, flags: ['soulHarvest', 'lastStand'] });
+
+  /* ===================== 呪詛の道 ===================== */
+  var hex = branch({ id: 'hex', name: '呪詛の道', hue: 285, icon: 'item',
+    desc: '弱らせ、蝕み、崩れたところを刈り取る。' });
+  node(hex, { id: 'hx_venom', name: '毒手', row: 1, cost: 1, mods: { 'el_dark': 0.10 } });
+  node(hex, { id: 'hx_weaken', name: '衰弱', row: 1, cost: 1, mods: { pierce: 0.08, mag: 10 } });
+  node(hex, { id: 'hx_linger', name: '執拗', row: 2, cost: 2, req: ['hx_venom'], flags: ['lingering'] });
+  node(hex, { id: 'hx_spread', name: '伝染', row: 2, cost: 2, req: ['hx_weaken'], flags: ['spreadStatus'] });
+  node(hex, { id: 'hx_bloom', name: '呪いの華', row: 3, cost: 3, branchSpent: 3,
+    mods: { 'el_dark': 0.15, pierce: 0.10 }, flags: ['statusDamage'], skill: 't_hexbloom' });
+  node(hex, { id: 'hx_ult', name: '疫災の理', row: 4, cost: 3, req: ['hx_bloom'],
+    classes: ['hexer', 'plaguelord', 'exorcist', 'finalArbiter'],
+    mods: { 'el_dark': 0.25, magPct: 0.15, pierce: 0.15 }, flags: ['statusOnHit', 'soulHarvest'] });
 
   var byId = {};
   B.forEach(function (br) { br.nodes.forEach(function (n) { n.branchRef = br; byId[n.id] = n; }); });

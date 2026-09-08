@@ -278,6 +278,9 @@ G.Gfx = (function () {
     stormcaller:    { arch: 'robed',   hue: 150, sat: 50, lum: 55, accent: 55 },
     alchemist:      { arch: 'robed',   hue: 35,  sat: 50, lum: 55, accent: 130 },
     exorcist:       { arch: 'robed',   hue: 50,  sat: 25, lum: 70, accent: 280 },
+    windrunner:     { arch: 'hooded',  hue: 165, sat: 45, lum: 52, accent: 55 },
+    hexer:          { arch: 'robed',   hue: 278, sat: 45, lum: 44, accent: 120, eye: '#a6ff7a' },
+    spellblade:     { arch: 'warrior', hue: 258, sat: 40, lum: 50, accent: 25 },
     phantomSaint:   { arch: 'hooded',  hue: 265, sat: 40, lum: 38, accent: 50, crown: true, eye: '#ff5fd2' },
     mirrorEmperor:  { arch: 'knight',  hue: 195, sat: 30, lum: 62, accent: 190, accentSat: 25, crown: true },
     calamityKing:   { arch: 'robed',   hue: 155, sat: 55, lum: 55, accent: 50, crown: true },
@@ -285,7 +288,10 @@ G.Gfx = (function () {
     alchemySovereign:{arch: 'robed',   hue: 30,  sat: 60, lum: 58, accent: 130, crown: true },
     bloodfiend:     { arch: 'brute',   hue: 350, sat: 55, lum: 42, accent: 0,   crown: true, eye: '#ff3b57' },
     finalArbiter:   { arch: 'angel',   hue: 45,  sat: 30, lum: 70, accent: 280, crown: true },
-    voidSovereign:  { arch: 'void',    hue: 288, sat: 50, lum: 42, accent: 300, crown: true, eye: '#ff5fd2' }
+    voidSovereign:  { arch: 'void',    hue: 288, sat: 50, lum: 42, accent: 300, crown: true, eye: '#ff5fd2' },
+    skyrunner:      { arch: 'hooded',  hue: 155, sat: 55, lum: 58, accent: 45,  crown: true },
+    plaguelord:     { arch: 'robed',   hue: 292, sat: 50, lum: 42, accent: 110, crown: true, eye: '#a6ff7a' },
+    poleEmperor:    { arch: 'warrior', hue: 232, sat: 45, lum: 54, accent: 45,  crown: true }
   };
 
   /* ハッシュで未登録IDにも安定した見た目を与える */

@@ -266,6 +266,7 @@ G.Battle = (function () {
     if (!o.trueHit && T.evade && U.chance(T.evade)) {
       if (!o.silent) { log(b, '💨 ' + tgt.name + ' は攻撃をかわした！'); fx(b, { t: 'miss', i: tgt.idx }); }
       if (tgt.side === 'player') {
+        b.state.run.stats.evades = (b.state.run.stats.evades || 0) + 1;
         b.rec.evadeStreak++;
         b.rec.evadeStreakMax = Math.max(b.rec.evadeStreakMax, b.rec.evadeStreak);
       }
@@ -327,6 +328,11 @@ G.Battle = (function () {
       var co = {}; for (var ck in o) co[ck] = o[ck];
       co.power = Math.round(o.power * 0.5); co.isChain = true; co.alwaysCrit = false;
       strike(b, src, tgt, co);
+    }
+
+    /* 攻撃時の状態異常付与 */
+    if (dealt > 0 && src.flags && src.flags.statusOnHit && alive(tgt) && U.chance(0.20)) {
+      addStatus(b, tgt, U.pick(['burn', 'poison', 'freeze', 'shock']), 2);
     }
 
     /* 属性付随効果 */
@@ -462,8 +468,12 @@ G.Battle = (function () {
     if (!alive(u)) return;
     var ex = u.statuses.filter(function (s) { return s.k === kind; })[0];
     if (ex) { ex.t = Math.max(ex.t, turns); return; }
+    if (u.side === 'enemy' && b.hero.flags.lingering) turns += 1;
     u.statuses.push({ k: kind, t: turns, v: val || 0.06 });
-    if (u.side === 'enemy') b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
+    if (u.side === 'enemy') {
+      b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
+      b.state.run.stats.statusApplied = (b.state.run.stats.statusApplied || 0) + 1;
+    }
     var nm = { burn: '🔥 火傷', poison: '☠ 毒', freeze: '❄ 凍結', shock: '⚡ 麻痺' }[kind] || kind;
     log(b, nm + ' を ' + u.name + ' に付与した。');
     refresh(u);
@@ -539,6 +549,12 @@ G.Battle = (function () {
       } else if (sk.special === 'itemScale') {
         power = Math.round(power * (1 + (src.S.itemPower || 0)));
         log(b, '　（アイテム威力に比例して威力 ' + power + '%）');
+      } else if (sk.special === 'hybrid') {
+        opt.atkStat = Math.round((src.S.atk + src.S.mag) / 2 * 1.15);
+        log(b, '　（物魔一体：攻撃力 ' + opt.atkStat + '）');
+      } else if (sk.special === 'speedScale') {
+        opt.atkStat = Math.round(src.S.atk + src.S.spd * 0.8);
+        log(b, '　（素早さが乗る：攻撃力 ' + opt.atkStat + '）');
       } else if (sk.special === 'mythicScale') {
         var mc = src.side === 'player' ? G.Stats.rarityCount(src.hero, 'mythic') : 0;
         power = Math.round(power * (1 + 0.45 * mc));
@@ -629,6 +645,9 @@ G.Battle = (function () {
 
   function strikeWrap(b, src, t, o, sk) {
     var hitsLeft = 1;
+    if (sk.id === 'attack' && src.flags && src.flags.spellblade) {
+      o.atkStat = Math.round((src.S.atk + src.S.mag) / 2 * 1.15);
+    }
     if (sk.id === 'attack' && src.flags && src.flags.elementCycle) {
       o.el = G.MAGIC_ELEMENTS[(b.round - 1) % G.MAGIC_ELEMENTS.length];
     }

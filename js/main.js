@@ -143,7 +143,8 @@
         if (!d) { UI.toast('保存された冒険がありません。'); go('title'); break; }
         state.hero = d.hero; state.run = d.run;
         if (!state.run.stats) state.run.stats = {};
-        ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges']
+        ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
+         'statusApplied', 'evades']
           .forEach(function (k) { if (state.run.stats[k] == null) state.run.stats[k] = 0; });
         go('map');
         break;

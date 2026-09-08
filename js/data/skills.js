@@ -137,6 +137,39 @@ G.SKILLS = {};
       special: 'mythicScale', desc: '【奥義】装備中のミシック1個につき威力+45%。耐性を完全に無視。',
       eff: { fullPierce: true } });
 
+  /* ---------- 呪術師 / 疫災呪王 ---------- */
+  S({ id: 'hexMist', name: '呪縛の霧', mp: 13, kind: 'mag', el: 'dark', power: 110, target: 'all',
+      desc: '敵全体に闇ダメージ。40%で毒、30%で凍結。',
+      eff: { poison: { t: 3, v: 0.06, c: 0.40 }, freeze: { t: 2, c: 0.30 } } });
+  S({ id: 'plague', name: '疫病', mp: 10, kind: 'mag', el: 'dark', power: 135, target: 'one',
+      desc: '猛毒（4ターン）と攻撃低下を付与する。',
+      eff: { poison: { t: 4, v: 0.09 }, debuff: { k: 'atkPct', v: -0.25, t: 3 } } });
+  S({ id: 'curseBurst', name: '崩呪', mp: 18, kind: 'mag', el: 'dark', power: 155, target: 'all',
+      desc: '敵全体の防御を3ターン35%低下させる闇の奔流。',
+      eff: { debuff: { k: 'defPct', v: -0.35, t: 3 } } });
+
+  /* ---------- 韋駄天 / 神速天翔 ---------- */
+  S({ id: 'shukuchi', name: '縮地', mp: 9, kind: 'buff', target: 'self',
+      desc: '3ターン、素早さ+60／回避+25%。',
+      eff: { buffs: [{ k: 'spd', v: 60, t: 3 }, { k: 'evade', v: 0.25, t: 3 }] } });
+  S({ id: 'galeFlurry', name: '疾風連打', mp: 13, kind: 'phys', el: 'wind', power: 50, target: 'one', hits: 5,
+      desc: '風を纏った5連撃。' });
+
+  /* ---------- 魔剣士 / 双極魔剣皇 ---------- */
+  S({ id: 'spellEdge', name: '魔法剣', mp: 9, kind: 'phys', el: 'fire', power: 175, target: 'one',
+      special: 'hybrid', desc: '物理攻撃力と魔法攻撃力の平均で斬る炎の刃。' });
+  S({ id: 'dualPole', name: '双極斬', mp: 16, kind: 'phys', el: 'light', power: 130, target: 'one', hits: 2,
+      special: 'hybrid', desc: '光と闇で二度斬る。', eff: { altElement: 'dark' } });
+
+  /* ---------- 追加された最上級職の奥義 ---------- */
+  S({ id: 'ult_thousandShadow', name: '神速・千影', mp: 28, kind: 'phys', el: 'wind', power: 72, target: 'one', hits: 6,
+      desc: '【奥義】6連撃。素早さに応じて威力が上がる。', special: 'speedScale' });
+  S({ id: 'ult_pandemic', name: '万呪爆散', mp: 32, kind: 'mag', el: 'dark', power: 205, target: 'all',
+      desc: '【奥義】敵全体に闇の大爆発。火傷・毒・凍結・麻痺を同時に付与する。',
+      eff: { poison: { t: 3, v: 0.08 }, burn: { t: 3, v: 0.07 }, freeze: { t: 2 }, shock: { t: 2 } } });
+  S({ id: 'ult_duality', name: '双極崩天', mp: 30, kind: 'phys', el: 'light', power: 230, target: 'all', hits: 2,
+      special: 'hybrid', desc: '【奥義】物魔一体の斬撃を敵全体へ二度。', eff: { altElement: 'dark' } });
+
   /* ---------- スキルツリーで習得するスキル ---------- */
   S({ id: 't_condemn', name: '断罪の型', mp: 14, kind: 'phys', el: 'phys', power: 200, target: 'one',
       desc: '会心率+50%／会心ダメージ+30%の一撃。', eff: { critBonus: 0.50, critBonusDmg: 0.30 } });
@@ -160,6 +193,9 @@ G.SKILLS = {};
       desc: '3ターン、回避+35%／素早さ+40。回避時に反撃するようになる。',
       eff: { buffs: [{ k: 'evade', v: 0.35, t: 3 }, { k: 'spd', v: 40, t: 3 }],
              flagBuff: { f: 'counterEvade', t: 3 } } });
+  S({ id: 't_hexbloom', name: '呪いの華', mp: 15, kind: 'mag', el: 'dark', power: 145, target: 'all',
+      desc: '敵全体に闇ダメージ。50%で毒、40%で麻痺を付与する。',
+      eff: { poison: { t: 3, v: 0.07, c: 0.50 }, shock: { t: 2, c: 0.40 } } });
   S({ id: 't_lifeline', name: '生命線', mp: 15, kind: 'buff', target: 'self',
       desc: '最大HPの40%回復。3ターン、吸収+30%。',
       eff: { healMaxPct: 0.40, buffs: [{ k: 'lifesteal', v: 0.30, t: 3 }] } });
