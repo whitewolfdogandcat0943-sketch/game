@@ -21,6 +21,8 @@ var kill_stacks: int = 0
 var skill_slots: Array = []
 var slot_cd: Array = [0.0, 0.0, 0.0, 0.0]
 
+var equip_screen: EquipScreen
+var paused: bool = false
 var _title_root: Control
 var _hitstop: float = 0.0
 var _shake: float = 0.0
@@ -35,7 +37,21 @@ func _ready() -> void:
 	if GameData.classes.is_empty():
 		_fatal("data/*.json が読み込めていません。エディタで一度プロジェクトを開き直してください。")
 		return
+	if OS.is_debug_build():
+		var errs := SelfTest.run()
+		if not errs.is_empty():
+			_show_self_test_errors(errs)
 	_build_title()
+
+
+## 自己診断で問題が出たら画面にも出す（出力ログを見なくても気づけるように）
+func _show_self_test_errors(errs: Array) -> void:
+	var l := Label.new()
+	var head := "⚠ 自己診断で %d 件の問題（詳細は出力ログ）\n" % errs.size()
+	l.text = head + "\n".join(errs.slice(0, 6))
+	UiTheme.apply(l, 12, Color(1.0, 0.62, 0.26))
+	l.position = Vector2(20, 470)
+	add_child(l)
 
 
 func _fatal(msg: String) -> void:
@@ -60,7 +76,7 @@ func _build_title() -> void:
 	_title_root.add_child(t)
 
 	var sub := Label.new()
-	sub.text = "はじまりの職を選ぶ（1〜4キー）\n移動 WASD ／ 斬撃 Space・左クリック ／ スキル 1〜4 ／ 回避 Shift ／ ビルド Tab"
+	sub.text = "はじまりの職を選ぶ（1〜4キー）\n移動 WASD ／ 斬撃 Space・左クリック ／ スキル 1〜4 ／ 回避 Shift ／ 装備 I ／ ビルド Tab"
 	UiTheme.apply(sub, 14, Color(0.6, 0.64, 0.75))
 	sub.position = Vector2(60, 98)
 	_title_root.add_child(sub)
@@ -106,6 +122,13 @@ func _start(cid: String) -> void:
 	player.died.connect(_on_player_died)
 	add_child(player)
 
+	equip_screen = EquipScreen.new()
+	equip_screen.setup(hero)
+	equip_screen.visible = false
+	equip_screen.changed.connect(_on_equipment_changed)
+	equip_screen.closed.connect(_toggle_equip)
+	add_child(equip_screen)
+
 	hud.visible = true
 	hud.set_build_text(hero)
 	state = State.PLAYING
@@ -127,7 +150,51 @@ func _refresh_slots() -> void:
 
 ## ---------------- 階層とウェーブ ----------------
 
+## 階層を踏破するたび戦利品が入る。装備画面で組み替える動機になる。
+func _grant_loot() -> void:
+	var legend_chance: float = clampf(0.06 + float(floor_no) * 0.02
+		+ float(hero.stats["drop_up"]) * 0.5, 0.0, 0.6)
+	var pool: Array = GameData.accessories_of("legend" if randf() < legend_chance else "normal")
+	## 通常アクセは階層に応じて段階的に解禁する
+	if pool.size() > 0:
+		var tier_cap: int = 1 if floor_no <= 6 else (2 if floor_no <= 12 else 3)
+		var filtered: Array = pool.filter(func(a: Dictionary) -> bool:
+			return int(a.get("tier", 1)) <= tier_cap)
+		if filtered.size() > 0:
+			pool = filtered
+		var acc: Dictionary = pool[randi() % pool.size()]
+		hero.add_accessory(acc["id"])
+		hud.show_toast("〈%s〉を手に入れた（I で装備）" % acc.get("name", ""))
+
+	if randf() < 0.35:
+		var tier_cap2: int = 1 if floor_no <= 4 else (2 if floor_no <= 11 else 3)
+		var gp: Array = (GameData.weapons + GameData.armors).filter(func(g: Dictionary) -> bool:
+			return int(g.get("tier", 1)) <= tier_cap2)
+		if gp.size() > 0:
+			var g2: Dictionary = gp[randi() % gp.size()]
+			hero.add_gear(g2["id"])
+
+
+func _on_equipment_changed() -> void:
+	hero.recompute()
+	if is_instance_valid(player):
+		player.refresh_profile()
+	_refresh_slots()
+	hud.set_build_text(hero)
+
+
+func _toggle_equip() -> void:
+	if equip_screen == null:
+		return
+	paused = not paused
+	equip_screen.visible = paused
+	if paused:
+		equip_screen._refresh()
+
+
 func _start_floor(n: int) -> void:
+	if n > 1:
+		_grant_loot()
 	floor_no = n
 	for e in enemies:
 		if is_instance_valid(e):
@@ -179,7 +246,7 @@ func _process(delta: float) -> void:
 	elif position != Vector2.ZERO:
 		position = Vector2.ZERO
 
-	if state != State.PLAYING or not is_instance_valid(player):
+	if state != State.PLAYING or paused or not is_instance_valid(player):
 		return
 
 	## ヒットストップ中は世界を止める（当たった瞬間の重みが出る）
@@ -246,7 +313,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if k >= KEY_1 and k <= KEY_4:
 			_start(STARTERS[k - KEY_1])
 	elif state == State.PLAYING:
-		if k == KEY_TAB:
+		if k == KEY_I:
+			_toggle_equip()
+		elif paused:
+			return
+		elif k == KEY_TAB:
 			hud.build_panel.visible = not hud.build_panel.visible
 			hud.set_build_text(hero)
 		elif k >= KEY_1 and k <= KEY_4:

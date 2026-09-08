@@ -130,6 +130,50 @@ func element_mult(el: String, weak: Array, resist: Array, pierce: float, guard_b
 	return 1.0
 
 
+## mods を日本語の一覧にする（modkeys の label と kind を使う）
+func mods_text(mods: Variant, sep: String = " / ") -> String:
+	if not (mods is Dictionary):
+		return ""
+	var parts: Array = []
+	for k in mods:
+		var mk: Dictionary = modkeys.get(k, {})
+		var v: float = float(mods[k])
+		if mk.is_empty():
+			parts.append("%s %s" % [k, v])
+		elif mk.get("kind", "flat") == "pct":
+			parts.append("%s %s%d%%" % [mk.get("label", k), "+" if v >= 0 else "", round(v * 100.0)])
+		else:
+			parts.append("%s %s%d" % [mk.get("label", k), "+" if v >= 0 else "", round(v)])
+	return sep.join(parts)
+
+
+func flags_text(fl: Variant, sep: String = "\n") -> String:
+	if not (fl is Array):
+		return ""
+	var parts: Array = []
+	for f in fl:
+		parts.append("◆ " + str(flags.get(f, f)))
+	return sep.join(parts)
+
+
+const RARITY_COLORS := {
+	"normal": Color(0.56, 0.83, 1.0),
+	"legend": Color(1.0, 0.62, 0.26),
+	"mythic": Color(1.0, 0.37, 0.82),
+	"rare": Color(0.56, 0.83, 1.0),
+	"common": Color(0.66, 0.7, 0.8),
+}
+
+
+func rarity_color(r: String) -> Color:
+	return RARITY_COLORS.get(r, Color(0.85, 0.87, 0.92))
+
+
+func rarity_label(r: String) -> String:
+	return {"normal": "通常", "legend": "レジェンド", "mythic": "ミシック",
+			"rare": "レア", "common": "一般"}.get(r, r)
+
+
 ## ---------------- スプライト ----------------
 
 func sprite(category: String, id: String) -> Texture2D:

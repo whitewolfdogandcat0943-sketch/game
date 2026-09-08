@@ -20,6 +20,14 @@ static func jp_font() -> SystemFont:
 	return _font
 
 
+static func apply_button(btn: Button, size: int = 13,
+		color: Color = Color(0.9, 0.92, 0.96)) -> void:
+	btn.add_theme_font_override("font", jp_font())
+	btn.add_theme_font_size_override("font_size", size)
+	for st in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		btn.add_theme_color_override(st, color)
+
+
 static func apply(label: Label, size: int = 14, color: Color = Color(0.9, 0.92, 0.96)) -> void:
 	label.add_theme_font_override("font", jp_font())
 	label.add_theme_font_size_override("font_size", size)

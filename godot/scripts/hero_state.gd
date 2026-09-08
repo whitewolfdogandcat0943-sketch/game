@@ -18,6 +18,9 @@ var mp: float = 1.0
 var weapon_id: String = ""
 var armor_id: String = ""
 var acc_ids: Array = ["", "", "", ""]      ## アクセサリ4枠
+var bag_gear: Array = []                   ## 所持している武器・防具のID
+var bag_acc: Array = []                    ## 所持しているアクセサリのID
+var items: Dictionary = {}                 ## 消耗品 id -> 個数
 var barrier: float = 0.0                   ## バリア（ダメージを肩代わりする）
 var temp_buffs: Array = []                 ## 戦闘中の一時強化 [{k, v, t}]
 var temp_flags: Array = []                 ## 戦闘中の一時フラグ [{f, t}]
@@ -41,7 +44,10 @@ static func create(cid: String, nm: String = "冒険者") -> HeroState:
 	}.get(cid, ["w_shortsword", "a_leather"])
 	h.weapon_id = starter[0]
 	h.armor_id = starter[1]
+	h.bag_gear = [starter[0], starter[1]]
+	h.bag_acc = ["n_luckcoin"]
 	h.acc_ids[0] = "n_luckcoin"
+	h.items = {"i_potion": 3, "i_herb": 2}
 	h.recompute()
 	h.hp = h.stats["max_hp"]
 	h.mp = h.stats["max_mp"]
@@ -236,6 +242,68 @@ func skill_list() -> Array:
 		if sk2 != "" and not out.has(sk2):
 			out.append(sk2)
 	return out
+
+
+## ---------------- 所持品と装備 ----------------
+
+func add_gear(id: String) -> void:
+	if GameData.gear.has(id):
+		bag_gear.append(id)
+
+
+func add_accessory(id: String) -> void:
+	if GameData.acc_by_id.has(id):
+		bag_acc.append(id)
+
+
+func add_item(id: String, n: int) -> void:
+	items[id] = int(items.get(id, 0)) + n
+	if int(items[id]) <= 0:
+		items.erase(id)
+
+
+## スロットに入れられる候補。同じ個体を2箇所に付けることはできない。
+func candidates_for(slot: String) -> Array:
+	if slot == "weapon" or slot == "armor":
+		var out: Array = []
+		for id in bag_gear:
+			if GameData.gear.get(id, {}).get("slot", "") == slot and not out.has(id):
+				out.append(id)
+		return out
+	## アクセサリ枠: 所持数から他の枠で使っている分を引く
+	var idx: int = int(slot.substr(3))
+	var counts: Dictionary = {}
+	for id in bag_acc:
+		counts[id] = int(counts.get(id, 0)) + 1
+	var res: Array = []
+	for id in counts:
+		var used := 0
+		for i in acc_ids.size():
+			if i != idx and acc_ids[i] == id:
+				used += 1
+		if int(counts[id]) - used > 0:
+			res.append(id)
+	return res
+
+
+func equip(slot: String, id: String) -> void:
+	if slot == "weapon":
+		weapon_id = id
+	elif slot == "armor":
+		armor_id = id
+	elif slot.begins_with("acc"):
+		acc_ids[int(slot.substr(3))] = id
+	recompute()
+
+
+func equipped_in(slot: String) -> String:
+	if slot == "weapon":
+		return weapon_id
+	if slot == "armor":
+		return armor_id
+	if slot.begins_with("acc"):
+		return str(acc_ids[int(slot.substr(3))])
+	return ""
 
 
 ## 通常攻撃の属性（武器依存）
