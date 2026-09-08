@@ -92,6 +92,42 @@ for (const [cid, rows] of Object.entries(ct)) {
   });
 }
 
+/* SkillRunner（Godot側）が解釈できる形かの検証 */
+const KNOWN_KINDS = ['phys', 'mag', 'heal', 'buff', 'util'];
+const KNOWN_TARGETS = ['one', 'all', 'random', 'self'];
+const KNOWN_SPECIALS = ['hybrid', 'speedScale', 'reflectScale', 'itemScale', 'mythicScale', 'allElem'];
+/* SkillRunner が実際に処理している eff キー。ここに無いものは黙って無視されるので、
+ * 取りこぼしに気づけるよう一覧で出す。 */
+const HANDLED_EFF = new Set([
+  'critBonus', 'critBonusDmg', 'alwaysCrit', 'defIgnore', 'aoeBonus', 'drain', 'execute',
+  'altElement', 'burn', 'poison', 'freeze', 'shock',
+  'buffs', 'healMaxPct', 'healSelf', 'mpGain', 'barrier', 'hpCost', 'cleanse',
+  'flagBuff', 'fullPierce', 'splashBonus', 'debuff',
+]);
+
+const playerSkillIds = new Set();
+for (const c of Object.values(classes)) (c.skills || []).forEach(s => playerSkillIds.add(s));
+tree.forEach(br => (br.nodes || []).forEach(n => { if (n.skill) playerSkillIds.add(n.skill); }));
+for (const rows of Object.values(ct)) rows.forEach(r => ['a', 'b'].forEach(w => {
+  if (r[w] && r[w].skill) playerSkillIds.add(r[w].skill);
+}));
+
+const unhandled = new Map();
+for (const id of playerSkillIds) {
+  const sk = skills[id];
+  if (!sk) { problems.push(`skill ${id} が存在しない`); continue; }
+  need(KNOWN_KINDS.includes(sk.kind), `skills.${id}: 未知の kind "${sk.kind}"`);
+  if (sk.kind === 'phys' || sk.kind === 'mag') {
+    need(typeof sk.power === 'number', `skills.${id}: power がない（攻撃スキル）`);
+    need(typeof sk.el === 'string', `skills.${id}: el がない（攻撃スキル）`);
+  }
+  if (sk.target) need(KNOWN_TARGETS.includes(sk.target), `skills.${id}: 未知の target "${sk.target}"`);
+  if (sk.special) need(KNOWN_SPECIALS.includes(sk.special), `skills.${id}: 未知の special "${sk.special}"`);
+  for (const k of Object.keys(sk.eff || {})) {
+    if (!HANDLED_EFF.has(k)) unhandled.set(k, (unhandled.get(k) || 0) + 1);
+  }
+}
+
 /* スプライトの実在チェック */
 const SPR = path.resolve(__dirname, '..', 'godot', 'assets', 'sprites');
 const checkSprite = (dir, id) => {
@@ -108,5 +144,10 @@ if (problems.length) {
   process.exit(1);
 }
 console.log('検証OK — Godot側が読むキーはすべて揃っている');
+if (unhandled.size) {
+  console.log('  ※ Godot側でまだ処理していない効果キー（無視される）:');
+  [...unhandled.entries()].sort((a, b) => b[1] - a[1])
+    .forEach(([k, n]) => console.log(`     ${k} (${n}件)`));
+}
 console.log(`  職業 ${classIds.length} / スキル ${Object.keys(skills).length} / 敵 ${enemies.length} / アクセ ${accs.length}`);
 console.log(`  共通ツリー ${tree.length}系統 ${nodeCount}ノード / 職業ツリー ${Object.keys(ct).length}職`);

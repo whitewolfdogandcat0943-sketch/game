@@ -18,6 +18,9 @@ var mp: float = 1.0
 var weapon_id: String = ""
 var armor_id: String = ""
 var acc_ids: Array = ["", "", "", ""]      ## アクセサリ4枠
+var barrier: float = 0.0                   ## バリア（ダメージを肩代わりする）
+var temp_buffs: Array = []                 ## 戦闘中の一時強化 [{k, v, t}]
+var temp_flags: Array = []                 ## 戦闘中の一時フラグ [{f, t}]
 var tree_nodes: Dictionary = {}            ## 共通ツリー: node_id -> true
 var mastery: Dictionary = {}               ## 職業ツリー: class_id -> {wins:int, picks:{tier:"a"/"b"}}
 
@@ -128,6 +131,10 @@ func recompute() -> Dictionary:
 			_take(mods, flags, GameData.tree_node_by_id[nid])
 	for nd in class_tree_picks():
 		_take(mods, flags, nd)
+	for b in temp_buffs:
+		mods[b["k"]] = float(mods.get(b["k"], 0.0)) + float(b["v"])
+	for tf in temp_flags:
+		flags[tf["f"]] = true
 
 	var b := base_stats()
 	var s: Dictionary = {}
@@ -175,6 +182,60 @@ func recompute() -> Dictionary:
 
 func _m(mods: Dictionary, k: String) -> float:
 	return float(mods.get(k, 0.0))
+
+
+## ---------------- 一時強化 ----------------
+
+func add_buff(key: String, value: float, duration: float) -> void:
+	temp_buffs.append({"k": key, "v": value, "t": duration})
+	recompute()
+
+
+func add_flag(flag_name: String, duration: float) -> void:
+	temp_flags.append({"f": flag_name, "t": duration})
+	recompute()
+
+
+## 期限切れがあれば再計算する。変化があったら true。
+func tick_buffs(delta: float) -> bool:
+	if temp_buffs.is_empty() and temp_flags.is_empty():
+		return false
+	for b in temp_buffs:
+		b["t"] = float(b["t"]) - delta
+	for f in temp_flags:
+		f["t"] = float(f["t"]) - delta
+	var before := temp_buffs.size() + temp_flags.size()
+	temp_buffs = temp_buffs.filter(func(b: Dictionary) -> bool: return float(b["t"]) > 0.0)
+	temp_flags = temp_flags.filter(func(f: Dictionary) -> bool: return float(f["t"]) > 0.0)
+	if temp_buffs.size() + temp_flags.size() != before:
+		recompute()
+		return true
+	return false
+
+
+## この職業で使えるスキル（前職のぶんも保持する）
+func skill_list() -> Array:
+	var out: Array = []
+	var ids: Array = class_history.duplicate()
+	ids.append(class_id)
+	for cid in ids:
+		for s in GameData.klass(cid).get("skills", []):
+			if not out.has(s):
+				out.append(s)
+	if weapon_id != "" and GameData.gear.has(weapon_id):
+		var g: String = GameData.gear[weapon_id].get("grant", "")
+		if g != "" and not out.has(g):
+			out.append(g)
+	for nid in tree_nodes:
+		var nd: Dictionary = GameData.tree_node_by_id.get(nid, {})
+		var sk: String = nd.get("skill", "")
+		if sk != "" and not out.has(sk):
+			out.append(sk)
+	for nd2 in class_tree_picks():
+		var sk2: String = nd2.get("skill", "")
+		if sk2 != "" and not out.has(sk2):
+			out.append(sk2)
+	return out
 
 
 ## 通常攻撃の属性（武器依存）

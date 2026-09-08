@@ -18,9 +18,10 @@ static func resolve(atk: Dictionary, flags: Dictionary, tgt: Dictionary, opt: Di
 	var dmg: float = atk_stat * (power / 100.0)
 	dmg *= 1.0 + float(atk.get("el_" + el, 0.0))
 
+	var pierce: float = 1.0 if opt.get("full_pierce", false) else float(atk.get("pierce", 0.0))
 	var e_mult := GameData.element_mult(
 		el, tgt.get("weak", []), tgt.get("resist", []),
-		float(atk.get("pierce", 0.0)), flags.has("guardBreak"))
+		pierce, flags.has("guardBreak"))
 	if e_mult > 1.0 and flags.has("weakHunter"):
 		e_mult *= 1.30
 	dmg *= e_mult
