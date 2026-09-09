@@ -439,6 +439,7 @@
         if (state.battle && G.Battle.partyUnits(state.battle)[ai]) state.allyIdx = ai;
         draw(); break;
       }
+      case 'pstyle': G.Portraits.setStyle(p[1]); S.codex(state); break;
       case 'tab': state.battleTab = p[1]; draw(); break;
       case 'skill': doAction({ type: 'skill', id: p[1] }); break;
       case 'flee': doAction({ type: 'flee' }); break;

@@ -279,7 +279,7 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .portrait{image-rendering:pixelated;display:block;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
 .scene-stage{display:flex;gap:16px;align-items:stretch}
 .scene-cast{display:flex;gap:4px;align-items:flex-end;flex:0 0 auto}
-.scene-portrait{width:156px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+.scene-portrait{width:172px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   padding-bottom:4px;transition:opacity .2s, filter .2s, transform .2s}
 .portrait.bust{border-radius:10px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4))}
 .scene-portrait.quiet{opacity:.72;filter:saturate(.72) brightness(.86);transform:scale(.94)}
@@ -304,3 +304,8 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 
 /* 差し替えた立ち絵は滑らかに拡縮する（ドット絵ではないことが多いため） */
 .portrait.drawn{image-rendering:auto;object-fit:contain}
+
+/* アニメ調の立ち絵（SVG） */
+.portrait.anime{image-rendering:auto;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.cast-card .portrait.anime{margin:0 auto 4px}
+.cast-card .portrait.cast-full{display:inline-block;margin:0 auto;vertical-align:bottom}

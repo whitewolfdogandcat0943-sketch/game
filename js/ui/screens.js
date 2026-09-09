@@ -144,7 +144,7 @@ G.Screens = (function () {
         var active = (c.name === speaker) && !silent;
         /* 会話は顔が読めることが全て。ここだけバストアップを使う。 */
         h += '<div class="scene-portrait' + (active ? ' active' : ' quiet') + '">' +
-          G.Portraits.bustImg(c.face, 3) +
+          G.Portraits.dialogImg(c.face, 196) +
           '<div class="pname">' + U.esc(c.name) + '</div></div>';
       });
       h += '</div>';
@@ -920,15 +920,22 @@ G.Screens = (function () {
     });
     h += '</div>';
 
+    var pstyle = G.Portraits.style();
     h += '<div class="sep"></div><h3 class="r-legend">人物</h3>';
     h += '<p class="tiny muted">立ち絵はすべてコードで組み立てている。画像ファイルは1枚も持たない。</p>';
+    h += '<div class="row" style="gap:6px;margin-bottom:8px;align-items:center">' +
+      '<span class="tiny muted">会話の絵柄:</span>' +
+      '<button class="btn tiny' + (pstyle === 'anime' ? ' primary' : '') + '" data-act="pstyle:anime">アニメ調</button>' +
+      '<button class="btn tiny' + (pstyle === 'pixel' ? ' primary' : '') + '" data-act="pstyle:pixel">ドット絵</button>' +
+      '</div>';
     h += '<div class="cast-row">';
     [{ n: G.STORY.HERO.defaultName + '（主人公）', f: G.FACES.forHero(state.hero || { classId: 'swordsman' }), d: G.STORY.HERO.intro }]
       .concat((G.ALLY_LIST || []).map(function (a) {
         return { n: a.name, f: G.FACES.forMember({ allyId: a.id }), d: a.desc, role: a.role };
       }))
       .forEach(function (c) {
-        h += '<div class="cast-card">' + G.Portraits.img(c.f, 2) +
+        h += '<div class="cast-card">' + G.Portraits.dialogImg(c.f, 150) +
+          G.Portraits.img(c.f, 2, 'cast-full') +
           '<div class="cname" style="margin-top:6px">' + U.esc(c.n) + '</div>' +
           (c.role ? '<div class="tiny muted">' + c.role + '</div>' : '') +
           '<div class="cdesc">' + U.esc(G.Story.fill(c.d || '', state)) + '</div></div>';

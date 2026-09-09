@@ -778,7 +778,32 @@ G.Portraits = (function () {
       '" width="' + w + '" height="' + h + '" alt="" ' + (attrs || '') + '>';
   }
 
-  return { draw: draw, img: img, drawBust: drawBust, bustImg: bustImg,
+  /** 会話で使う顔。用意した画像 → アニメ調 → ドット絵、の順に落ちる。 */
+  function dialogImg(spec, h, cls, attrs) {
+    h = h || 180;
+    var file = assetFor(spec, 'bust');
+    if (file) {
+      var w = Math.round(h * BW / BH);
+      return '<img class="portrait bust drawn ' + (cls || '') + '" src="' + file +
+        '" width="' + w + '" height="' + h + '" alt="" ' + (attrs || '') + '>';
+    }
+    if (G.Anime && style() !== 'pixel') return G.Anime.img(spec, h, cls, attrs);
+    return bustImg(spec, Math.max(1, Math.round(h / BH)), cls, attrs);
+  }
+
+  /** 絵柄の設定。'anime'（既定）か 'pixel'。 */
+  function style() {
+    var m = G.state && G.state.meta;
+    return (m && m.portraitStyle) || 'anime';
+  }
+  function setStyle(v) {
+    if (!G.state || !G.state.meta) return;
+    G.state.meta.portraitStyle = (v === 'pixel') ? 'pixel' : 'anime';
+    if (G.Save) G.Save.saveMeta(G.state);
+  }
+
+  return { draw: draw, img: img, drawBust: drawBust, bustImg: bustImg, dialogImg: dialogImg,
+           style: style, setStyle: setStyle,
            build: build, buildBust: buildBust, preload: preload,
            W: W, H: H, BW: BW, BH: BH, HAIR: HAIR, PROP: PROP };
 })();

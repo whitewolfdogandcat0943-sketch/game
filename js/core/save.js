@@ -4,7 +4,8 @@ G.Save = (function () {
   var RUN_KEY = 'buildsaga.run.v1';
 
   function defaultMeta() {
-    return { mythics: [], classesSeen: [], bestFloor: 1, runs: 0, wins: 0, deaths: 0 };
+    return { mythics: [], classesSeen: [], bestFloor: 1, runs: 0, wins: 0, deaths: 0,
+             portraitStyle: 'anime' };
   }
 
   function safeGet(key) {
