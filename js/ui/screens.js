@@ -45,11 +45,12 @@ G.Screens = (function () {
     G.STARTER_CLASSES.forEach(function (id) {
       var c = G.CLASSES[id];
       h += '<div class="card" data-act="start:' + id + '">' +
-        '<div class="classcard-head">' + G.Gfx.classImg(id, 4) +
-        '<div class="cname" style="font-size:15px">' + c.name + '</div></div>' +
+        '<div class="row" style="gap:10px;align-items:flex-start">' +
+        '<div class="class-face">' + G.Portraits.img(G.FACES.forHero({ classId: id }), 2) + '</div>' +
+        '<div style="flex:1;min-width:0"><div class="cname" style="font-size:15px">' + c.name + '</div>' +
         '<div class="cdesc">' + c.desc + '<br><br>' +
         '<b>パッシブ:</b> ' + (UI.modsText(c.mods) || 'なし') + '<br>' +
-        '<b>初期スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div></div>';
+        '<b>初期スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div></div></div></div>';
     });
     h += '</div>';
     h += '<div class="panel"><h3>到達しうる最上級職</h3><div class="grid g2">' +
@@ -99,8 +100,9 @@ G.Screens = (function () {
   function storyIntro(state) {
     var H = G.STORY.HERO;
     var h = '<h1>物語のはじまり</h1>';
-    h += '<div class="panel"><div class="classcard-head">' + G.Gfx.classImg(H.classId, 5) +
-      '<div><div class="cname" style="font-size:16px">' + H.title + '</div>' +
+    h += '<div class="panel"><div class="row" style="gap:16px;align-items:flex-start">' +
+      G.Portraits.img(G.FACES.forHero({ classId: H.classId }), 3) +
+      '<div style="flex:1"><div class="cname" style="font-size:16px">' + H.title + '</div>' +
       '<div class="muted small">' + H.intro + '</div></div></div>';
     h += '<div class="sep"></div><h3>名前</h3>' +
       '<input id="heroName" class="btn wide" style="cursor:text" maxlength="12" placeholder="' +
@@ -121,6 +123,31 @@ G.Screens = (function () {
     var shown = sc.lines.slice(0, sc.i + 1);
     var h = '<div class="scene">';
     h += '<div class="scene-head"><span class="muted small">' + (sc.title || '') + '</span></div>';
+
+    /* 立ち絵。直近に喋った二人を並べ、今喋っていない側を沈ませる。
+     * 会話の相手が消えないので、掛け合いが読みやすい。 */
+    var speaker = null, recent = [];
+    for (var si = sc.i; si >= 0 && recent.length < 2; si--) {
+      var w = sc.lines[si].w;
+      if (w && recent.indexOf(w) < 0) recent.push(w);
+    }
+    speaker = recent[0] || null;
+    var silent = !sc.lines[sc.i].w;
+    /* 左に相手、右に話者。並び順を固定して視線が飛ばないようにする。 */
+    var cast = recent.slice().reverse()
+      .map(function (n) { return { name: n, face: G.FACES.byName(n, state) }; })
+      .filter(function (x) { return !!x.face; });
+    h += '<div class="scene-stage">';
+    if (cast.length) {
+      h += '<div class="scene-cast">';
+      cast.forEach(function (c) {
+        var active = (c.name === speaker) && !silent;
+        h += '<div class="scene-portrait' + (active ? ' active' : ' quiet') + '">' +
+          G.Portraits.img(c.face, 3) +
+          '<div class="pname">' + U.esc(c.name) + '</div></div>';
+      });
+      h += '</div>';
+    }
     h += '<div class="scene-body">';
     shown.forEach(function (l, i) {
       var last = (i === shown.length - 1);
@@ -131,7 +158,7 @@ G.Screens = (function () {
           '<span class="say">' + U.esc(l.t) + '</span></p>';
       }
     });
-    h += '</div>';
+    h += '</div></div>';
     var more = sc.i < sc.lines.length - 1;
     h += '<div class="scene-foot">' +
       '<button class="btn primary" data-act="sceneNext">' + (more ? '▼ つづける' : '▶ ' + (sc.endLabel || '進む')) + '</button>' +
@@ -185,13 +212,16 @@ G.Screens = (function () {
     var h = '<div class="panel"><h3>パーティ</h3><div class="grid g2">';
     party.forEach(function (m) {
       var S = G.Stats.compute(m).S;
-      h += '<div class="card" style="cursor:default">' +
-        '<div class="classcard-head">' + G.Gfx.memberImg(m, 4) +
-        '<div><div class="cname">' + U.esc(m.name) + '</div>' +
+      h += '<div class="card member-card" style="cursor:default">' +
+        '<div class="row" style="gap:10px;align-items:flex-start">' +
+        '<div class="member-face">' + G.Portraits.img(G.FACES.forMember(m), 2) + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div class="cname">' + U.esc(m.name) + '</div>' +
         '<div class="muted tiny">Lv' + m.level + ' ' + G.CLASSES[m.classId].name +
-        (m.role ? ' / ' + m.role : '') + '</div></div></div>' +
+        (m.role ? ' / ' + m.role : '') + '</div>' +
         '<div style="margin-top:6px">' + UI.bar(m.hp, S.maxHp, 'hp', 'HP') +
-        '<div style="height:4px"></div>' + UI.bar(m.mp, S.maxMp, 'mp', 'MP') + '</div></div>';
+        '<div style="height:4px"></div>' + UI.bar(m.mp, S.maxMp, 'mp', 'MP') + '</div>' +
+        '</div></div></div>';
     });
     h += '</div></div>';
     return h;
@@ -616,12 +646,15 @@ G.Screens = (function () {
         var isCur = state.hero.classId === c.id;
         h += '<div class="card ' + (r.ok ? '' : 'locked') + ' ' + (tier === 3 ? 'bd-mythic' : tier === 2 ? 'bd-legend' : '') + '" ' +
           (r.ok && !standalone ? 'data-act="changeClass:' + c.id + '"' : '') + '>' +
-          '<div class="classcard-head">' + G.Gfx.classImg(c.id, 3) +
+          '<div class="row" style="gap:10px;align-items:flex-start">' +
+          '<div class="class-face">' + G.Portraits.img(G.FACES.forHero({ classId: c.id }), 2, r.ok ? '' : 'locked-face') + '</div>' +
+          '<div style="flex:1;min-width:0">' +
           '<div class="cname ' + (tier === 3 ? 'r-mythic' : tier === 2 ? 'r-legend' : '') + '">' + c.name +
-          (isCur ? ' <span class="tag">現在</span>' : '') + (r.ok && !isCur ? ' <span class="tag legend">転職可能</span>' : '') + '</div></div>' +
+          (isCur ? ' <span class="tag">現在</span>' : '') + (r.ok && !isCur ? ' <span class="tag legend">転職可能</span>' : '') + '</div>' +
           '<div class="cdesc">' + c.desc + '<br><b>パッシブ:</b> ' + (UI.modsText(c.mods) || 'なし') +
           (c.flags && c.flags.length ? '<br>' + UI.flagsText(c.flags) : '') +
           '<br><b>習得スキル:</b> ' + c.skills.map(function (s) { return G.SKILLS[s].name; }).join('・') + '</div>' +
+          '</div></div>' +
           (c.tier > 1 ? '<div class="sep"></div>' + r.conds.map(function (cd) {
             return '<div class="cond ' + (cd.ok ? 'ok' : 'ng') + '">' + cd.label +
               (cd.prog ? ' <span class="muted">[' + cd.prog + ']</span>' : '') + '</div>';
@@ -884,6 +917,21 @@ G.Screens = (function () {
       else h += '<div class="card locked bd-mythic"><div class="cname r-mythic">' + G.Gfx.iconImg('acc', 'mythic', 2) + '??????? <span class="tag mythic">ミシック</span></div>' +
         '<div class="cdesc"><span class="r-mythic">【取得条件】' + m.cond.label + '</span><br><span class="muted">ヒント: ' + m.cond.hint + '</span></div></div>';
     });
+    h += '</div>';
+
+    h += '<div class="sep"></div><h3 class="r-legend">人物</h3>';
+    h += '<p class="tiny muted">立ち絵はすべてコードで組み立てている。画像ファイルは1枚も持たない。</p>';
+    h += '<div class="cast-row">';
+    [{ n: G.STORY.HERO.defaultName + '（主人公）', f: G.FACES.forHero(state.hero || { classId: 'swordsman' }), d: G.STORY.HERO.intro }]
+      .concat((G.ALLY_LIST || []).map(function (a) {
+        return { n: a.name, f: G.FACES.forMember({ allyId: a.id }), d: a.desc, role: a.role };
+      }))
+      .forEach(function (c) {
+        h += '<div class="cast-card">' + G.Portraits.img(c.f, 2) +
+          '<div class="cname" style="margin-top:6px">' + U.esc(c.n) + '</div>' +
+          (c.role ? '<div class="tiny muted">' + c.role + '</div>' : '') +
+          '<div class="cdesc">' + U.esc(c.d || '') + '</div></div>';
+      });
     h += '</div>';
 
     h += '<div class="sep"></div><h3 class="r-legend">レアアイテム（' + G.RARE_ITEMS.length + '種）</h3>';

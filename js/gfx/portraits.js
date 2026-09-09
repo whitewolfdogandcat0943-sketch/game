@@ -1,0 +1,488 @@
+/* portraits.js - キャラクターの立ち絵（手続き生成）
+ *
+ * 画像ファイルは1枚も持たない。48×84のドットを毎回コードで組み立てて描く。
+ * 敵・職業のスプライトが16×16なのに対し、こちらは会話用に大きく、
+ * 髪・顔・装い・得物を人物ごとに描き分けられるようにしてある。
+ *
+ * 描き方は「部品の重ね合わせ」。体型→脚→胴→腕→頭→髪→得物 の順に置き、
+ * 最後に輪郭を1px巻く。輪郭があるとどの背景でもシルエットが立つ。
+ */
+G.Portraits = (function () {
+  var W = 48, H = 84;
+  var CX = 24;            /* 体の中心 */
+
+  /* ===================== ドットの下地 ===================== */
+
+  function Grid() {
+    this.d = new Array(W * H);
+    for (var i = 0; i < W * H; i++) this.d[i] = null;
+  }
+  Grid.prototype.get = function (x, y) {
+    if (x < 0 || y < 0 || x >= W || y >= H) return null;
+    return this.d[y * W + x];
+  };
+  Grid.prototype.set = function (x, y, c) {
+    if (!c || x < 0 || y < 0 || x >= W || y >= H) return;
+    this.d[y * W + x] = c;
+  };
+  Grid.prototype.rect = function (x, y, w, h, c) {
+    for (var j = 0; j < h; j++) for (var i = 0; i < w; i++) this.set(x + i, y + j, c);
+  };
+  /** 中心 cx から左右対称に幅 w を置く */
+  Grid.prototype.bar = function (cx, y, w, c) {
+    var x0 = Math.round(cx - w / 2);
+    for (var i = 0; i < w; i++) this.set(x0 + i, y, c);
+  };
+  /** 上底 w0 → 下底 w1 の台形。体幹や裾に使う */
+  Grid.prototype.taper = function (cx, y0, y1, w0, w1, c) {
+    var n = y1 - y0;
+    for (var j = 0; j <= n; j++) {
+      var w = Math.round(w0 + (w1 - w0) * (n ? j / n : 0));
+      this.bar(cx, y0 + j, w, c);
+    }
+  };
+  /** 楕円。頭や肩に使う */
+  Grid.prototype.ellipse = function (cx, cy, rx, ry, c) {
+    for (var y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) {
+      for (var x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+        var dx = (x - cx) / rx, dy = (y - cy) / ry;
+        if (dx * dx + dy * dy <= 1.02) this.set(x, y, c);
+      }
+    }
+  };
+  /** すでに色が置かれている所だけ塗り替える（陰影を後から乗せる） */
+  Grid.prototype.shade = function (x, y, w, h, c) {
+    for (var j = 0; j < h; j++) for (var i = 0; i < w; i++) {
+      if (this.get(x + i, y + j)) this.set(x + i, y + j, c);
+    }
+  };
+
+  /* ===================== パレット ===================== */
+
+  function hsl(h, s, l) {
+    return 'hsl(' + (((h % 360) + 360) % 360) + ',' + G.U.clamp(s, 0, 100) + '%,' + G.U.clamp(l, 0, 100) + '%)';
+  }
+  /** 明・中・暗の3段を作る。ドット絵は3段あれば立体に見える。 */
+  function ramp(h, s, l) {
+    return { hi: hsl(h, s * 0.85, Math.min(94, l * 1.28)), mid: hsl(h, s, l), lo: hsl(h, Math.min(90, s * 1.1), l * 0.66) };
+  }
+
+  function palette(spec) {
+    var skin = ramp(spec.skinHue != null ? spec.skinHue : 26, spec.skinSat != null ? spec.skinSat : 40,
+                    spec.skinLum != null ? spec.skinLum : 68);
+    return {
+      skin: skin,
+      hair: ramp(spec.hairHue, spec.hairSat != null ? spec.hairSat : 40, spec.hairLum != null ? spec.hairLum : 34),
+      cloth: ramp(spec.hue, spec.sat != null ? spec.sat : 42, spec.lum != null ? spec.lum : 45),
+      accent: ramp(spec.accent, spec.accentSat != null ? spec.accentSat : 55, spec.accentLum != null ? spec.accentLum : 52),
+      blushC: hsl(8, 55, 70),
+      metal: ramp(spec.metalHue != null ? spec.metalHue : 210, 12, 58),
+      leather: ramp(28, 34, 32),
+      eye: spec.eye || '#2a2f3d',
+      line: hsl(spec.hue, 35, 12)
+    };
+  }
+
+  /* ===================== 部品 ===================== */
+
+  /** 体型ごとの寸法。ここを変えるだけで人物の印象が決まる。 */
+  var BUILD = {
+    slim:   { sh: 17, waist: 12, hip: 14, headR: 7.6, legW: 6, armW: 4 },
+    normal: { sh: 20, waist: 14, hip: 16, headR: 7.8, legW: 6, armW: 4 },
+    heavy:  { sh: 25, waist: 19, hip: 20, headR: 8.2, legW: 8, armW: 5 }
+  };
+
+  /* 縦の骨格。頭を大きめに取り、顔が読めるようにしてある。 */
+  function geom(spec) {
+    var b = BUILD[spec.build] || BUILD.normal;
+    var headCy = 15;
+    return {
+      b: b,
+      headCy: headCy,
+      chin: Math.round(headCy + b.headR),
+      shoulder: Math.round(headCy + b.headR) + 4,
+      waistY: 52,
+      hipY: 57,
+      footY: 78
+    };
+  }
+
+  /* --- 脚と靴 --- */
+  function legs(g, p, gm, spec) {
+    var b = gm.b, boot = spec.bootHue != null ? ramp(spec.bootHue, 30, 30) : p.leather;
+    var inner = 1;                       /* 左右の脚のあいだ */
+    [-1, 1].forEach(function (side) {
+      var x0 = (side < 0) ? CX - inner - b.legW : CX + inner;
+      for (var y = gm.hipY; y <= gm.footY; y++) {
+        var t = (y - gm.hipY) / (gm.footY - gm.hipY);
+        var w = Math.max(4, Math.round(b.legW - t * 1.5));
+        var xs = (side < 0) ? x0 + (b.legW - w) : x0;
+        var isBoot = y >= gm.footY - 9;
+        var c = isBoot ? boot.mid : p.cloth.lo;
+        for (var i = 0; i < w; i++) g.set(xs + i, y, c);
+        /* 内側の面を落とす */
+        g.set(side < 0 ? xs + w - 1 : xs, y, isBoot ? boot.lo : hslShift(c));
+        /* 外側に受光 */
+        if (side < 0) g.set(xs, y, isBoot ? boot.hi : p.cloth.mid);
+      }
+      /* 靴先 */
+      var fw = b.legW + 2;
+      var fx = (side < 0) ? CX - inner - fw : CX + inner;
+      g.rect(fx, gm.footY + 1, fw, 2, boot.mid);
+      g.rect(fx, gm.footY + 2, fw, 1, boot.lo);
+    });
+  }
+  function hslShift(c) { return c; }
+
+  /* --- 胴 --- */
+  function torso(g, p, gm, spec) {
+    var b = gm.b, top = gm.shoulder;
+    if (spec.robe) {
+      g.taper(CX, top, gm.waistY, b.sh, b.waist + 2, p.cloth.mid);
+      g.taper(CX, gm.waistY + 1, gm.footY + 2, b.waist + 3, b.hip + 8, p.cloth.mid);
+    } else {
+      g.taper(CX, top, gm.waistY, b.sh, b.waist, p.cloth.mid);
+      g.taper(CX, gm.waistY + 1, gm.hipY + 1, b.waist + 1, b.hip, p.cloth.mid);
+    }
+    var bot = spec.robe ? gm.footY + 2 : gm.hipY + 1;
+    /* 左から光。右に落ちる面を暗く、左端を明るく。 */
+    for (var y = top; y <= bot; y++) {
+      for (var x = CX + 4; x < W; x++) if (g.get(x, y) === p.cloth.mid) g.set(x, y, p.cloth.lo);
+      for (var x2 = CX - 10; x2 < CX - 5; x2++) if (g.get(x2, y) === p.cloth.mid) g.set(x2, y, p.cloth.hi);
+    }
+    /* 法衣の襞 */
+    if (spec.robe) {
+      for (var fy = gm.waistY + 3; fy <= gm.footY + 1; fy++) {
+        g.shade(CX - 7, fy, 1, 1, p.cloth.lo);
+        g.shade(CX + 2, fy, 1, 1, p.cloth.hi);
+      }
+    }
+    /* 襟と胸元 */
+    g.rect(CX - 3, top, 6, 3, p.skin.mid);
+    g.rect(CX - 3, top + 2, 6, 1, p.skin.lo);
+    g.rect(CX - 5, top - 1, 3, 2, p.cloth.hi);
+    g.rect(CX + 2, top - 1, 3, 2, p.cloth.lo);
+  }
+
+  /* --- 帯・ベルト --- */
+  function belt(g, p, gm, spec) {
+    var b = gm.b, c = spec.beltAccent ? p.accent : p.leather;
+    g.bar(CX, gm.waistY, b.waist + 3, c.mid);
+    g.bar(CX, gm.waistY + 1, b.waist + 3, c.lo);
+    g.rect(CX - 2, gm.waistY, 4, 2, p.metal.hi);
+    g.rect(CX - 2, gm.waistY + 1, 4, 1, p.metal.mid);
+  }
+
+  /* --- 腕 --- */
+  function arms(g, p, gm, spec) {
+    var b = gm.b, sx = Math.round(b.sh / 2);
+    var hands = {};
+    [-1, 1].forEach(function (side) {
+      var x = (side < 0) ? CX - sx - 1 : CX + sx - b.armW + 1;
+      var raise = (side > 0 && spec.raiseRight) ? 8 : 0;
+      var top = gm.shoulder + 1 - raise;
+      var bot = gm.waistY + 5 - raise;
+      var sleeveTo = top + Math.round((bot - top) * (spec.robe ? 0.78 : 0.52));
+      for (var y = top; y <= bot; y++) {
+        var c = (y <= sleeveTo) ? (side < 0 ? p.cloth.mid : p.cloth.lo) : p.skin.mid;
+        for (var i = 0; i < b.armW; i++) g.set(x + i, y, c);
+        /* 胴との境に影を1本入れて腕を独立させる */
+        g.set(side < 0 ? x + b.armW - 1 : x, y, (y <= sleeveTo) ? p.cloth.lo : p.skin.lo);
+        if (side < 0 && y <= sleeveTo) g.set(x, y, p.cloth.hi);
+      }
+      /* 手 */
+      g.rect(x, bot + 1, b.armW, 3, p.skin.mid);
+      g.rect(x, bot + 3, b.armW, 1, p.skin.lo);
+      hands[side] = { x: x, y: bot + 1, w: b.armW };
+    });
+    if (spec.pauldron) {
+      [-1, 1].forEach(function (side) {
+        var cx = (side < 0) ? CX - sx + 1 : CX + sx - 1;
+        g.ellipse(cx, gm.shoulder + 2, b.armW / 2 + 2.4, 3.2, p.metal.mid);
+        g.shade(cx - 4, gm.shoulder + 4, 9, 2, p.metal.lo);
+        g.shade(cx - 3, gm.shoulder, 4, 1, p.metal.hi);
+      });
+    }
+    return hands;
+  }
+
+  /* --- マント --- */
+  function cape(g, p, gm, spec) {
+    if (!spec.cape) return;
+    var ch = spec.capeHue != null ? spec.capeHue : spec.accent;
+    /* 服と近い色だと輪郭に埋もれるので、明度で必ず差をつける */
+    var clum = (spec.lum != null ? spec.lum : 45);
+    var b = gm.b, c = ramp(ch, 46, Math.max(16, clum * 0.58));
+    /* 体より広く取ることで、正面からでも左右に見える */
+    g.taper(CX, gm.shoulder - 1, gm.footY - 1, b.sh + 6, b.hip + 18, c.mid);
+    for (var y = gm.shoulder - 1; y <= gm.footY - 1; y++) {
+      for (var x = CX + 2; x < W; x++) if (g.get(x, y) === c.mid) g.set(x, y, c.lo);
+      for (var x2 = 0; x2 < CX - 9; x2++) if (g.get(x2, y) === c.mid) g.set(x2, y, c.hi);
+    }
+    /* 留め具 */
+    g.rect(CX - 2, gm.shoulder - 1, 4, 2, p.accent.mid);
+  }
+
+  /* --- 頭・顔 --- */
+  function head(g, p, gm, spec) {
+    var b = gm.b, cy = gm.headCy, r = b.headR;
+    /* 首 */
+    g.rect(CX - 3, gm.chin - 2, 6, 5, p.skin.mid);
+    g.rect(CX - 3, gm.chin - 2, 6, 2, p.skin.lo);   /* 顎の影 */
+    /* 頭蓋 */
+    g.ellipse(CX, cy, r, r + 1, p.skin.mid);
+    /* 顎を絞る */
+    g.bar(CX, Math.round(cy + r), Math.round(r * 1.5), p.skin.mid);
+    g.bar(CX, Math.round(cy + r) + 1, Math.round(r * 1.0), p.skin.mid);
+    /* 左から光 */
+    for (var y = Math.round(cy - r) - 1; y <= Math.round(cy + r) + 1; y++) {
+      for (var x = CX + 3; x < W; x++) if (g.get(x, y) === p.skin.mid) g.set(x, y, p.skin.lo);
+      for (var x2 = CX - Math.round(r); x2 < CX - 4; x2++) if (g.get(x2, y) === p.skin.mid) g.set(x2, y, p.skin.hi);
+    }
+
+    var ey = Math.round(cy + 1);
+    /* 目。白目・瞳・上まぶたの3層で表情が出る */
+    [-1, 1].forEach(function (s2) {
+      var x = (s2 < 0) ? CX - 6 : CX + 3;
+      g.rect(x, ey, 3, 3, '#f4f1e8');
+      g.rect(x + (s2 < 0 ? 1 : 0), ey, 2, 3, p.eye);       /* 瞳は内寄り */
+      g.rect(x, ey - 1, 3, 1, p.hair.lo);                  /* 上まぶた */
+      g.set(x + (s2 < 0 ? 1 : 0), ey, '#ffffff');          /* 光点 */
+    });
+    /* 眉 */
+    var by = ey - 3 - (spec.brow || 0);
+    g.rect(CX - 7, by, 4, 1, p.hair.lo);
+    g.rect(CX + 3, by, 4, 1, p.hair.lo);
+    if (spec.brow < 0) { g.set(CX - 3, by + 1, p.hair.lo); g.set(CX + 3, by + 1, p.hair.lo); }
+    /* 鼻 */
+    g.rect(CX, ey + 3, 1, 2, p.skin.lo);
+    /* 口 */
+    g.rect(CX - 2, ey + 6, 4, 1, p.skin.lo);
+    /* 頬の赤み */
+    if (spec.blush) {
+      g.set(CX - 6, ey + 4, p.blushC); g.set(CX - 5, ey + 4, p.blushC);
+      g.set(CX + 5, ey + 4, p.blushC); g.set(CX + 6, ey + 4, p.blushC);
+    }
+    /* 髭 */
+    if (spec.beard) {
+      g.rect(CX - 6, ey + 4, 12, 5, p.hair.mid);
+      g.rect(CX - 6, ey + 7, 12, 2, p.hair.lo);
+      g.rect(CX - 2, ey + 5, 4, 1, p.skin.lo);            /* 口をのぞかせる */
+      g.rect(CX - 8, ey, 2, 5, p.hair.mid);               /* もみあげ */
+      g.rect(CX + 6, ey, 2, 5, p.hair.lo);
+    }
+  }
+
+  /* --- 髪 --- */
+  var HAIR = {
+    short: function (g, p, gm) {
+      var cy = gm.headCy, r = gm.b.headR;
+      g.ellipse(CX, cy - r * 0.55, r + 0.6, r * 0.62, p.hair.mid);
+      g.rect(CX - Math.round(r) - 1, Math.round(cy - 3), 2, 7, p.hair.mid);
+      g.rect(CX + Math.round(r) - 1, Math.round(cy - 3), 2, 7, p.hair.lo);
+      /* 前髪の束 */
+      g.rect(CX - 5, Math.round(cy - r) + 1, 4, 4, p.hair.hi);
+      g.rect(CX - 1, Math.round(cy - r) + 2, 3, 3, p.hair.mid);
+      g.rect(CX + 3, Math.round(cy - r) + 1, 3, 4, p.hair.lo);
+    },
+    crop: function (g, p, gm) {
+      var cy = gm.headCy, r = gm.b.headR;
+      g.ellipse(CX, cy - r * 0.72, r + 0.2, r * 0.48, p.hair.mid);
+      g.shade(CX - 9, Math.round(cy - r) - 1, 18, 2, p.hair.hi);
+      g.rect(CX - Math.round(r) - 1, Math.round(cy - 3), 2, 5, p.hair.lo);
+      g.rect(CX + Math.round(r) - 1, Math.round(cy - 3), 2, 5, p.hair.lo);
+    },
+    long: function (g, p, gm) {
+      var cy = gm.headCy, r = gm.b.headR;
+      g.ellipse(CX, cy - r * 0.5, r + 1.4, r * 0.68, p.hair.mid);
+      [-1, 1].forEach(function (s2) {
+        var x = (s2 < 0) ? CX - Math.round(r) - 3 : CX + Math.round(r) + 1;
+        for (var y = Math.round(cy - 3); y <= gm.shoulder + 12; y++) {
+          var w = (y > gm.shoulder + 6) ? 2 : 3;
+          for (var i = 0; i < w; i++) g.set(x + i, y, s2 < 0 ? p.hair.mid : p.hair.lo);
+          if (s2 < 0) g.set(x, y, p.hair.hi);
+        }
+      });
+      g.rect(CX - 7, Math.round(cy - r) + 1, 5, 4, p.hair.hi);
+      g.rect(CX - 2, Math.round(cy - r) + 1, 4, 3, p.hair.mid);
+      g.rect(CX + 2, Math.round(cy - r) + 1, 5, 4, p.hair.lo);
+    },
+    bob: function (g, p, gm) {
+      var cy = gm.headCy, r = gm.b.headR;
+      g.ellipse(CX, cy - r * 0.48, r + 1.4, r * 0.70, p.hair.mid);
+      [-1, 1].forEach(function (s2) {
+        var x = (s2 < 0) ? CX - Math.round(r) - 3 : CX + Math.round(r) + 1;
+        for (var y = Math.round(cy - 3); y <= Math.round(cy + r) + 3; y++) {
+          for (var i = 0; i < 3; i++) g.set(x + i, y, s2 < 0 ? p.hair.mid : p.hair.lo);
+          if (s2 < 0) g.set(x, y, p.hair.hi);
+        }
+      });
+      /* ぱっつん前髪 */
+      g.rect(CX - 8, Math.round(cy - r) + 1, 16, 5, p.hair.mid);
+      g.rect(CX - 8, Math.round(cy - r) + 1, 6, 4, p.hair.hi);
+      g.rect(CX + 4, Math.round(cy - r) + 1, 4, 5, p.hair.lo);
+    },
+    tail: function (g, p, gm) {
+      HAIR.short(g, p, gm);
+      var cy = gm.headCy, r = gm.b.headR;
+      var x = CX + Math.round(r) + 1;
+      for (var y = Math.round(cy - 1); y <= gm.shoulder + 14; y++) {
+        var w = (y > gm.shoulder + 8) ? 2 : 3;
+        for (var i = 0; i < w; i++) g.set(x + i, y, p.hair.mid);
+        g.set(x + w - 1, y, p.hair.lo);
+      }
+    },
+    hood: function (g, p, gm, spec) {
+      var cy = gm.headCy, r = gm.b.headR;
+      /* 頭巾は法衣の続き。服と同系にしないと「長い髪」に見えてしまう。 */
+      var hh = (spec && spec.hoodHue != null) ? spec.hoodHue
+             : (spec && spec.hue != null) ? spec.hue : 0;
+      var hl = (spec && spec.lum != null) ? Math.max(16, spec.lum * 0.8) : 26;
+      var c = ramp(hh, (spec && spec.sat != null) ? spec.sat * 0.9 : 20, hl);
+      /* 布のかぶり */
+      g.ellipse(CX, cy - 0.4, r + 3, r + 2.4, c.mid);
+      g.taper(CX, Math.round(cy + r) - 1, gm.shoulder + 3, Math.round(r * 2.6), Math.round(r * 3.4), c.mid);
+      for (var y = Math.round(cy - r) - 3; y <= gm.shoulder + 3; y++) {
+        for (var x = CX + 2; x < W; x++) if (g.get(x, y) === c.mid) g.set(x, y, c.lo);
+        for (var x2 = 0; x2 < CX - 8; x2++) if (g.get(x2, y) === c.mid) g.set(x2, y, c.hi);
+      }
+      /* 頭巾の縁に受光 */
+      g.shade(CX - Math.round(r) - 3, Math.round(cy - r) - 3, 2 * Math.round(r) + 6, 2, c.hi);
+      /* 影に沈んだ顔 */
+      g.ellipse(CX, cy + 1, r - 1.4, r - 0.4, p.skin.lo);
+      var ey = Math.round(cy + 1);
+      g.rect(CX - 6, ey, 3, 2, '#a8e6ff');
+      g.rect(CX + 3, ey, 3, 2, '#a8e6ff');
+      g.rect(CX - 5, ey, 1, 2, '#ffffff');
+    }
+  };
+
+  /* --- 得物。手の位置に合わせて握らせる --- */
+  var PROP = {
+    sword: function (g, p, gm, hands) {
+      var h = hands[1], x = h.x + 1;
+      var grip = h.y;
+      var len = Math.max(10, gm.footY - (grip + 6) - 2);
+      g.rect(x, grip - 4, 2, 6, p.leather.mid);              /* 柄 */
+      g.rect(x - 2, grip + 2, 6, 2, p.metal.lo);             /* 鍔 */
+      g.rect(x - 1, grip + 4, 4, len, p.metal.mid);          /* 刀身 */
+      g.rect(x - 1, grip + 4, 2, len, p.metal.hi);
+      g.rect(x, grip + 4 + len, 2, 3, p.metal.mid);          /* 切先 */
+      g.rect(x - 1, grip - 5, 4, 1, p.accent.mid);           /* 柄頭 */
+    },
+    greatsword: function (g, p, gm, hands) {
+      /* 肩に担ぐように、刃を手から上へ伸ばす */
+      var h = hands[1], x = h.x;
+      var grip = h.y;
+      var bladeBot = grip - 5;
+      var bladeTop = Math.max(2, gm.headCy - 8);
+      var len = bladeBot - bladeTop;
+      g.rect(x, grip - 3, 3, 8, p.leather.mid);              /* 柄 */
+      g.rect(x, grip - 3, 1, 8, p.leather.hi);
+      g.rect(x - 1, grip + 5, 5, 2, p.accent.mid);           /* 柄頭 */
+      g.rect(x - 3, bladeBot, 9, 2, p.metal.lo);             /* 鍔 */
+      g.rect(x - 2, bladeTop, 7, len, p.metal.mid);          /* 刀身 */
+      g.rect(x - 2, bladeTop, 3, len, p.metal.hi);
+      g.rect(x - 1, bladeTop - 3, 5, 3, p.metal.mid);        /* 切先 */
+      g.rect(x - 1, bladeTop - 3, 2, 3, p.metal.hi);
+    },
+    staff: function (g, p, gm, hands) {
+      var h = hands[1], x = h.x + 1;
+      var top = gm.shoulder - 16;
+      g.rect(x, top, 3, gm.footY - top + 3, p.leather.mid);
+      g.rect(x, top, 1, gm.footY - top + 3, p.leather.hi);
+      g.ellipse(x + 1, top - 3, 4.2, 4.2, p.accent.mid);
+      g.ellipse(x + 0.2, top - 4, 2, 2, p.accent.hi);
+      g.rect(x - 1, top + 4, 5, 2, p.metal.mid);
+    },
+    mace: function (g, p, gm, hands) {
+      var h = hands[1], x = h.x + 1;
+      var grip = h.y;
+      g.rect(x, grip - 4, 3, 13, p.leather.mid);
+      g.rect(x, grip - 4, 1, 13, p.leather.hi);
+      /* 角ばった鎚頭 */
+      g.rect(x - 1, grip - 11, 5, 7, p.metal.mid);
+      g.rect(x - 1, grip - 11, 2, 7, p.metal.hi);
+      g.rect(x - 3, grip - 10, 2, 5, p.metal.lo);            /* 左の鍔 */
+      g.rect(x + 4, grip - 10, 2, 5, p.metal.lo);            /* 右の鍔 */
+      g.rect(x - 3, grip - 8, 9, 1, p.metal.hi);             /* 帯 */
+      g.rect(x - 1, grip - 4, 5, 1, p.metal.lo);
+      g.rect(x, grip - 13, 3, 2, p.accent.mid);              /* 頂の飾り */
+    },
+    book: function (g, p, gm, hands) {
+      var h = hands[-1], x = h.x - 6;
+      g.rect(x, h.y - 8, 8, 11, p.accent.mid);
+      g.rect(x, h.y - 8, 8, 2, p.accent.hi);
+      g.rect(x + 7, h.y - 8, 2, 11, '#efe8d4');
+      g.rect(x + 2, h.y - 5, 3, 1, p.metal.hi);
+    },
+    none: function () {}
+  };
+
+  /* ===================== 組み立て ===================== */
+
+  function build(spec) {
+    var g = new Grid(), p = palette(spec), gm = geom(spec);
+    cape(g, p, gm, spec);
+    legs(g, p, gm, spec);
+    torso(g, p, gm, spec);
+    belt(g, p, gm, spec);
+    /* 腕を先に置いて手の位置を得る。得物はその手に握らせる。 */
+    var hands = arms(g, p, gm, spec);
+    (PROP[spec.prop] || PROP.none)(g, p, gm, hands);
+    /* 得物の上から手を描き直し、握っているように見せる */
+    [-1, 1].forEach(function (side) {
+      var h = hands[side];
+      g.rect(h.x, h.y, h.w, 3, p.skin.mid);
+      g.rect(h.x, h.y + 2, h.w, 1, p.skin.lo);
+    });
+    head(g, p, gm, spec);
+    (HAIR[spec.hair] || HAIR.short)(g, p, gm, spec);
+    if (spec.circlet) {
+      var cy = gm.headCy, r = gm.b.headR;
+      g.bar(CX, Math.round(cy - r) + 1, Math.round(r * 1.8), p.accent.mid);
+      g.set(CX, Math.round(cy - r), p.accent.hi);
+    }
+    return { g: g, p: p };
+  }
+
+  /** 輪郭を1px巻く。背景がどんな色でもシルエットが立つ。 */
+  function outline(g, color) {
+    var add = [];
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+      if (g.get(x, y)) continue;
+      if (g.get(x - 1, y) || g.get(x + 1, y) || g.get(x, y - 1) || g.get(x, y + 1)) add.push([x, y]);
+    }
+    add.forEach(function (a) { g.set(a[0], a[1], color); });
+  }
+
+  /* ===================== 描画 ===================== */
+
+  var cache = {};
+
+  function draw(spec, px) {
+    var key = JSON.stringify(spec) + '|' + px;
+    if (cache[key]) return cache[key];
+    var r = build(spec);
+    outline(r.g, 'rgba(6,8,14,.92)');
+    var cv = document.createElement('canvas');
+    cv.width = W * px; cv.height = H * px;
+    var ctx = cv.getContext('2d');
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+      var c = r.g.get(x, y);
+      if (!c) continue;
+      ctx.fillStyle = c;
+      ctx.fillRect(x * px, y * px, px, px);
+    }
+    var url = cv.toDataURL();
+    cache[key] = url;
+    return url;
+  }
+
+  function img(spec, px, cls, attrs) {
+    return '<img class="portrait ' + (cls || '') + '" src="' + draw(spec, px || 3) +
+      '" width="' + (W * (px || 3)) + '" height="' + (H * (px || 3)) + '" alt="" ' + (attrs || '') + '>';
+  }
+
+  return { draw: draw, img: img, build: build, W: W, H: H, HAIR: HAIR, PROP: PROP };
+})();
