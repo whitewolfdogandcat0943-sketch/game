@@ -148,7 +148,7 @@ G.Screens = (function () {
     b.enemies.forEach(function (e, i) {
       var sel = (state.targetIdx === i) ? 'style="outline:2px solid var(--danger)"' : '';
       h += '<div class="unit ' + (e.hp > 0 ? 'target' : 'dead') + '" ' + sel +
-        ' data-unit="' + (i + 1) + '" data-act="selectTarget:' + i + '">' +
+        ' data-unit="' + e.idx + '" data-act="selectTarget:' + i + '">' +
         '<div class="un"><span>' + e.name + '</span>' +
         '<span class="lvtag">' + (e.isBoss ? 'BOSS' : '') + '</span></div>' +
         '<div class="sprwrap">' + G.Gfx.enemyImg(e.ref.id, e.isBoss ? 5 : 4, e.hp > 0 ? (e.isBoss ? 'boss' : 'idle') : '') + '</div>' +
@@ -160,18 +160,32 @@ G.Screens = (function () {
     });
     h += '</div>';
 
-    h += '<div class="grid g2" style="margin-top:10px"><div class="hero-panel" data-unit="0">' +
-      '<div class="un" style="font-size:13px"><span>' + U.esc(state.hero.name) +
-      ' <span class="muted">Lv' + state.hero.level + ' ' + G.CLASSES[state.hero.classId].name + '</span></span>' +
-      (hero.barrier > 0 ? '<span class="tag">🛡 ' + hero.barrier + '</span>' : '') + '</div>' +
-      '<div class="sprwrap">' + G.Gfx.classImg(state.hero.classId, 5, hero.hp > 0 ? 'idle' : '') + '</div>' +
-      UI.bar(hero.hp, hero.S.maxHp, 'hp', 'HP') + '<div style="height:5px"></div>' +
-      UI.bar(hero.mp, hero.S.maxMp, 'mp', 'MP') +
-      '<div class="sts" style="margin-top:6px">' + statusChips(hero) + buffChips(hero) + '</div>' +
-      '<div class="tiny muted" style="margin-top:6px">攻' + hero.S.atk + ' 魔' + hero.S.mag + ' 防' + hero.S.def +
-      ' 速' + hero.S.spd + ' / 会心' + U.pct(hero.S.critRate) + ' 反射' + U.pct(hero.S.reflect) +
-      ' 波及' + U.pct(hero.S.aoeRatio) + '</div>' +
-      '</div>';
+    h += '<div class="grid g2" style="margin-top:10px"><div class="party">';
+    G.Battle.partyUnits(b).forEach(function (m, mi) {
+      var isActor = (b.actor === m) || (mi === 0 && b.awaiting);
+      var cls = 'unit member' + (m.hp > 0 ? '' : ' dead') + (isActor ? ' acting' : '') +
+        (state.allyIdx === mi ? ' picked' : '');
+      h += '<div class="' + cls + '" data-unit="' + m.idx + '" data-act="selectAlly:' + mi + '">' +
+        '<div class="un" style="font-size:12px"><span>' + U.esc(m.name) +
+        ' <span class="muted">Lv' + m.hero.level + ' ' + G.CLASSES[m.hero.classId].name + '</span></span>' +
+        (m.coveredBy ? '<span class="tag">🛡かばわれ</span>' : '') +
+        (m.coverFor ? '<span class="tag">🛡かばう</span>' : '') +
+        (m.counter ? '<span class="tag">⚔構え</span>' : '') +
+        (m.charge > 0 ? '<span class="tag">⚡溜め</span>' : '') +
+        (m.barrier > 0 ? '<span class="tag">🛡 ' + m.barrier + '</span>' : '') + '</div>' +
+        '<div class="row" style="gap:8px;align-items:center">' +
+        '<div class="sprwrap tiny-spr">' + G.Gfx.memberImg(m.hero, 3, m.hp > 0 ? 'idle' : '') + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+        UI.bar(m.hp, m.S.maxHp, 'hp', 'HP') + '<div style="height:4px"></div>' +
+        UI.bar(m.mp, m.S.maxMp, 'mp', 'MP') +
+        '<div class="sts" style="margin-top:4px">' + statusChips(m) + buffChips(m) + '</div>' +
+        '</div></div>' +
+        (mi === 0 ? '<div class="tiny muted" style="margin-top:5px">攻' + m.S.atk + ' 魔' + m.S.mag +
+          ' 防' + m.S.def + ' 速' + m.S.spd + ' / 会心' + U.pct(m.S.critRate) +
+          ' 反射' + U.pct(m.S.reflect) + ' 波及' + U.pct(m.S.aoeRatio) + '</div>' : '') +
+        '</div>';
+    });
+    h += '</div>';
     h += '<div><div class="log" id="battleLog">' + b.log.slice(-60).map(function (l) {
       return '<div class="' + l.c + '">' + l.t + '</div>';
     }).join('') + '</div></div></div>';
@@ -182,8 +196,10 @@ G.Screens = (function () {
     } else {
       h += '<div class="panel"><div class="row" style="gap:6px">' +
         tabBtn(state, 'skill', 'スキル') + tabBtn(state, 'item', 'アイテム') +
-        '<span class="muted tiny" style="margin-left:auto;align-self:center">対象: ' +
-        (b.enemies[state.targetIdx] && b.enemies[state.targetIdx].hp > 0 ? b.enemies[state.targetIdx].name : '自動') + '（敵をクリックで変更）</span>' +
+        '<span class="muted tiny" style="margin-left:auto;align-self:center">敵: ' +
+        (b.enemies[state.targetIdx] && b.enemies[state.targetIdx].hp > 0 ? b.enemies[state.targetIdx].name : '自動') +
+        ' ／ 味方: ' + (G.Battle.partyUnits(b)[state.allyIdx || 0] || { name: '自身' }).name +
+        '（それぞれクリックで変更）</span>' +
         '</div><div class="actions">';
       if (state.battleTab === 'item') h += itemActions(state);
       else h += skillActions(state);
@@ -202,7 +218,8 @@ G.Screens = (function () {
 
   function statusChips(u) {
     return u.statuses.map(function (s) {
-      var nm = { burn: '🔥火傷', poison: '☠毒', freeze: '❄凍結', shock: '⚡麻痺' }[s.k] || s.k;
+      var nm = { burn: '🔥火傷', poison: '☠毒', freeze: '❄凍結', shock: '⚡麻痺',
+                 seal: '🔒封印', blind: '🌑暗闇' }[s.k] || s.k;
       return '<span class="st debuff">' + nm + ' ' + s.t + '</span>';
     }).join('');
   }
@@ -221,7 +238,9 @@ G.Screens = (function () {
     return G.Stats.skillList(state.hero).map(function (id) {
       var s = G.SKILLS[id];
       var lack = hero.mp < (s.mp || 0);
-      var tgt = s.target === 'all' ? '全体' : (s.target === 'self' || s.kind === 'heal' || s.kind === 'buff' || s.kind === 'util' ? '自身' : (s.target === 'random' ? 'ランダム' : '単体'));
+      var tgt = { all: '敵全体', random: 'ランダム', allies: '味方全体', ally: '味方単体',
+                  downed: '戦闘不能の味方', self: '自身' }[s.target] ||
+                ((s.kind === 'heal' || s.kind === 'buff' || s.kind === 'util') ? '自身' : '敵単体');
       return '<button class="abtn" ' + (lack ? 'disabled' : '') + ' data-act="skill:' + id + '">' +
         '<div class="an"><span>' + (s.el && s.el !== 'phys' && s.kind !== 'buff' && s.kind !== 'heal' ? G.ELEMENTS[s.el].icon : '') + s.name +
         '</span><span class="' + (lack ? 'r-common' : '') + '">' + (s.mp ? 'MP' + s.mp : '―') + '</span></div>' +

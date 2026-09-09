@@ -420,10 +420,29 @@ G.Gfx = (function () {
   }
   function enemyImg(id, px, cls, attrs) { return img(enemySpec(id), px, cls, attrs); }
   function classImg(id, px, cls, attrs) { return img(classSpec(id), px, cls, attrs); }
+
+  /** 仲間の見た目。職業の絵型を土台に、その人の色で描き分ける。 */
+  function allySpec(def) {
+    var base = classSpec(def.classId);
+    var spec = {};
+    for (var k in base) spec[k] = base[k];
+    if (def.arch) spec.arch = def.arch;
+    if (def.hue != null) spec.hue = def.hue;
+    if (def.accent != null) spec.accent = def.accent;
+    return spec;
+  }
+  function allyImg(def, px, cls, attrs) { return img(allySpec(def), px, cls, attrs); }
+
+  /** パーティメンバー（主人公は職業、仲間は固有の色）を描く */
+  function memberImg(member, px, cls, attrs) {
+    var def = member.allyId && G.ALLIES && G.ALLIES[member.allyId];
+    return def ? allyImg(def, px, cls, attrs) : classImg(member.classId, px, cls, attrs);
+  }
   function iconImg(kind, rarity, px, hue) { return img(iconSpec(kind, rarity, hue), px, 'ico'); }
 
   return {
     draw: draw, img: img, enemyImg: enemyImg, classImg: classImg, iconImg: iconImg, nodeImg: nodeImg,
+    allyImg: allyImg, memberImg: memberImg, allySpec: allySpec,
     enemySpec: enemySpec, classSpec: classSpec, iconSpec: iconSpec,
     ARCH: ARCH, expand: expand, SIZE: SIZE
   };

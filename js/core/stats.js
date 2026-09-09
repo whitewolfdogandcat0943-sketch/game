@@ -119,6 +119,11 @@ G.Stats = (function () {
   /** 現在の職業＋履歴から使用可能スキルID一覧を得る */
   function skillList(hero) {
     var out = ['attack', 'guard'];
+    /* 仲間は固定の技を持つ（主人公のように転職しない） */
+    if (hero.fixedSkills) {
+      hero.fixedSkills.forEach(function (s) { if (out.indexOf(s) < 0) out.push(s); });
+      return out;
+    }
     var ids = (hero.classHistory || []).concat([hero.classId]);
     ids.forEach(function (cid) {
       var c = G.CLASSES[cid];

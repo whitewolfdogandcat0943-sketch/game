@@ -65,7 +65,7 @@ G.SKILLS = {};
       special: 'allElem', desc: '6属性すべてで連続攻撃する（各属性1ヒット）。' });
 
   /* ---------- 神官 / 破魔僧 ---------- */
-  S({ id: 'heal', name: '治癒', mp: 8, kind: 'heal', target: 'self', power: 150, desc: '魔法攻撃力に応じてHPを回復。' });
+  S({ id: 'heal', name: '治癒', mp: 8, kind: 'heal', target: 'ally', power: 150, desc: '味方1人のHPを魔法攻撃力に応じて回復。' });
   S({ id: 'smite', name: '裁きの光', mp: 7, kind: 'mag', el: 'light', power: 165, target: 'one', desc: '聖なる光で撃つ。' });
   S({ id: 'sanctuary', name: '聖障壁', mp: 10, kind: 'buff', target: 'self',
       desc: 'バリアを張り、3ターン被ダメ25%減。',
@@ -105,7 +105,7 @@ G.SKILLS = {};
   /* ---------- 錬金術士 / アイテム ---------- */
   S({ id: 'throwBomb', name: '投擲爆弾', mp: 6, kind: 'mag', el: 'fire', power: 130, target: 'all',
       special: 'itemScale', desc: 'アイテム威力に比例する爆弾を敵全体に投げる。' });
-  S({ id: 'panacea', name: '万能薬', mp: 8, kind: 'heal', target: 'self', power: 120,
+  S({ id: 'panacea', name: '万能薬', mp: 8, kind: 'heal', target: 'ally', power: 120,
       special: 'itemScale', desc: 'アイテム威力に比例してHPを回復し、状態異常を解除。', eff: { cleanse: true } });
   S({ id: 'transmute', name: '錬成', mp: 5, kind: 'util', target: 'self',
       desc: 'ランダムなアイテムを1個生成する。', eff: { makeItem: 1 } });
@@ -199,6 +199,189 @@ G.SKILLS = {};
   S({ id: 't_lifeline', name: '生命線', mp: 15, kind: 'buff', target: 'self',
       desc: '最大HPの40%回復。3ターン、吸収+30%。',
       eff: { healMaxPct: 0.40, buffs: [{ k: 'lifesteal', v: 0.30, t: 3 }] } });
+
+
+  /* ================= 追加の特殊攻撃・連携技 =================
+   * 溜め(charge) / 反撃の構え(counter) / かばう(cover) / 刻印(mark)
+   * 封印(seal) / 暗闇(blind) / 打ち消し(dispel) / 蘇生(revive) / 連携(linkStrike)
+   */
+
+  /* ---------- 汎用の構え ---------- */
+  S({ id: 'focus', name: '集中', mp: 3, kind: 'util', target: 'self',
+      desc: '力を溜める。次の攻撃の威力が+80%される。MPを8回復。',
+      eff: { charge: 0.80, mpGain: 8 } });
+  S({ id: 'coverStance', name: '庇護の構え', mp: 5, kind: 'util', target: 'ally',
+      desc: '味方1人を3ターンかばう。その間、被ダメージ25%減。',
+      eff: { cover: 3, buffs: [{ k: 'dr', v: 0.25, t: 3 }] } });
+
+  /* ---------- 剣士系 ---------- */
+  S({ id: 'bladeDance', name: '剣舞', mp: 10, kind: 'phys', el: 'phys', power: 78, target: 'one', hits: 3,
+      desc: '三連の斬撃。手数で会心を狙う。' });
+  S({ id: 'crossSlash', name: '十字斬', mp: 9, kind: 'phys', el: 'phys', power: 108, target: 'one', hits: 2,
+      desc: '交差する二撃。会心率+12%。', eff: { critBonus: 0.12 } });
+  S({ id: 'avengeStance', name: '迎撃の構え', mp: 8, kind: 'util', target: 'self',
+      desc: '3ターン、攻撃を受けるたび威力170%で反撃する（最大3回）。',
+      eff: { counter: { t: 3, n: 3, p: 170 } } });
+  S({ id: 'shieldBash', name: '盾打ち', mp: 7, kind: 'phys', el: 'phys', power: 125, target: 'one',
+      desc: '60%で敵を2ターン封印し、技を使えなくする。', eff: { seal: { t: 2, c: 0.60 } } });
+  S({ id: 'earthSplitter', name: '大地割り', mp: 14, kind: 'phys', el: 'phys', power: 160, target: 'all',
+      desc: '地を裂き敵全体を打ち、3ターン素早さを下げる。', eff: { debuff: { k: 'spd', v: -20, t: 3 } } });
+  S({ id: 'unisonEdge', name: '共鳴斬', mp: 15, kind: 'phys', el: 'phys', power: 150, target: 'one',
+      desc: '【連携】味方全員が呼応し、それぞれ威力60%で追撃する。', eff: { linkStrike: 0.60 } });
+
+  /* ---------- 狂戦士系 ---------- */
+  S({ id: 'berserkRush', name: '狂乱突撃', mp: 12, kind: 'phys', el: 'phys', power: 72, target: 'one', hits: 4,
+      desc: '最大HPの8%を支払う四連撃。', eff: { hpCost: 0.08 } });
+  S({ id: 'bloodOffering', name: '血の供物', mp: 4, kind: 'util', target: 'self',
+      desc: '最大HPの18%を捧げ、次の攻撃の威力を+130%する。',
+      eff: { hpCost: 0.18, charge: 1.30 } });
+  S({ id: 'carnage', name: '殲滅の咆哮', mp: 20, kind: 'phys', el: 'phys', power: 185, target: 'all',
+      desc: '最大HPの10%を支払い、敵全体を薙ぎ払って35%吸収する。',
+      eff: { hpCost: 0.10, drain: 0.35 } });
+
+  /* ---------- 盗賊 / 暗殺者系 ---------- */
+  S({ id: 'smokeBomb', name: '煙玉', mp: 8, kind: 'util', target: 'all',
+      desc: '敵全体を3ターン暗闇にし、攻撃を外れやすくする。', eff: { blind: { t: 3, c: 0.75 } } });
+  S({ id: 'markTarget', name: '弱点看破', mp: 6, kind: 'util', target: 'one',
+      desc: '敵1体に刻印を刻み、3ターン被ダメージを+35%する。', eff: { mark: { v: 0.35, t: 3 } } });
+  S({ id: 'phantomBlades', name: '幻影刃', mp: 15, kind: 'phys', el: 'dark', power: 62, target: 'random', hits: 5,
+      desc: 'ランダムな敵に5回、影の刃が走る。' });
+  S({ id: 'pickpocket', name: '掠め取り', mp: 4, kind: 'phys', el: 'phys', power: 95, target: 'one',
+      desc: '敵から魔力を掠め取る（MP+18）。', eff: { mpSteal: 18 } });
+
+  /* ---------- 魔術士 / 元素使い系 ---------- */
+  S({ id: 'arcaneSeal', name: '魔封じ', mp: 11, kind: 'mag', el: 'dark', power: 115, target: 'one',
+      desc: '70%で敵を3ターン封印する。', eff: { seal: { t: 3, c: 0.70 } } });
+  S({ id: 'manaBurn', name: '魔力喰らい', mp: 0, kind: 'mag', el: 'dark', power: 140, target: 'one',
+      desc: 'MPを消費せず、敵から22の魔力を吸い上げる。', eff: { mpSteal: 22 } });
+  S({ id: 'dispelWave', name: '解呪波', mp: 12, kind: 'util', target: 'all',
+      desc: '敵全体の強化とバリアをすべて打ち消す。', eff: { dispel: true } });
+  S({ id: 'frostNova', name: '氷結新星', mp: 16, kind: 'mag', el: 'ice', power: 165, target: 'all',
+      desc: '敵全体を凍てつかせる。35%で凍結。', eff: { freeze: { t: 2, c: 0.35 } } });
+  S({ id: 'flameWhirl', name: '火炎旋風', mp: 16, kind: 'mag', el: 'fire', power: 170, target: 'all',
+      desc: '渦巻く炎。50%で火傷。', eff: { burn: { t: 3, v: 0.06, c: 0.50 } } });
+  S({ id: 'overload', name: '魔力過装', mp: 6, kind: 'util', target: 'self',
+      desc: '次の攻撃の威力+100%。3ターン魔法攻撃+25%。',
+      eff: { charge: 1.00, buffs: [{ k: 'magPct', v: 0.25, t: 3 }] } });
+
+  /* ---------- 神官 / 破魔僧系 ---------- */
+  S({ id: 'resurrect', name: '蘇生', mp: 22, kind: 'util', target: 'downed',
+      desc: '倒れた味方1人を最大HPの45%で復帰させる。', eff: { revive: 0.45 } });
+  S({ id: 'groupHeal', name: '大治癒', mp: 16, kind: 'heal', target: 'allies', power: 115,
+      desc: '味方全員のHPを回復する。' });
+  S({ id: 'blessing', name: '祝福', mp: 12, kind: 'buff', target: 'allies',
+      desc: '味方全員の攻撃+25%／被ダメ軽減+15%（3ターン）。',
+      eff: { buffs: [{ k: 'atkPct', v: 0.25, t: 3 }, { k: 'magPct', v: 0.25, t: 3 }, { k: 'dr', v: 0.15, t: 3 }] } });
+  S({ id: 'purify', name: '浄化', mp: 10, kind: 'heal', target: 'allies', power: 70,
+      desc: '味方全員の状態異常を解除し、少しHPを回復する。', eff: { cleanse: true } });
+  S({ id: 'holyChain', name: '聖鎖', mp: 18, kind: 'mag', el: 'light', power: 140, target: 'all',
+      desc: '光の鎖が敵全体を縛る。45%で2ターン封印。', eff: { seal: { t: 2, c: 0.45 } } });
+  S({ id: 'martyr', name: '献身', mp: 6, kind: 'util', target: 'ally',
+      desc: '自分のHPの30%を味方1人に分け与える。', eff: { transferHp: 0.30 } });
+  S({ id: 'guardianAngel', name: '守護天使', mp: 14, kind: 'buff', target: 'ally',
+      desc: '味方1人に3ターン、致死ダメージを1度耐える加護を与える。',
+      eff: { flagBuff: { f: 'endure', t: 3 }, buffs: [{ k: 'dr', v: 0.10, t: 3 }] } });
+
+  /* ---------- 守護者系 ---------- */
+  S({ id: 'bulwark', name: '守護陣', mp: 12, kind: 'util', target: 'ally',
+      desc: '味方1人を4ターンかばい、自身の防御+50%／反射+20%。',
+      eff: { cover: 4, buffs: [{ k: 'defPct', v: 0.50, t: 4 }, { k: 'reflect', v: 0.20, t: 4 }] } });
+  S({ id: 'counterWall', name: '鉄壁反撃', mp: 13, kind: 'util', target: 'self',
+      desc: '4ターン、受けた攻撃に威力200%で反撃する（最大4回）。防御+40%。',
+      eff: { counter: { t: 4, n: 4, p: 200 }, buffs: [{ k: 'defPct', v: 0.40, t: 4 }] } });
+  S({ id: 'tauntRoar', name: '威圧咆哮', mp: 9, kind: 'util', target: 'all',
+      desc: '敵全体の狙いを引きつけ、攻撃力を3ターン25%下げる。',
+      eff: { taunt: 3, debuff: { k: 'atkPct', v: -0.25, t: 3 } } });
+
+  /* ---------- 嵐使い系 ---------- */
+  S({ id: 'thunderJudge', name: '雷神の裁き', mp: 20, kind: 'mag', el: 'thunder', power: 195, target: 'all',
+      desc: '敵全体に落雷。35%で麻痺。', eff: { shock: { t: 2, c: 0.35 } } });
+  S({ id: 'cycloneCage', name: '旋風檻', mp: 17, kind: 'mag', el: 'wind', power: 135, target: 'all',
+      desc: '敵全体を風の檻に閉じ込め、3ターン被ダメージ+25%。',
+      eff: { mark: { v: 0.25, t: 3 } } });
+
+  /* ---------- 錬金術士系 ---------- */
+  S({ id: 'elixirRain', name: '霊薬の雨', mp: 18, kind: 'heal', target: 'allies', power: 105,
+      special: 'itemScale', desc: 'アイテム威力に比例して味方全員を回復する。' });
+  S({ id: 'bombArray', name: '爆弾陣', mp: 16, kind: 'mag', el: 'fire', power: 88, target: 'all', hits: 2,
+      special: 'itemScale', desc: 'アイテム威力に比例する爆弾を2波、敵全体へ。' });
+  S({ id: 'homunculus', name: '人造の盾', mp: 14, kind: 'buff', target: 'allies',
+      desc: '味方全員にバリアを張る。', eff: { barrier: 0.9 } });
+
+  /* ---------- 呪術師系 ---------- */
+  S({ id: 'soulSeal', name: '魂縛', mp: 14, kind: 'mag', el: 'dark', power: 130, target: 'one',
+      desc: '80%で3ターン封印し、毒を付与する。',
+      eff: { seal: { t: 3, c: 0.80 }, poison: { t: 3, v: 0.06 } } });
+  S({ id: 'plagueMark', name: '疫の刻印', mp: 16, kind: 'mag', el: 'dark', power: 120, target: 'all',
+      desc: '敵全体に刻印と毒を刻む（被ダメージ+30%）。',
+      eff: { mark: { v: 0.30, t: 3 }, poison: { t: 4, v: 0.07 } } });
+
+  /* ---------- 韋駄天系 ---------- */
+  S({ id: 'bladeStorm', name: '剣戟の嵐', mp: 16, kind: 'phys', el: 'wind', power: 58, target: 'one', hits: 4,
+      special: 'speedScale', desc: '素早さが乗る四連撃。' });
+  S({ id: 'afterimage', name: '残像', mp: 10, kind: 'util', target: 'self',
+      desc: '3ターン、回避+30%。攻撃を受けるたび威力160%で反撃する。',
+      eff: { counter: { t: 3, n: 3, p: 160 }, buffs: [{ k: 'evade', v: 0.30, t: 3 }] } });
+
+  /* ---------- 魔剣士系 ---------- */
+  S({ id: 'runeBlade', name: '魔紋剣', mp: 13, kind: 'phys', el: 'phys', power: 165, target: 'one',
+      special: 'hybrid', desc: '物魔一体の斬撃。敵に3ターンの刻印を刻む。',
+      eff: { mark: { v: 0.30, t: 3 } } });
+  S({ id: 'spellChain', name: '呪剣連撃', mp: 17, kind: 'phys', el: 'fire', power: 82, target: 'one', hits: 3,
+      special: 'hybrid', desc: '物魔一体の三連撃（2撃目は氷）。', eff: { altElement: 'ice' } });
+
+  /* ---------- 最上級職の第二奥義 ---------- */
+  S({ id: 'ult_shadowRequiem', name: '影送り・鎮魂', mp: 30, kind: 'phys', el: 'dark', power: 96, target: 'one', hits: 4,
+      desc: '【奥義】必ず会心する四連撃。防御を40%無視。',
+      eff: { alwaysCrit: true, defIgnore: 0.40 } });
+  S({ id: 'ult_mirrorPrison', name: '鏡獄封陣', mp: 30, kind: 'util', target: 'all',
+      desc: '【奥義】敵全体の強化を打ち消し封印。4ターン反射が全体に波及する。',
+      eff: { dispel: true, seal: { t: 2, c: 0.60 }, flagBuff: { f: 'reflectAll', t: 4 },
+             buffs: [{ k: 'reflect', v: 0.35, t: 4 }] } });
+  S({ id: 'ult_stormThrone', name: '暴風王座', mp: 34, kind: 'mag', el: 'thunder', power: 215, target: 'all',
+      desc: '【奥義】雷の嵐。範囲威力+45%、50%で麻痺。',
+      eff: { aoeBonus: 0.45, shock: { t: 2, c: 0.50 } } });
+  S({ id: 'ult_starfall', name: '星降ろし', mp: 34, kind: 'mag', el: 'light', power: 175, target: 'all', hits: 2,
+      desc: '【奥義】星々が二度降り注ぐ。敵全体に刻印を刻む。',
+      eff: { mark: { v: 0.35, t: 3 } } });
+  S({ id: 'ult_philosopher', name: '賢者の霊薬', mp: 28, kind: 'heal', target: 'allies', power: 190,
+      special: 'itemScale', desc: '【奥義】味方全員を大回復し、状態異常を解除。アイテムを2個錬成する。',
+      eff: { cleanse: true, makeItem: 2 } });
+  S({ id: 'ult_bloodFeast', name: '血宴', mp: 30, kind: 'phys', el: 'dark', power: 205, target: 'all',
+      desc: '【奥義】最大HPの12%を支払い、敵全体から60%吸収する。',
+      eff: { hpCost: 0.12, drain: 0.60 } });
+  S({ id: 'ult_finalVerdict', name: '最終評決', mp: 36, kind: 'mag', el: 'light', power: 240, target: 'one',
+      desc: '【奥義】HPが50%以下の敵には威力2.2倍。倒れた味方を1人蘇生する。',
+      eff: { execute: 0.50, revive: 0.35 } });
+  S({ id: 'ult_nullify', name: '虚無帰結', mp: 34, kind: 'mag', el: 'dark', power: 195, target: 'all',
+      desc: '【奥義】敵全体の強化を消し去り、防御を70%無視して撃つ。',
+      eff: { dispel: true, defIgnore: 0.70 } });
+  S({ id: 'ult_godspeed', name: '神速・千手', mp: 32, kind: 'phys', el: 'wind', power: 52, target: 'random', hits: 8,
+      special: 'speedScale', desc: '【奥義】素早さが乗る八連撃をランダムな敵へ。' });
+  S({ id: 'ult_blackMiasma', name: '黒瘴', mp: 32, kind: 'mag', el: 'dark', power: 160, target: 'all',
+      desc: '【奥義】敵全体を毒・封印・刻印で塗り潰す。',
+      eff: { poison: { t: 4, v: 0.08 }, seal: { t: 2, c: 0.60 }, mark: { v: 0.35, t: 3 } } });
+  S({ id: 'ult_twinPole', name: '双極・終焉', mp: 34, kind: 'phys', el: 'light', power: 130, target: 'one', hits: 3,
+      special: 'hybrid', desc: '【奥義】物魔一体の三連撃（偶数撃は闇）。味方全員が追撃する。',
+      eff: { altElement: 'dark', linkStrike: 0.45 } });
+
+  /* ---------- 仲間の固有技 ---------- */
+  S({ id: 'aid_mend', name: '手当て', mp: 7, kind: 'heal', target: 'ally', power: 135,
+      desc: '味方1人を回復し、状態異常を解除する。', eff: { cleanse: true } });
+  S({ id: 'aid_shelter', name: '守りの祈り', mp: 13, kind: 'buff', target: 'allies',
+      desc: '味方全員にバリアを張り、3ターン被ダメ20%減。',
+      eff: { barrier: 0.8, buffs: [{ k: 'dr', v: 0.20, t: 3 }] } });
+  S({ id: 'aid_cover', name: '盾となる', mp: 6, kind: 'util', target: 'ally',
+      desc: '味方1人を3ターンかばい、自身の防御+45%。',
+      eff: { cover: 3, buffs: [{ k: 'defPct', v: 0.45, t: 3 }] } });
+  S({ id: 'aid_rally', name: '鼓舞', mp: 10, kind: 'buff', target: 'allies',
+      desc: '敵の注意を引きつけつつ、味方全員の攻撃を20%上げる。',
+      eff: { taunt: 2, buffs: [{ k: 'atkPct', v: 0.20, t: 3 }, { k: 'magPct', v: 0.20, t: 3 }] } });
+  S({ id: 'aid_amplify', name: '増幅の術式', mp: 11, kind: 'buff', target: 'ally',
+      desc: '味方1人の与ダメージを3ターン+40%、MPを12回復する。',
+      eff: { buffs: [{ k: 'dmgUp', v: 0.40, t: 3 }], mpGive: 12 } });
+  S({ id: 'aid_siphon', name: '魔力吸引', mp: 0, kind: 'mag', el: 'dark', power: 115, target: 'one',
+      desc: 'MPを使わず敵を撃ち、魔力を16奪う。', eff: { mpSteal: 16 } });
 
   /* ---------- 敵専用 ---------- */
   S({ id: 'e_bite', name: '噛みつき', mp: 0, kind: 'phys', el: 'phys', power: 105, target: 'one', desc: '' });

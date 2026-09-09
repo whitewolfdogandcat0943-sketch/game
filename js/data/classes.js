@@ -168,7 +168,7 @@
     base: { hp: 120, mp: 30, str: 12, int: 5, vit: 10, agi: 7, luk: 6 },
     grow: { hp: 11, mp: 2, str: 2.0, int: 0.6, vit: 1.6, agi: 1.0, luk: 0.8 },
     mods: { critRate: 0.03, atkPct: 0.05 }, flags: [],
-    skills: ['slash', 'warcry', 'heavyBlow']
+    skills: ['slash', 'warcry', 'heavyBlow', 'crossSlash', 'bladeDance', 'focus', 'coverStance', 'shieldBash']
   });
   def({
     id: 'mage', name: '魔術士', tier: 1, icon: '📕',
@@ -176,7 +176,7 @@
     base: { hp: 88, mp: 60, str: 5, int: 13, vit: 6, agi: 8, luk: 8 },
     grow: { hp: 7, mp: 5, str: 0.6, int: 2.2, vit: 0.9, agi: 1.1, luk: 1.0 },
     mods: { magPct: 0.06, mpRegen: 2 }, flags: [],
-    skills: ['fireball', 'iceLance', 'boltStrike', 'manaSurge']
+    skills: ['fireball', 'iceLance', 'boltStrike', 'manaSurge', 'manaBurn', 'arcaneSeal']
   });
   def({
     id: 'rogue', name: '盗賊', tier: 1, icon: '🗝',
@@ -184,7 +184,7 @@
     base: { hp: 100, mp: 38, str: 9, int: 7, vit: 7, agi: 13, luk: 12 },
     grow: { hp: 8.5, mp: 3, str: 1.5, int: 1.0, vit: 1.0, agi: 2.0, luk: 1.8 },
     mods: { critRate: 0.08, critDmg: 0.15, goldUp: 0.20, dropUp: 0.15 }, flags: [],
-    skills: ['backstab', 'venomFang', 'shadowStep']
+    skills: ['backstab', 'venomFang', 'shadowStep', 'pickpocket', 'markTarget', 'smokeBomb']
   });
   def({
     id: 'priest', name: '神官', tier: 1, icon: '✧',
@@ -192,7 +192,7 @@
     base: { hp: 108, mp: 52, str: 7, int: 11, vit: 9, agi: 7, luk: 9 },
     grow: { hp: 9.5, mp: 4.2, str: 1.0, int: 1.9, vit: 1.4, agi: 0.9, luk: 1.2 },
     mods: { 'el_light': 0.10, dr: 0.04 }, flags: [],
-    skills: ['heal', 'smite', 'sanctuary']
+    skills: ['heal', 'smite', 'sanctuary', 'purify', 'martyr', 'groupHeal']
   });
 
   /* =================== 上級職 (Tier 2) =================== */
@@ -204,7 +204,7 @@
     base: { hp: 150, mp: 34, str: 17, int: 5, vit: 12, agi: 9, luk: 7 },
     grow: { hp: 14, mp: 2, str: 2.6, int: 0.5, vit: 1.8, agi: 1.2, luk: 0.8 },
     mods: { atkPct: 0.15, lifesteal: 0.10, dr: -0.05, hpPct: 0.10 }, flags: ['lowHpRage'],
-    skills: ['slash', 'heavyBlow', 'bloodRage', 'crushArmor']
+    skills: ['slash', 'heavyBlow', 'bloodRage', 'crushArmor', 'berserkRush', 'bloodOffering', 'carnage', 'avengeStance']
   });
   def({
     id: 'assassin', name: '暗殺者', tier: 2, icon: '🔪',
@@ -214,7 +214,7 @@
     base: { hp: 108, mp: 40, str: 13, int: 7, vit: 7, agi: 16, luk: 15 },
     grow: { hp: 9, mp: 3, str: 2.0, int: 0.9, vit: 1.0, agi: 2.4, luk: 2.2 },
     mods: { critRate: 0.12, critDmg: 0.35, spd: 12 }, flags: ['critPierce'],
-    skills: ['backstab', 'thousandCuts', 'shadowStep', 'executioner']
+    skills: ['backstab', 'thousandCuts', 'shadowStep', 'executioner', 'phantomBlades', 'markTarget', 'smokeBomb']
   });
   def({
     id: 'elementalist', name: '元素使い', tier: 2, icon: '🜁',
@@ -225,7 +225,7 @@
     grow: { hp: 8, mp: 6, str: 0.5, int: 2.8, vit: 1.0, agi: 1.2, luk: 1.0 },
     mods: { magPct: 0.14, pierce: 0.20, 'el_fire': 0.08, 'el_ice': 0.08, 'el_thunder': 0.08, 'el_wind': 0.08 },
     flags: ['guardBreak'],
-    skills: ['fireball', 'iceLance', 'boltStrike', 'galeEdge', 'elementalBurst']
+    skills: ['fireball', 'iceLance', 'boltStrike', 'galeEdge', 'elementalBurst', 'frostNova', 'flameWhirl', 'overload', 'dispelWave']
   });
   def({
     id: 'guardian', name: '守護者', tier: 2, icon: '🛡',
@@ -235,7 +235,7 @@
     base: { hp: 168, mp: 40, str: 11, int: 8, vit: 18, agi: 5, luk: 7 },
     grow: { hp: 16, mp: 2.6, str: 1.6, int: 1.0, vit: 2.6, agi: 0.6, luk: 0.8 },
     mods: { defPct: 0.20, reflect: 0.15, dr: 0.08, hpPct: 0.12, spd: -5 }, flags: ['barrierOnHit'],
-    skills: ['thornGuard', 'ironWall', 'retaliate', 'provoke']
+    skills: ['thornGuard', 'ironWall', 'retaliate', 'provoke', 'bulwark', 'counterWall', 'tauntRoar', 'earthSplitter']
   });
   def({
     id: 'stormcaller', name: '嵐使い', tier: 2, icon: '🌪',
@@ -245,7 +245,7 @@
     base: { hp: 104, mp: 66, str: 8, int: 15, vit: 8, agi: 14, luk: 9 },
     grow: { hp: 9, mp: 5, str: 1.0, int: 2.3, vit: 1.1, agi: 1.9, luk: 1.0 },
     mods: { aoePower: 0.30, aoeRatio: 0.25, 'el_wind': 0.20, spd: 10 }, flags: ['overkillChain'],
-    skills: ['tempest', 'shockwave', 'stormCall', 'gravityWell']
+    skills: ['tempest', 'shockwave', 'stormCall', 'gravityWell', 'thunderJudge', 'cycloneCage']
   });
   def({
     id: 'alchemist', name: '錬金術士', tier: 2, icon: '⚗',
@@ -255,7 +255,7 @@
     base: { hp: 112, mp: 58, str: 8, int: 14, vit: 10, agi: 10, luk: 12 },
     grow: { hp: 10, mp: 4, str: 1.0, int: 2.0, vit: 1.4, agi: 1.3, luk: 1.6 },
     mods: { itemPower: 0.45, itemKeep: 0.15, dropUp: 0.20 }, flags: ['itemRefill'],
-    skills: ['throwBomb', 'panacea', 'transmute', 'catalyst', 'acidFlask']
+    skills: ['throwBomb', 'panacea', 'transmute', 'catalyst', 'acidFlask', 'elixirRain', 'bombArray', 'homunculus']
   });
   def({
     id: 'exorcist', name: '破魔僧', tier: 2, icon: '☩',
@@ -265,7 +265,7 @@
     base: { hp: 126, mp: 62, str: 9, int: 15, vit: 11, agi: 8, luk: 10 },
     grow: { hp: 11, mp: 4.6, str: 1.2, int: 2.2, vit: 1.5, agi: 1.0, luk: 1.2 },
     mods: { 'el_light': 0.20, 'el_dark': 0.20, lifesteal: 0.08, dr: 0.06 }, flags: ['soulHarvest'],
-    skills: ['smite', 'darkPact', 'judgement', 'sanctuary', 'holyNova']
+    skills: ['smite', 'darkPact', 'judgement', 'sanctuary', 'holyNova', 'resurrect', 'holyChain', 'blessing', 'guardianAngel']
   });
 
   def({
@@ -276,7 +276,7 @@
     base: { hp: 112, mp: 42, str: 12, int: 8, vit: 8, agi: 18, luk: 11 },
     grow: { hp: 9.5, mp: 3, str: 1.8, int: 1.0, vit: 1.1, agi: 2.8, luk: 1.4 },
     mods: { spd: 22, evade: 0.12, critRate: 0.06 }, flags: ['firstHitCrit', 'counterEvade'],
-    skills: ['shukuchi', 'galeFlurry', 'backstab', 'whirlwind']
+    skills: ['shukuchi', 'galeFlurry', 'backstab', 'whirlwind', 'bladeStorm', 'afterimage']
   });
   def({
     id: 'hexer', name: '呪術師', tier: 2, icon: '🕯',
@@ -286,7 +286,7 @@
     base: { hp: 108, mp: 66, str: 7, int: 16, vit: 9, agi: 11, luk: 10 },
     grow: { hp: 9, mp: 5, str: 0.8, int: 2.4, vit: 1.2, agi: 1.3, luk: 1.2 },
     mods: { 'el_dark': 0.22, magPct: 0.10 }, flags: ['statusDamage', 'lingering'],
-    skills: ['plague', 'hexMist', 'venomFang', 'curseBurst']
+    skills: ['plague', 'hexMist', 'venomFang', 'curseBurst', 'soulSeal', 'plagueMark']
   });
   def({
     id: 'spellblade', name: '魔剣士', tier: 2, icon: '🗡',
@@ -296,7 +296,7 @@
     base: { hp: 128, mp: 56, str: 13, int: 13, vit: 10, agi: 11, luk: 9 },
     grow: { hp: 11, mp: 4, str: 2.0, int: 2.0, vit: 1.4, agi: 1.3, luk: 1.0 },
     mods: { atkPct: 0.10, magPct: 0.10, 'el_fire': 0.12, 'el_light': 0.12 }, flags: ['spellblade'],
-    skills: ['spellEdge', 'dualPole', 'slash', 'fireball']
+    skills: ['spellEdge', 'dualPole', 'slash', 'fireball', 'runeBlade', 'spellChain', 'unisonEdge']
   });
 
   /* =================== 最上級職 (Tier 3) =================== */
@@ -307,7 +307,7 @@
     base: { hp: 150, mp: 60, str: 20, int: 10, vit: 11, agi: 22, luk: 20 },
     grow: { hp: 12, mp: 4, str: 2.9, int: 1.2, vit: 1.5, agi: 3.0, luk: 2.8 },
     mods: { critRate: 0.20, critDmg: 0.90, spd: 25, atkPct: 0.25 }, flags: ['critPierce', 'doubleStrike'],
-    skills: ['ult_phantomEdge', 'thousandCuts', 'executioner', 'shadowStep', 'backstab']
+    skills: ['ult_phantomEdge', 'ult_shadowRequiem', 'thousandCuts', 'executioner', 'shadowStep', 'phantomBlades', 'markTarget']
   });
   def({
     id: 'mirrorEmperor', name: '鏡獄天帝', tier: 3,
@@ -317,7 +317,7 @@
     grow: { hp: 20, mp: 3.4, str: 1.8, int: 1.4, vit: 3.4, agi: 0.8, luk: 1.0 },
     mods: { reflect: 0.35, reflectPow: 0.60, defPct: 0.35, dr: 0.15, hpPct: 0.20 },
     flags: ['reflectAll', 'healOnReflect', 'barrierOnHit'],
-    skills: ['ult_mirrorEnd', 'thornGuard', 'mirrorField', 'retaliate', 'ironWall']
+    skills: ['ult_mirrorEnd', 'ult_mirrorPrison', 'thornGuard', 'mirrorField', 'retaliate', 'counterWall', 'bulwark']
   });
   def({
     id: 'calamityKing', name: '天災嵐王', tier: 3,
@@ -327,7 +327,7 @@
     grow: { hp: 12, mp: 6.5, str: 1.2, int: 3.0, vit: 1.6, agi: 2.4, luk: 1.2 },
     mods: { aoePower: 0.60, aoeRatio: 0.40, magPct: 0.25, 'el_wind': 0.30, spd: 15 },
     flags: ['overkillChain', 'fireSplash'],
-    skills: ['ult_calamity', 'tempest', 'meteor', 'blizzard', 'stormCall']
+    skills: ['ult_calamity', 'ult_stormThrone', 'tempest', 'meteor', 'blizzard', 'stormCall', 'cycloneCage']
   });
   def({
     id: 'astralArchmage', name: '星辰術皇', tier: 3,
@@ -338,7 +338,7 @@
     mods: { magPct: 0.30, pierce: 0.30, 'el_fire': 0.18, 'el_ice': 0.18, 'el_thunder': 0.18,
             'el_wind': 0.18, 'el_light': 0.18, 'el_dark': 0.18 },
     flags: ['guardBreak', 'allElemStrike', 'freezeOnIce', 'shockOnThunder'],
-    skills: ['ult_astralBurst', 'elementalBurst', 'meteor', 'blizzard', 'chainBolt', 'holyNova']
+    skills: ['ult_astralBurst', 'ult_starfall', 'elementalBurst', 'meteor', 'blizzard', 'chainBolt', 'overload']
   });
   def({
     id: 'alchemySovereign', name: '万象錬成王', tier: 3,
@@ -348,7 +348,7 @@
     grow: { hp: 14, mp: 5.6, str: 1.3, int: 2.6, vit: 2.0, agi: 1.7, luk: 2.4 },
     mods: { itemPower: 0.90, itemKeep: 0.25, magPct: 0.20, dropUp: 0.40, goldUp: 0.35 },
     flags: ['itemRefill', 'itemEcho'],
-    skills: ['ult_grandElixir', 'throwBomb', 'acidFlask', 'panacea', 'catalyst', 'transmute']
+    skills: ['ult_grandElixir', 'ult_philosopher', 'throwBomb', 'acidFlask', 'elixirRain', 'catalyst', 'homunculus']
   });
   def({
     id: 'bloodfiend', name: '血喰鬼神', tier: 3,
@@ -358,7 +358,7 @@
     grow: { hp: 18, mp: 2.8, str: 3.4, int: 0.8, vit: 2.2, agi: 1.8, luk: 1.2 },
     mods: { atkPct: 0.40, lifesteal: 0.30, hpPct: 0.25, 'el_dark': 0.25 },
     flags: ['lowHpRage', 'stackAtkOnKill', 'soulHarvest'],
-    skills: ['ult_devourFang', 'bloodRage', 'crushArmor', 'heavyBlow', 'venomFang']
+    skills: ['ult_devourFang', 'ult_bloodFeast', 'bloodRage', 'crushArmor', 'carnage', 'bloodOffering']
   });
   def({
     id: 'finalArbiter', name: '終焉審判者', tier: 3,
@@ -368,7 +368,7 @@
     grow: { hp: 15, mp: 6.4, str: 1.4, int: 3.1, vit: 2.0, agi: 1.3, luk: 1.5 },
     mods: { 'el_light': 0.40, 'el_dark': 0.40, magPct: 0.25, dr: 0.12, lifesteal: 0.15 },
     flags: ['soulHarvest', 'guardBreak', 'endure'],
-    skills: ['ult_lastJudgement', 'judgement', 'holyNova', 'darkPact', 'sanctuary']
+    skills: ['ult_lastJudgement', 'ult_finalVerdict', 'judgement', 'holyNova', 'resurrect', 'blessing', 'holyChain']
   });
   def({
     id: 'voidSovereign', name: '虚無帝', tier: 3,
@@ -380,7 +380,7 @@
     grow: { hp: 16, mp: 6, str: 2.4, int: 2.4, vit: 2.4, agi: 2.4, luk: 2.4 },
     mods: { atkPct: 0.25, magPct: 0.25, defPct: 0.25, hpPct: 0.25, spd: 18, pierce: 0.35, critRate: 0.15 },
     flags: ['mythicScaling', 'guardBreak', 'endure', 'soulHarvest'],
-    skills: ['ult_voidCollapse', 'ult_astralBurst', 'elementalBurst', 'gravityWell', 'executioner']
+    skills: ['ult_voidCollapse', 'ult_nullify', 'ult_astralBurst', 'gravityWell', 'dispelWave', 'arcaneSeal']
   });
 
   def({
@@ -391,7 +391,7 @@
     grow: { hp: 13, mp: 4.4, str: 2.6, int: 1.4, vit: 1.6, agi: 3.6, luk: 2.2 },
     mods: { spd: 45, evade: 0.22, critRate: 0.15, atkPct: 0.20 },
     flags: ['speedPower', 'counterEvade', 'firstHitCrit', 'doubleStrike'],
-    skills: ['ult_thousandShadow', 'shukuchi', 'galeFlurry', 'thousandCuts', 'whirlwind']
+    skills: ['ult_thousandShadow', 'ult_godspeed', 'shukuchi', 'galeFlurry', 'bladeStorm', 'afterimage']
   });
   def({
     id: 'plaguelord', name: '疫災呪王', tier: 3,
@@ -401,7 +401,7 @@
     grow: { hp: 14, mp: 6.6, str: 1.0, int: 3.2, vit: 1.8, agi: 1.5, luk: 1.4 },
     mods: { 'el_dark': 0.40, magPct: 0.25, pierce: 0.20, lifesteal: 0.12 },
     flags: ['statusDamage', 'spreadStatus', 'lingering', 'statusOnHit'],
-    skills: ['ult_pandemic', 'hexMist', 'curseBurst', 'plague', 'darkPact']
+    skills: ['ult_pandemic', 'ult_blackMiasma', 'hexMist', 'curseBurst', 'plagueMark', 'soulSeal']
   });
   def({
     id: 'poleEmperor', name: '双極魔剣皇', tier: 3,
@@ -411,7 +411,7 @@
     grow: { hp: 15, mp: 5.6, str: 2.9, int: 2.9, vit: 1.9, agi: 1.9, luk: 1.5 },
     mods: { atkPct: 0.28, magPct: 0.28, critRate: 0.12, 'el_fire': 0.20, 'el_light': 0.20, 'el_dark': 0.20 },
     flags: ['spellblade', 'critPierce', 'guardBreak'],
-    skills: ['ult_duality', 'spellEdge', 'dualPole', 'elementalBurst', 'heavyBlow']
+    skills: ['ult_duality', 'ult_twinPole', 'spellEdge', 'dualPole', 'runeBlade', 'spellChain', 'unisonEdge']
   });
 
   /* 説明文・アイコンの補完 */

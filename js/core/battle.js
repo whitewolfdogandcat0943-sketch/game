@@ -4,18 +4,27 @@ G.Battle = (function () {
 
   /* ===================== ユニット生成 ===================== */
 
-  function makeHeroUnit(state) {
-    var hero = state.hero;
+  /** パーティの1人をユニット化する。主人公も仲間も同じ形。 */
+  function makeMemberUnit(state, member, idx) {
     var u = {
-      side: 'player', id: 'hero', name: hero.name, icon: G.CLASSES[hero.classId].icon,
-      hero: hero, state: state, buffs: [], flagBuffs: [], statuses: [],
+      side: 'player', id: member.id || ('m' + idx), name: member.name,
+      icon: G.CLASSES[member.classId].icon, isLeader: idx === 0,
+      hero: member, state: state, buffs: [], flagBuffs: [], statuses: [],
       barrier: 0, endureUsed: false, killStacks: 0, extraEndure: false,
+      coverFor: null, coveredBy: null, counterStance: 0, charge: 0, mark: null,
       weak: [], resist: []
     };
     refresh(u);
-    u.hp = hero.hp; u.mp = hero.mp;
-    if (u.hp <= 0) u.hp = u.S.maxHp;
+    u.hp = member.hp; u.mp = member.mp;
+    if (u.hp == null) u.hp = u.S.maxHp;
+    if (u.mp == null) u.mp = u.S.maxMp;
     return u;
+  }
+
+  /** state.party（無ければ主人公だけ）をユニット配列にする */
+  function makePartyUnits(state) {
+    var members = state.party && state.party.length ? state.party : [state.hero];
+    return members.map(function (m, i) { return makeMemberUnit(state, m, i); });
   }
 
   function makeEnemyUnit(def, floor, idx) {
@@ -100,9 +109,11 @@ G.Battle = (function () {
 
   function start(state, enemyUnits, opts) {
     opts = opts || {};
-    var hero = makeHeroUnit(state);
+    var party = makePartyUnits(state);
+    var hero = party[0];
     var b = {
-      state: state, hero: hero, enemies: enemyUnits, units: [hero].concat(enemyUnits),
+      state: state, hero: hero, party: party, actor: null,
+      enemies: enemyUnits, units: party.concat(enemyUnits),
       round: 0, queue: [], qi: 0, log: [], over: false, result: null,
       awaiting: false, isBoss: !!opts.isBoss, floor: state.run.floor,
       rec: {
@@ -120,16 +131,18 @@ G.Battle = (function () {
     log(b, '⚔ 戦闘開始！ ' + enemyUnits.map(function (e) { return e.name; }).join('・') + ' が現れた。', 'sys');
 
     /* itemRefill: 戦闘開始時にアイテム補充 */
-    if (hero.flags.itemRefill) {
-      var pool = G.ITEMS.filter(function (i) { return i.tier <= 2; });
-      var got = U.pick(pool);
-      G.addItem(state.hero, got.id, 1);
-      log(b, '🧪 錬成術が働き〈' + got.name + '〉を1個 補充した。', 'good');
-    }
-    if (hero.flags.alchemyShield) {
-      hero.barrier += Math.round(hero.S.maxHp * 0.12 * (1 + (hero.S.itemPower || 0)));
-      log(b, '⚗ 触媒が反応し、バリア（' + hero.barrier + '）を展開した。', 'good');
-    }
+    party.forEach(function (m) {
+      if (m.flags.itemRefill) {
+        var pool = G.ITEMS.filter(function (i) { return i.tier <= 2; });
+        var got = U.pick(pool);
+        G.addItem(state.hero, got.id, 1);
+        log(b, '🧪 ' + m.name + ' の錬成術が働き〈' + got.name + '〉を1個 補充した。', 'good');
+      }
+      if (m.flags.alchemyShield) {
+        m.barrier += Math.round(m.S.maxHp * 0.12 * (1 + (m.S.itemPower || 0)));
+        log(b, '⚗ 触媒が反応し、' + m.name + ' にバリア（' + m.barrier + '）を展開した。', 'good');
+      }
+    });
     newRound(b);
     advance(b);
     return b;
@@ -158,6 +171,38 @@ G.Battle = (function () {
 
   function alive(u) { return u.hp > 0; }
   function aliveEnemies(b) { return b.enemies.filter(alive); }
+  function partyUnits(b) { return b.party || [b.hero]; }
+  function aliveParty(b) { return partyUnits(b).filter(alive); }
+  /** 各ユニットのHP/MPをパーティデータへ書き戻す */
+  function syncParty(b) {
+    partyUnits(b).forEach(function (u) {
+      if (!u.hero) return;
+      u.hero.hp = U.clamp(u.hp, 0, u.S.maxHp);
+      u.hero.mp = U.clamp(u.mp, 0, u.S.maxMp);
+    });
+  }
+  /** 味方対象の解決。指定が無ければ自分。 */
+  function allyOf(b, src, targetIdx) {
+    var mates = alliesOf(b, src);
+    var i = (targetIdx != null && typeof targetIdx === 'object') ? targetIdx.ally : null;
+    var a = (i != null) ? mates[i] : null;
+    return (a && alive(a)) ? a : src;
+  }
+  /** そのユニットから見た味方 */
+  function alliesOf(b, u) { return u.side === 'player' ? partyUnits(b) : b.enemies; }
+  /** そのユニットから見た敵 */
+  function foesOf(b, u) { return u.side === 'player' ? aliveEnemies(b) : aliveParty(b); }
+  /** 敵が狙う相手。かばう・挑発を考慮する */
+  function pickTarget(b, attacker) {
+    var cands = aliveParty(b);
+    if (!cands.length) return null;
+    var taunters = cands.filter(function (x) { return (x.tauntTurns || 0) > 0; });
+    if (taunters.length) cands = taunters;
+    var t = U.pick(cands);
+    /* かばわれている相手なら、かばっている側が受ける */
+    if (t.coveredBy && alive(t.coveredBy)) return t.coveredBy;
+    return t;
+  }
 
   function newRound(b) {
     b.round++;
@@ -179,7 +224,16 @@ G.Battle = (function () {
       if (b.qi >= b.queue.length) { endRound(b); if (b.over) return; newRound(b); continue; }
       var u = b.queue[b.qi];
       if (!alive(u)) { b.qi++; continue; }
-      if (u.side === 'player') { b.awaiting = true; return; }
+      if (u.side === 'player') {
+        if (u.isLeader) { b.actor = u; u._b = b; b.awaiting = true; return; }
+        /* 仲間は自動で動く。プレイヤーが操るのは主人公だけ。 */
+        b.actor = u; u._b = b;
+        takeAllyTurn(b, u);
+        b.qi++;
+        if (checkEnd(b)) return;
+        continue;
+      }
+      b.actor = null;
       takeEnemyTurn(b, u);
       b.qi++;
       if (checkEnd(b)) return;
@@ -194,12 +248,13 @@ G.Battle = (function () {
   }
 
   function endRound(b) {
-    if (b.hero.flags.thornAura && alive(b.hero)) {
-      var td = Math.max(1, Math.round(b.hero.S.maxHp * 0.012 * (1 + (b.hero.S.reflect || 0) * 2)));
+    aliveParty(b).forEach(function (m) {
+      if (!m.flags.thornAura) return;
+      var td = Math.max(1, Math.round(m.S.maxHp * 0.012 * (1 + (m.S.reflect || 0) * 2)));
       aliveEnemies(b).forEach(function (x) {
-        applyRawDamage(b, x, td, '🌵 棘の霧', b.hero, { aoe: true, noReflect: true });
+        applyRawDamage(b, x, td, '🌵 棘の霧', m, { aoe: true, noReflect: true });
       });
-    }
+    });
     b.units.forEach(function (u) {
       if (!alive(u)) return;
       /* DOT */
@@ -211,6 +266,10 @@ G.Battle = (function () {
       });
       /* 継続時間の減少 */
       u.statuses = u.statuses.filter(function (s) { return (--s.t) > 0; });
+      if (u.counter && --u.counter.t <= 0) u.counter = null;
+      if (u.mark && --u.mark.t <= 0) u.mark = null;
+      if (u.tauntTurns > 0) u.tauntTurns--;
+      if (u.coverTurns > 0 && --u.coverTurns <= 0) clearCover(u);
       u.buffs = u.buffs.filter(function (x) { return (--x.t) > 0; });
       u.flagBuffs = u.flagBuffs.filter(function (x) { return (--x.t) > 0; });
       if (u.side === 'player') {
@@ -224,7 +283,9 @@ G.Battle = (function () {
 
   function checkEnd(b) {
     if (b.over) return true;
-    if (b.hero.hp <= 0) { b.over = true; b.result = 'lose'; log(b, '💀 力尽きた……', 'bad'); return true; }
+    if (aliveParty(b).length === 0) {
+      b.over = true; b.result = 'lose'; log(b, '💀 全滅した……', 'bad'); return true;
+    }
     if (aliveEnemies(b).length === 0) { b.over = true; b.result = 'win'; log(b, '🏆 戦闘に勝利した！', 'good'); return true; }
     return false;
   }
@@ -308,6 +369,11 @@ G.Battle = (function () {
     }
     dmg *= eMult;
     dmg *= (1 + (S.dmgUp || 0) + damageMods(src, tgt, b));
+    if (tgt.mark && tgt.mark.t > 0) dmg *= (1 + tgt.mark.v);
+    if (hasStatus(src, 'blind') && !o.trueHit && U.chance(0.30)) {
+      if (!o.silent) log(b, '🌑 ' + src.name + ' の攻撃は外れた。');
+      return 0;
+    }
     if (o.isAoe) dmg *= (1 + (S.aoePower || 0) + (o.aoeBonus || 0));
 
     /* 会心 */
@@ -338,7 +404,8 @@ G.Battle = (function () {
     }
 
     var dealt = applyRawDamage(b, tgt, out, null, src, {
-      crit: isCrit, el: el, silent: o.silent, tag: o.tag, aoe: !!o.isAoe, noReflect: o.noReflect, kind: kind
+      crit: isCrit, el: el, silent: o.silent, tag: o.tag, aoe: !!o.isAoe, noReflect: o.noReflect,
+      kind: kind, isCounter: !!o.isCounter
     });
 
     /* 吸収 */
@@ -427,7 +494,7 @@ G.Battle = (function () {
         log(b, '🪞 ' + tgt.name + ' の反射！ ' + src.name + ' に ' + rd + ' ダメージ', 'refl');
         reflectHit(b, tgt, src, rd);
         if (tgt.flags && tgt.flags.reflectAll) {
-          var others = (src.side === 'enemy' ? b.enemies : [b.hero]).filter(function (x) { return x !== src && alive(x); });
+          var others = alliesOf(b, src).filter(function (x) { return x !== src && alive(x); });
           others.forEach(function (o2) {
             var rd2 = Math.round(rd * 0.6);
             log(b, '🪞 反射が波及！ ' + o2.name + ' に ' + rd2 + ' ダメージ', 'refl');
@@ -436,6 +503,17 @@ G.Battle = (function () {
         }
         if (tgt.flags && tgt.flags.healOnReflect) heal(b, tgt, Math.round(rd * 0.30), '鏡の加護');
       }
+    }
+    /* 反撃の構え */
+    if (src && dmg > 0 && alive(tgt) && alive(src) && src !== tgt && !meta.isCounter
+        && tgt.counter && tgt.counter.t > 0 && tgt.counter.n > 0) {
+      tgt.counter.n--;
+      log(b, '⚔ ' + tgt.name + ' の反撃！', tgt.side === 'player' ? 'good' : 'bad');
+      strike(b, tgt, src, {
+        kind: 'phys', el: tgt.counter.el || 'phys', power: tgt.counter.p || 150,
+        isCounter: true, trueHit: true, critBonus: 0.20
+      });
+      if (tgt.side === 'player') sty(b, 'reflect', 1);
     }
     if (tgt.hp <= 0) onDeath(b, tgt, src, meta);
     return dmg;
@@ -502,18 +580,53 @@ G.Battle = (function () {
     return got;
   }
 
+  /** 戦闘不能から復帰させる */
+  function revive(b, u, pct) {
+    if (alive(u)) return false;
+    u.hp = Math.max(1, Math.round(u.S.maxHp * (pct || 0.3)));
+    u.statuses = []; u.endureUsed = false; refresh(u);
+    log(b, '🕊 ' + u.name + ' が立ち上がった！（HP ' + u.hp + '）', 'good');
+    fx(b, { t: 'heal', i: u.idx, v: u.hp });
+    /* 復帰したユニットはこのラウンドの残り手番に間に合うよう列へ戻す */
+    if (b.queue.indexOf(u) < 0) b.queue.push(u);
+    return true;
+  }
+
+  /** src が ally をかばう。以後 ally への単体攻撃は src が受ける。 */
+  function setCover(b, src, ally, turns) {
+    if (!ally || ally === src || !alive(src)) return;
+    if (src.coverFor && src.coverFor.coveredBy === src) src.coverFor.coveredBy = null;
+    src.coverFor = ally; ally.coveredBy = src; src.coverTurns = turns + 1;
+    log(b, '🛡 ' + src.name + ' は ' + ally.name + ' をかばっている。', 'good');
+  }
+  function clearCover(u) {
+    if (u.coverFor && u.coverFor.coveredBy === u) u.coverFor.coveredBy = null;
+    u.coverFor = null; u.coverTurns = 0;
+  }
+
+  /** 敵から強化効果を剥がす */
+  function dispel(b, t) {
+    var before = t.buffs.length + t.flagBuffs.length;
+    t.buffs = t.buffs.filter(function (x) { return x.v < 0; });
+    t.flagBuffs = [];
+    t.barrier = 0;
+    refresh(t);
+    if (before > t.buffs.length) log(b, '🌀 ' + t.name + ' の強化を打ち消した。', 'good');
+  }
+
   function addStatus(b, u, kind, turns, val) {
     if (!alive(u)) return;
     var ex = u.statuses.filter(function (s) { return s.k === kind; })[0];
     if (ex) { ex.t = Math.max(ex.t, turns); return; }
-    if (u.side === 'enemy' && b.hero.flags.lingering) turns += 1;
+    if (u.side === 'enemy' && aliveParty(b).some(function (m) { return m.flags.lingering; })) turns += 1;
     u.statuses.push({ k: kind, t: turns, v: val || 0.06 });
     if (u.side === 'enemy') {
       b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
       b.state.run.stats.statusApplied = (b.state.run.stats.statusApplied || 0) + 1;
       sty(b, 'status', 1);
     }
-    var nm = { burn: '🔥 火傷', poison: '☠ 毒', freeze: '❄ 凍結', shock: '⚡ 麻痺' }[kind] || kind;
+    var nm = { burn: '🔥 火傷', poison: '☠ 毒', freeze: '❄ 凍結', shock: '⚡ 麻痺',
+      seal: '🔒 封印', blind: '🌑 暗闇', slow: '🐌 鈍足' }[kind] || kind;
     log(b, nm + ' を ' + u.name + ' に付与した。');
     refresh(u);
   }
@@ -531,13 +644,42 @@ G.Battle = (function () {
   /* ===================== 行動: スキル ===================== */
 
   function targetsFor(b, src, skill, targetIdx) {
-    var foes = (src.side === 'player') ? aliveEnemies(b) : [b.hero];
-    if (skill.target === 'self' || skill.kind === 'heal' || skill.kind === 'buff' || skill.kind === 'util') return [src];
-    if (skill.target === 'all') return foes;
-    if (skill.target === 'random') return foes;
+    var mode = skill.target || 'one';
+    var mates = alliesOf(b, src);
+
+    if (mode === 'self') return [src];
+    if (mode === 'allies') return mates.filter(alive);
+    if (mode === 'ally') {
+      var a = null;
+      if (src.side === 'player' && targetIdx != null && targetIdx.ally != null) a = mates[targetIdx.ally];
+      if (!a || !alive(a)) {
+        /* 指定が無ければ一番傷ついている味方 */
+        var living = mates.filter(alive);
+        living.sort(function (x, y) { return (x.hp / x.S.maxHp) - (y.hp / y.S.maxHp); });
+        a = living[0];
+      }
+      return a ? [a] : [];
+    }
+    if (mode === 'downed') {
+      var down = mates.filter(function (x) { return !alive(x); });
+      if (src.side === 'player' && targetIdx != null && targetIdx.ally != null && mates[targetIdx.ally]
+          && !alive(mates[targetIdx.ally])) return [mates[targetIdx.ally]];
+      return down.length ? [down[0]] : [];
+    }
+    /* 補助・回復で対象指定が無いものは自分に返す（従来どおり） */
+    if (skill.kind === 'heal' || skill.kind === 'buff' || skill.kind === 'util') return [src];
+
+    var foes = foesOf(b, src);
+    if (mode === 'all' || mode === 'random') return foes;
     var t = null;
-    if (src.side === 'player' && targetIdx != null) t = b.enemies[targetIdx];
-    if (!t || !alive(t)) t = foes[0];
+    if (src.side === 'player' && targetIdx != null) {
+      var idx = (typeof targetIdx === 'object') ? targetIdx.foe : targetIdx;
+      if (idx != null) t = b.enemies[idx];
+    }
+    if (!t || !alive(t)) {
+      t = (src.side === 'enemy' && b.currentFoeTarget && alive(b.currentFoeTarget))
+        ? b.currentFoeTarget : foes[0];
+    }
     return t ? [t] : [];
   }
 
@@ -554,6 +696,12 @@ G.Battle = (function () {
     }
     var eff = sk.eff || {};
 
+    if (hasStatus(src, 'seal') && skillId !== 'attack' && skillId !== 'guard') {
+      log(b, '🔒 ' + src.name + ' は封印されていて技を使えない！', 'bad');
+      if (src.side === 'player') { src.mp += cost; b.rec.mpSpent -= cost; }
+      skillId = 'attack'; sk = G.SKILLS.attack; cost = 0; eff = sk.eff || {};
+    }
+
     if (eff.hpCost) {
       var c = Math.round(src.S.maxHp * eff.hpCost);
       src.hp = Math.max(1, src.hp - c);
@@ -569,6 +717,12 @@ G.Battle = (function () {
     if (sk.kind === 'phys' || sk.kind === 'mag') {
       var hits = sk.hits || 1;
       var power = sk.power;
+      /* 溜めた力を上乗せして消費する */
+      if (src.charge > 0) {
+        power = Math.round(power * (1 + src.charge));
+        log(b, '　⚡ 溜めた力が解き放たれる！（威力 ' + power + '%）', 'crit');
+        src.charge = 0;
+      }
       if (sk.kind === 'mag' && (sk.mp || 0) > 0 && src.flags && src.flags.doubleCast) {
         hits *= 2; power = Math.round(power * 0.60);
         log(b, '　✨ 二重詠唱！', 'good');
@@ -638,6 +792,18 @@ G.Battle = (function () {
           });
         }
       }
+      /* 連携攻撃: 生存している味方が追撃に加わる */
+      if (eff.linkStrike) {
+        alliesOf(b, src).filter(function (x) { return x !== src && alive(x); }).forEach(function (m) {
+          targets.filter(alive).forEach(function (t) {
+            log(b, '　🤝 ' + m.name + ' が呼応した！', 'good');
+            strike(b, m, t, {
+              kind: m.S.atk >= m.S.mag ? 'phys' : 'mag', el: sk.el,
+              power: Math.round(eff.linkStrike * 100), trueHit: true, isAoe: isAoe
+            });
+          });
+        });
+      }
       applySkillSideEffects(b, src, targets, eff);
     }
 
@@ -645,30 +811,119 @@ G.Battle = (function () {
     if (sk.kind === 'heal') {
       var p = sk.power || 100;
       if (sk.special === 'itemScale') p = Math.round(p * (1 + (src.S.itemPower || 0)));
+      if (sk.special === 'missingHp') {
+        var lack = 1 - (src.hp / src.S.maxHp);
+        p = Math.round(p * (1 + lack * 1.2));
+      }
       var amt = Math.round((src.S.mag || 10) * p / 100 + src.S.maxHp * 0.05);
-      heal(b, src, amt, sk.name);
-      if (eff.cleanse) { src.statuses = []; refresh(src); log(b, '✨ 状態異常が解除された。', 'good'); }
+      var hts = targets.filter(alive);
+      if (!hts.length) hts = [src];
+      hts.forEach(function (t) {
+        heal(b, t, amt, sk.name);
+        if (eff.cleanse) { t.statuses = []; refresh(t); log(b, '✨ ' + t.name + ' の状態異常が解除された。', 'good'); }
+      });
     }
 
     /* --- バフ・支援 --- */
-    if (eff.buffs) eff.buffs.forEach(function (x) {
-      var v = x.v;
-      if (sk.id === 'guard' && x.k === 'reflect' && src.flags && src.flags.guardCounter) v += 0.60;
-      addBuff(b, src, x.k, v, x.t);
+    /* 味方対象の技はその味方に、それ以外は自分に掛かる */
+    var toAlly = (sk.target === 'ally' || sk.target === 'allies' || sk.target === 'downed');
+    var boons = toAlly ? targets.filter(alive) : [src];
+    if (!boons.length) boons = [src];
+
+    if (eff.buffs) boons.forEach(function (t) {
+      eff.buffs.forEach(function (x) {
+        var v = x.v;
+        if (sk.id === 'guard' && x.k === 'reflect' && t.flags && t.flags.guardCounter) v += 0.60;
+        addBuff(b, t, x.k, v, x.t);
+      });
     });
-    if (eff.flagBuff) {
-      src.flagBuffs.push({ f: eff.flagBuff.f, t: eff.flagBuff.t + 1 }); refresh(src);
-      log(b, '✨ ' + src.name + ': ' + (G.FLAGS[eff.flagBuff.f] || eff.flagBuff.f), 'good');
-    }
-    if (eff.healMaxPct) heal(b, src, Math.round(src.S.maxHp * eff.healMaxPct), sk.name);
-    if (eff.barrier) {
-      src.barrier += Math.round(src.S.mag * eff.barrier + src.S.maxHp * 0.05);
-      log(b, '🛡 バリアを展開した（' + src.barrier + '）。', 'good');
-    }
+    if (eff.flagBuff) boons.forEach(function (t) {
+      t.flagBuffs.push({ f: eff.flagBuff.f, t: eff.flagBuff.t + 1 }); refresh(t);
+      log(b, '✨ ' + t.name + ': ' + (G.FLAGS[eff.flagBuff.f] || eff.flagBuff.f), 'good');
+    });
+    if (eff.healMaxPct) boons.forEach(function (t) { heal(b, t, Math.round(t.S.maxHp * eff.healMaxPct), sk.name); });
+    if (eff.barrier) boons.forEach(function (t) {
+      t.barrier += Math.round(src.S.mag * eff.barrier + t.S.maxHp * 0.05);
+      log(b, '🛡 ' + t.name + ' にバリアを展開した（' + t.barrier + '）。', 'good');
+    });
     if (eff.mpGain && src.side === 'player') {
       src.mp = Math.min(src.S.maxMp, src.mp + eff.mpGain);
     }
+    if (eff.mpGive) boons.forEach(function (t) {
+      if (t.side !== 'player') return;
+      t.mp = Math.min(t.S.maxMp, t.mp + eff.mpGive);
+      log(b, '🔷 ' + t.name + ' のMPが ' + eff.mpGive + ' 回復した。', 'good');
+    });
     if (eff.healSelf) heal(b, src, Math.round(src.S.mag * eff.healSelf), sk.name);
+
+    /* --- 蘇生 --- */
+    if (eff.revive) {
+      var downs = toAlly ? targets : alliesOf(b, src).filter(function (x) { return !alive(x); });
+      var did = false;
+      downs.forEach(function (t) {
+        if (!eff.reviveAll && did) return;
+        if (revive(b, t, eff.revive)) did = true;
+      });
+      if (!did) log(b, '　（倒れている仲間がいない）');
+    }
+
+    /* --- かばう --- */
+    if (eff.cover) {
+      var ward = targets.filter(function (x) { return x !== src && alive(x); })[0];
+      if (!ward) {
+        var others = alliesOf(b, src).filter(function (x) { return x !== src && alive(x); });
+        others.sort(function (x, y) { return (x.hp / x.S.maxHp) - (y.hp / y.S.maxHp); });
+        ward = others[0];
+      }
+      if (ward) setCover(b, src, ward, eff.cover);
+      else log(b, '　（かばう相手がいない）');
+    }
+
+    /* --- 反撃の構え --- */
+    if (eff.counter) {
+      src.counter = { t: eff.counter.t + 1, n: eff.counter.n || 99, p: eff.counter.p || 150, el: eff.counter.el };
+      log(b, '⚔ ' + src.name + ' は反撃の構えを取った。', 'good');
+    }
+
+    /* --- 溜め --- */
+    if (eff.charge) {
+      src.charge = (src.charge || 0) + eff.charge;
+      log(b, '⚡ ' + src.name + ' は力を溜めている（次の攻撃 +' + Math.round(src.charge * 100) + '%）。', 'good');
+    }
+
+    /* --- 挑発 --- */
+    if (eff.taunt) {
+      src.tauntTurns = eff.taunt + 1;
+      log(b, '📢 ' + src.name + ' は敵の注意を引きつけた。', 'good');
+    }
+
+    /* --- 刻印・打ち消し・MP奪取・封印 --- */
+    var foeTargets = targets.filter(function (t) { return t.side !== src.side && alive(t); });
+    if (eff.mark) foeTargets.forEach(function (t) {
+      t.mark = { t: eff.mark.t + 1, v: eff.mark.v };
+      log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(eff.mark.v * 100) + '%）。', 'good');
+    });
+    if (eff.dispel) foeTargets.forEach(function (t) { dispel(b, t); });
+    if (eff.seal) foeTargets.forEach(function (t) {
+      if (U.chance(eff.seal.c != null ? eff.seal.c : 1)) addStatus(b, t, 'seal', eff.seal.t);
+    });
+    if (eff.blind) foeTargets.forEach(function (t) {
+      if (U.chance(eff.blind.c != null ? eff.blind.c : 1)) addStatus(b, t, 'blind', eff.blind.t);
+    });
+    if (eff.mpSteal && src.side === 'player' && foeTargets.length) {
+      var gain = Math.min(src.S.maxMp - src.mp, eff.mpSteal);
+      src.mp += gain;
+      log(b, '🔮 敵から魔力を吸い上げた（MP +' + gain + '）。', 'good');
+    }
+    /* --- 身代わり: 味方のHPを自分に移す --- */
+    if (eff.transferHp) {
+      var recv = targets.filter(function (x) { return x !== src && alive(x); })[0];
+      if (recv) {
+        var give = Math.round(src.hp * eff.transferHp);
+        give = Math.min(give, src.hp - 1);
+        if (give > 0) { src.hp -= give; heal(b, recv, give, sk.name); }
+      }
+    }
     if (eff.makeItem && src.side === 'player') {
       for (var mi = 0; mi < eff.makeItem; mi++) {
         var got = U.pick(G.ITEMS.filter(function (i) { return i.tier <= 2; }));
@@ -736,7 +991,7 @@ G.Battle = (function () {
   /* ===================== 行動: アイテム ===================== */
 
   function useItem(b, itemId, targetIdx) {
-    var hero = b.state.hero, src = b.hero;
+    var hero = b.state.hero, src = b.actor || b.hero;
     if (!hero.items[itemId]) return false;
     var it = G.ITEM_BY_ID[itemId];
     var keep = U.chance(src.S.itemKeep || 0);
@@ -757,20 +1012,28 @@ G.Battle = (function () {
 
   function resolveItem(b, src, it, targetIdx) {
     var u = it.use, scale = 1 + (src.S.itemPower || 0), lvl = 1 + b.state.hero.level * 0.05;
-    if (u.type === 'heal') { heal(b, src, Math.round(u.power * scale * lvl), it.name); return; }
-    if (u.type === 'mp') { src.mp = Math.min(src.S.maxMp, src.mp + Math.round(u.power * scale)); log(b, '🔷 MPが回復した。', 'good'); return; }
+    var ben = allyOf(b, src, targetIdx);
+    if (u.revive) {
+      var mates = alliesOf(b, src);
+      var i2 = (targetIdx != null && typeof targetIdx === 'object') ? targetIdx.ally : null;
+      var down = (i2 != null && mates[i2] && !alive(mates[i2])) ? mates[i2]
+        : mates.filter(function (x) { return !alive(x); })[0];
+      if (down) { revive(b, down, u.revive); return; }
+    }
+    if (u.type === 'heal') { heal(b, ben, Math.round(u.power * scale * lvl), it.name); return; }
+    if (u.type === 'mp') { ben.mp = Math.min(ben.S.maxMp, ben.mp + Math.round(u.power * scale)); log(b, '🔷 ' + ben.name + ' のMPが回復した。', 'good'); return; }
     if (u.type === 'full') {
-      src.hp = src.S.maxHp; src.mp = src.S.maxMp; src.statuses = []; refresh(src);
-      log(b, '✨ HPとMPが全回復した！', 'good'); return;
+      ben.hp = ben.S.maxHp; ben.mp = ben.S.maxMp; ben.statuses = []; refresh(ben);
+      log(b, '✨ ' + ben.name + ' のHPとMPが全回復した！', 'good'); return;
     }
     if (u.type === 'cleanse') {
-      src.statuses = []; refresh(src);
-      heal(b, src, Math.round(u.power * scale * lvl), it.name);
+      ben.statuses = []; refresh(ben);
+      heal(b, ben, Math.round(u.power * scale * lvl), it.name);
       log(b, '✨ 状態異常が解除された。', 'good'); return;
     }
     if (u.type === 'buff') {
-      (u.buffs || []).forEach(function (x) { addBuff(b, src, x.k, x.v, x.t); });
-      if (u.endure) { src.extraEndure = true; src.endureUsed = false; log(b, '🕊 致死ダメージを1度耐える加護を得た。', 'good'); }
+      (u.buffs || []).forEach(function (x) { addBuff(b, ben, x.k, x.v, x.t); });
+      if (u.endure) { ben.extraEndure = true; ben.endureUsed = false; log(b, '🕊 致死ダメージを1度耐える加護を得た。', 'good'); }
       return;
     }
     if (u.type === 'dmg' || u.type === 'dmgMulti') {
@@ -795,7 +1058,7 @@ G.Battle = (function () {
 
   function playerAction(b, act) {
     if (b.over || !b.awaiting) return false;
-    var src = b.hero;
+    var src = b.actor || b.hero;
     src._b = b;
     if (stunned(b, src)) { b.awaiting = false; b.qi++; advance(b); return true; }
 
@@ -806,12 +1069,12 @@ G.Battle = (function () {
 
     /* 撃破数（同時撃破の記録） */
     countMultiKill(b);
-    b.state.hero.hp = src.hp; b.state.hero.mp = src.mp;
+    syncParty(b);
     b.awaiting = false;
     b.qi++;
     if (checkEnd(b)) return true;
     advance(b);
-    b.state.hero.hp = src.hp; b.state.hero.mp = src.mp;
+    syncParty(b);
     return true;
   }
 
@@ -823,10 +1086,99 @@ G.Battle = (function () {
     }
   }
 
+  /* ===================== 仲間の行動（自動） ===================== */
+
+  /** 仲間が使える技のうち、MPが足りるものだけを返す */
+  function usableSkills(b, u) {
+    return G.Stats.skillList(u.hero).filter(function (id) {
+      var sk = G.SKILLS[id];
+      return sk && (sk.mp || 0) <= u.mp;
+    }).map(function (id) { return G.SKILLS[id]; });
+  }
+
+  /** 仲間の行動決定。役割（回復役・盾役・術師）が自然に出るよう順に判定する。 */
+  function takeAllyTurn(b, u) {
+    if (stunned(b, u)) return;
+    var mates = aliveParty(b);
+    var down = partyUnits(b).filter(function (x) { return !alive(x); });
+    var sks = usableSkills(b, u);
+    var foes = aliveEnemies(b);
+    if (!foes.length) return;
+
+    function have(pred) { return sks.filter(pred)[0]; }
+    function idxOf(m) { return partyUnits(b).indexOf(m); }
+    function weakest() {
+      var l = mates.slice().sort(function (x, y) { return (x.hp / x.S.maxHp) - (y.hp / y.S.maxHp); });
+      return l[0];
+    }
+    function target(sk, allyUnit, foeUnit) {
+      return { ally: allyUnit ? idxOf(allyUnit) : null, foe: foeUnit ? b.enemies.indexOf(foeUnit) : null };
+    }
+
+    /* 1. 倒れた仲間がいれば蘇生 */
+    if (down.length) {
+      var rev = have(function (s) { return s.eff && s.eff.revive; });
+      if (rev) { useSkill(b, u, rev.id, target(rev, down[0], null)); return; }
+    }
+    /* 2. 瀕死の味方がいれば回復 */
+    var hurt = weakest();
+    var lowCount = mates.filter(function (m) { return m.hp / m.S.maxHp < 0.55; }).length;
+    if (hurt && hurt.hp / hurt.S.maxHp < 0.45) {
+      var grp = lowCount >= 2 ? have(function (s) { return s.kind === 'heal' && s.target === 'allies'; }) : null;
+      var one = have(function (s) { return s.kind === 'heal'; });
+      var pick = grp || one;
+      if (pick) { useSkill(b, u, pick.id, target(pick, hurt, null)); return; }
+    }
+    /* 3. 主人公が危なければかばう */
+    var lead = partyUnits(b)[0];
+    if (alive(lead) && lead !== u && lead.hp / lead.S.maxHp < 0.5 && !u.coverFor) {
+      var cov = have(function (s) { return s.eff && s.eff.cover; });
+      if (cov) { useSkill(b, u, cov.id, target(cov, lead, null)); return; }
+    }
+    /* 4. 状態異常が溜まっていれば浄化 */
+    var sick = mates.filter(function (m) { return m.statuses.length >= 1; });
+    if (sick.length >= 2) {
+      var cl = have(function (s) { return s.eff && s.eff.cleanse; });
+      if (cl) { useSkill(b, u, cl.id, target(cl, sick[0], null)); return; }
+    }
+    /* 5. 序盤は支援を掛ける（同じバフの重ね掛けはしない） */
+    if (b.round <= 2) {
+      var sup = have(function (s) {
+        if (s.kind !== 'buff' && s.kind !== 'util') return false;
+        if (s.eff && (s.eff.revive || s.eff.cover)) return false;
+        if (!s.eff || !s.eff.buffs) return false;
+        return !s.eff.buffs.every(function (x) {
+          return u.buffs.some(function (bf) { return bf.k === x.k; });
+        });
+      });
+      if (sup) {
+        var to = (sup.target === 'ally') ? (hurt || lead) : null;
+        useSkill(b, u, sup.id, target(sup, to, null));
+        return;
+      }
+    }
+    /* 6. 攻撃。敵が多いときは範囲、単体なら威力の高いものを選ぶ */
+    var wantAoe = foes.length >= 3;
+    var atks = sks.filter(function (s) { return s.kind === 'phys' || s.kind === 'mag'; });
+    if (wantAoe) {
+      var aoe = atks.filter(function (s) { return s.target === 'all' || s.target === 'random'; });
+      if (aoe.length) atks = aoe;
+    }
+    /* MPを使い切らないよう、余裕が無いときは基本攻撃に戻す */
+    if (u.mp < u.S.maxMp * 0.25) atks = atks.filter(function (s) { return (s.mp || 0) === 0; });
+    atks.sort(function (x, y) {
+      return ((y.power || 0) * (y.hits || 1)) - ((x.power || 0) * (x.hits || 1));
+    });
+    var use = atks[0] || G.SKILLS.attack;
+    var foe = foes.slice().sort(function (x, y) { return x.hp - y.hp; })[0];
+    useSkill(b, u, use.id, target(use, null, foe));
+  }
+
   /* ===================== 敵の行動 ===================== */
 
   function takeEnemyTurn(b, u) {
     u._b = b;
+    b.currentFoeTarget = pickTarget(b, u);
     if (stunned(b, u)) return;
     var sks = u.ref.skills.slice();
     var hpRatio = u.hp / u.S.maxHp;
@@ -837,12 +1189,13 @@ G.Battle = (function () {
       pick = aoes.length ? U.pick(aoes) : U.pick(sks);
     } else pick = U.pick(sks);
     useSkill(b, u, pick, null);
-    b.state.hero.hp = b.hero.hp;
+    syncParty(b);
   }
 
   return {
     start: start, advance: advance, playerAction: playerAction, refresh: refresh,
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
+    partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
     alive: alive, log: log, heal: heal
   };
 })();

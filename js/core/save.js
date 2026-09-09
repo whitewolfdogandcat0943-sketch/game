@@ -34,7 +34,10 @@ G.Save = (function () {
 
   function saveRun(state) {
     if (!state.run || !state.run.active) { safeDel(RUN_KEY); return; }
-    var data = { hero: state.hero, run: state.run };
+    /* パーティは主人公＋仲間。主人公は hero として別に保存するので、
+     * 仲間だけを保存して読み込み時に組み直す。 */
+    var allies = (state.party || []).filter(function (m) { return m !== state.hero; });
+    var data = { hero: state.hero, run: state.run, allies: allies };
     safeSet(RUN_KEY, JSON.stringify(data));
   }
 
@@ -60,6 +63,21 @@ G.Save = (function () {
       });
       if (d.hero.equip.weapon && !G.GEAR[d.hero.equip.weapon]) d.hero.equip.weapon = null;
       if (d.hero.equip.armor && !G.GEAR[d.hero.equip.armor]) d.hero.equip.armor = null;
+      /* 仲間を復元する。主人公と同じ参照になるよう party を組み直す。 */
+      d.allies = (d.allies || []).filter(function (m) {
+        return m && G.CLASSES[m.classId] && G.ALLIES[m.allyId];
+      });
+      d.allies.forEach(function (m) {
+        if (!m.fixedSkills) m.fixedSkills = G.ALLIES[m.allyId].skills.slice();
+        m.fixedSkills = m.fixedSkills.filter(function (id) { return !!G.SKILLS[id]; });
+        if (!m.tree) m.tree = {};
+        if (!m.mastery) m.mastery = {};
+        if (!m.items) m.items = {};
+        if (!m.bag) m.bag = { gear: [], acc: [] };
+        m.equip.acc = (m.equip.acc || []).map(function (id) { return G.ACC_BY_ID[id] ? id : null; });
+        while (m.equip.acc.length < 4) m.equip.acc.push(null);
+      });
+      d.party = [d.hero].concat(d.allies);
       return d;
     } catch (e) { return null; }
   }

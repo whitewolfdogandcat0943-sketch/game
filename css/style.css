@@ -228,3 +228,13 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .treenode.owned .cname{color:var(--gold)}
 .treenode.locked{opacity:.5;cursor:not-allowed}
 .treenode.locked:hover{transform:none;border-color:var(--line)}
+
+/* ===== パーティ（戦闘中の味方一覧） ===== */
+.party{display:flex;flex-direction:column;gap:7px}
+.unit.member{padding:8px 10px;border-radius:10px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#1b2136,#161a2a);transition:.12s;cursor:pointer}
+.unit.member .tiny-spr{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.unit.member .tiny-spr .spr{margin:0}
+.unit.member.picked{border-color:var(--ok)}
+.unit.member.acting{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.unit.member .tag{font-size:9px;padding:0 5px;border-radius:99px;background:#0c1020;border:1px solid var(--line);color:var(--dim)}

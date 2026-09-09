@@ -39,8 +39,66 @@ G.Run = (function () {
     return hero;
   }
 
+  /* ===================== 仲間 ===================== */
+  /** 仲間データからパーティメンバーを作る。主人公と同じ形にしておく。 */
+  function makeAlly(def, level) {
+    var a = {
+      allyId: def.id, name: def.name, classId: def.classId, classHistory: [],
+      level: Math.max(1, level || 1), exp: 0, hp: 1, mp: 1, gold: 0, sp: 0,
+      tree: {}, mastery: {},
+      equip: {
+        weapon: def.weapon || null, armor: def.armor || null,
+        acc: (def.acc || []).concat([null, null, null, null]).slice(0, 4)
+      },
+      bag: { gear: [], acc: [] }, items: {},
+      fixedSkills: def.skills.slice(), isAlly: true,
+      arch: def.arch, hue: def.hue, accent: def.accent, role: def.role
+    };
+    var S = G.Stats.compute(a).S;
+    a.hp = S.maxHp; a.mp = S.maxMp;
+    return a;
+  }
+
+  /** 仲間を加入させる。既にいる場合は何もしない。 */
+  function joinAlly(state, id) {
+    var def = G.ALLIES && G.ALLIES[id];
+    if (!def) return null;
+    if (!state.party) state.party = [state.hero];
+    if (state.party.some(function (m) { return m.allyId === id; })) return null;
+    var a = makeAlly(def, state.hero.level);
+    state.party.push(a);
+    return a;
+  }
+
+  /** 仲間は主人公と同じレベルで戦う（置いていかれないように） */
+  function syncAllies(state) {
+    if (!state.party) return;
+    state.party.forEach(function (m) {
+      if (!m.isAlly) return;
+      if (m.level < state.hero.level) {
+        var beforeMax = G.Stats.compute(m).S.maxHp;
+        m.level = state.hero.level;
+        var S = G.Stats.compute(m).S;
+        m.hp = Math.min(S.maxHp, m.hp + (S.maxHp - beforeMax));
+        m.mp = Math.min(S.maxMp, m.mp);
+        if (m.hp <= 0) m.hp = 0;
+      }
+    });
+  }
+
+  /** 全員を割合回復する（戦闘不能の仲間も少しだけ戻る） */
+  function healParty(state, pct, mpPct) {
+    (state.party || [state.hero]).forEach(function (m) {
+      var S = G.Stats.compute(m).S;
+      if (m.hp <= 0) m.hp = Math.max(1, Math.round(S.maxHp * 0.3));
+      m.hp = Math.min(S.maxHp, m.hp + Math.round(S.maxHp * pct));
+      m.mp = Math.min(S.maxMp, m.mp + Math.round(S.maxMp * (mpPct == null ? pct : mpPct)));
+    });
+  }
+
   function newRun(state, classId, name) {
     state.hero = newHero(classId, name);
+    state.party = [state.hero];
     state.run = {
       floor: 1, nodes: [], current: null, active: true, cleared: 0,
       stats: { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0, elites: 0, bosses: 0,
@@ -207,6 +265,7 @@ G.Run = (function () {
       var S = G.Stats.compute(hero).S;
       hero.hp = Math.min(S.maxHp, hero.hp + Math.round(S.maxHp * 0.5 * gained));
       hero.mp = Math.min(S.maxMp, hero.mp + Math.round(S.maxMp * 0.5 * gained));
+      syncAllies(state);
     }
     return gained;
   }
@@ -264,13 +323,11 @@ G.Run = (function () {
 
   /* ===================== 焚き火・イベント ===================== */
   function rest(state, mode) {
-    var hero = state.hero, S = G.Stats.compute(hero).S;
     if (mode === 'heal') {
-      hero.hp = Math.min(S.maxHp, hero.hp + Math.round(S.maxHp * 0.6));
-      hero.mp = Math.min(S.maxMp, hero.mp + Math.round(S.maxMp * 0.6));
-      return 'HPとMPを最大値の60%回復した。';
+      healParty(state, 0.6);
+      return 'パーティ全員のHPとMPを最大値の60%回復した。';
     }
-    if (mode === 'full') { hero.hp = S.maxHp; hero.mp = S.maxMp; return 'HPとMPが全回復した。'; }
+    if (mode === 'full') { healParty(state, 1); return 'パーティ全員のHPとMPが全回復した。'; }
     return '';
   }
 
@@ -335,6 +392,7 @@ G.Run = (function () {
 
   return {
     makeChoices: makeChoices, newHero: newHero, newRun: newRun, generateNodes: generateNodes, isBossFloor: isBossFloor,
+    makeAlly: makeAlly, joinAlly: joinAlly, syncAllies: syncAllies, healParty: healParty,
     makeEncounter: makeEncounter, grantVictory: grantVictory, applyLevelUps: applyLevelUps,
     checkMythicUnlocks: checkMythicUnlocks, checkClassUnlocks: checkClassUnlocks,
     makeShop: makeShop, rest: rest, randomEvent: randomEvent, nextFloor: nextFloor,

@@ -4,7 +4,7 @@
 
   var state = {
     hero: null, run: null, meta: G.Save.loadMeta(), battle: null,
-    screen: 'title', targetIdx: 0, battleTab: 'skill',
+    screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill',
     nodeKind: null, rewardData: null, currentEvent: null
   };
   G.state = state;
@@ -51,6 +51,7 @@
   function startBattle(kind) {
     var enc = G.Run.makeEncounter(state, kind);
     state.targetIdx = 0;
+    state.allyIdx = 0;
     state.battleTab = 'skill';
     state.battle = G.Battle.start(state, enc.units, { isBoss: enc.isBoss });
     go('battle');
@@ -78,8 +79,7 @@
   /* ===================== 戦闘終了処理 ===================== */
   function finishBattle() {
     var b = state.battle;
-    state.hero.hp = Math.max(0, b.hero.hp);
-    state.hero.mp = b.hero.mp;
+    G.Battle.syncParty(b);
 
     if (b.result === 'win') {
       var r = G.Run.grantVictory(state, b, state.nodeKind);
@@ -128,6 +128,13 @@
 
   function nextFloor() {
     G.Run.nextFloor(state);
+    /* 塔を登るにつれ、同じ目的を持つ者が合流する */
+    var TOWER_JOIN = { 1: 2, 2: 4, 3: 7 };
+    (G.ALLY_LIST || []).forEach(function (a) {
+      if (state.run.floor < (TOWER_JOIN[a.join] || 99)) return;
+      var joined = G.Run.joinAlly(state, a.id);
+      if (joined) UI.toast('🤝 <b>' + a.name + '</b>（' + a.role + '）が仲間になった！', 'class');
+    });
     var mys = G.Run.checkMythicUnlocks(state, null, 'progress');
     mys.forEach(function (m) {
       UI.toast('✦ ミシック発見: <b>' + m.name + '</b><br>' + m.cond.label, 'mythic');
@@ -151,6 +158,7 @@
         var d = G.Save.loadRun();
         if (!d) { UI.toast('保存された冒険がありません。'); go('title'); break; }
         state.hero = d.hero; state.run = d.run;
+        state.party = d.party || [state.hero];
         if (!state.run.stats) state.run.stats = {};
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
          'statusApplied', 'evades']
@@ -159,7 +167,7 @@
         go('map');
         break;
       }
-      case 'toTitle': state.hero = null; state.run = null; state.battle = null; go('title'); break;
+      case 'toTitle': state.hero = null; state.run = null; state.party = null; state.battle = null; go('title'); break;
       case 'start': {
         var nameEl = document.getElementById('heroName');
         var nm = (nameEl && nameEl.value.trim()) || '冒険者';
@@ -180,6 +188,11 @@
       case 'selectTarget': {
         var i = parseInt(p[1], 10);
         if (state.battle && state.battle.enemies[i] && state.battle.enemies[i].hp > 0) state.targetIdx = i;
+        draw(); break;
+      }
+      case 'selectAlly': {
+        var ai = parseInt(p[1], 10);
+        if (state.battle && G.Battle.partyUnits(state.battle)[ai]) state.allyIdx = ai;
         draw(); break;
       }
       case 'tab': state.battleTab = p[1]; draw(); break;
@@ -368,14 +381,14 @@
       var hu = state.battle.hero;
       hu.hp = Math.min(hu.hp, S.maxHp); hu.mp = Math.min(hu.mp, S.maxMp);
       G.Battle.refresh(hu);
-      state.hero.hp = hu.hp; state.hero.mp = hu.mp;
+      G.Battle.syncParty(state.battle);
     }
   }
 
   function doAction(a) {
     var b = state.battle;
     if (!b || b.over || !b.awaiting) return;
-    a.target = state.targetIdx;
+    a.target = { foe: state.targetIdx, ally: state.allyIdx };
     var ok = G.Battle.playerAction(b, a);
     if (!ok) { draw(); return; }
     /* 対象が倒れていたら生存個体へ */
@@ -384,8 +397,7 @@
       b.enemies.forEach(function (e, i) { if (e.hp > 0 && aliveIdx < 0) aliveIdx = i; });
       state.targetIdx = aliveIdx < 0 ? 0 : aliveIdx;
     }
-    state.hero.hp = Math.max(0, b.hero.hp);
-    state.hero.mp = b.hero.mp;
+    G.Battle.syncParty(b);
     draw();
   }
 
