@@ -142,8 +142,9 @@ G.Screens = (function () {
       h += '<div class="scene-cast">';
       cast.forEach(function (c) {
         var active = (c.name === speaker) && !silent;
+        /* 会話は顔が読めることが全て。ここだけバストアップを使う。 */
         h += '<div class="scene-portrait' + (active ? ' active' : ' quiet') + '">' +
-          G.Portraits.img(c.face, 3) +
+          G.Portraits.bustImg(c.face, 3) +
           '<div class="pname">' + U.esc(c.name) + '</div></div>';
       });
       h += '</div>';
@@ -930,7 +931,7 @@ G.Screens = (function () {
         h += '<div class="cast-card">' + G.Portraits.img(c.f, 2) +
           '<div class="cname" style="margin-top:6px">' + U.esc(c.n) + '</div>' +
           (c.role ? '<div class="tiny muted">' + c.role + '</div>' : '') +
-          '<div class="cdesc">' + U.esc(c.d || '') + '</div></div>';
+          '<div class="cdesc">' + U.esc(G.Story.fill(c.d || '', state)) + '</div></div>';
       });
     h += '</div>';
 

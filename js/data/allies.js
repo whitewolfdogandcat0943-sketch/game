@@ -21,7 +21,8 @@ G.ALLIES = {};
     id: 'garo', name: 'ガロ', classId: 'swordsman', arch: 'brute', hue: 12, accent: 35,
     role: '盾役',
     join: 2,
-    desc: '元・城塞守備隊の大男。守るべき城が無くなってからも、守り方しか知らない。',
+    desc: '元・城塞守備隊の大男。{hero}と同い年だが、体だけは頭ひとつ大きい。' +
+          '守るべき城が無くなってからも、守り方しか知らない。',
     weapon: 'w_thornmace', armor: 'a_chain', acc: ['n_ironcharm'],
     skills: ['slash', 'thornGuard', 'aid_cover', 'aid_rally', 'crushArmor']
   });

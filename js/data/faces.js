@@ -21,12 +21,13 @@ G.FACES = (function () {
       robe: true, prop: 'mace', circlet: true, beltAccent: true,
       skinLum: 72, eye: '#3a6b7a'
     },
+    /* 主人公と同い年。体は大きいが顔はまだ若い。 */
     garo: {
       build: 'heavy', hair: 'crop',
-      hairHue: 12, hairSat: 40, hairLum: 24,
+      hairHue: 12, hairSat: 42, hairLum: 26,
       hue: 12, sat: 32, lum: 38, accent: 35, metalHue: 24,
-      prop: 'greatsword', pauldron: true, beard: true, cape: true, capeHue: 8,
-      brow: -1, skinHue: 24, skinLum: 60, eye: '#5a3a24'
+      prop: 'greatsword', pauldron: true, cape: true, capeHue: 8,
+      brow: -1, skinHue: 24, skinLum: 64, eye: '#5a3a24'
     },
     sera: {
       build: 'slim', hair: 'bob',
