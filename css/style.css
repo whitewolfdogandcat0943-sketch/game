@@ -301,3 +301,6 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .cast-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
 .cast-card .portrait{margin:0 auto}
 .cast-card .cdesc{text-align:left;margin-top:6px}
+
+/* 差し替えた立ち絵は滑らかに拡縮する（ドット絵ではないことが多いため） */
+.portrait.drawn{image-rendering:auto;object-fit:contain}

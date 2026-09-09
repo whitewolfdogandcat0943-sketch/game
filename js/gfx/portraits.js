@@ -724,17 +724,61 @@ G.Portraits = (function () {
     return (cache[key] = paint(buildBust(spec), BW, BH, px));
   }
 
+  /* ===================== 差し替え画像 =====================
+   * PORTRAIT_ASSETS に宣言された画像が実在すればそちらを使い、
+   * 無ければ手続き生成に戻る。起動時に一度だけ実在を確かめる。 */
+
+  var assetReady = {};      /* パス -> 読み込めたか */
+
+  function assetFor(spec, kind) {
+    var table = G.PORTRAIT_ASSETS || {};
+    var ids = [spec.id, spec.fallbackId].filter(Boolean);
+    for (var i = 0; i < ids.length; i++) {
+      var e = table[ids[i]];
+      var path = e && e[kind];
+      if (path && assetReady[path]) return path;
+    }
+    return null;
+  }
+
+  /** 宣言された画像を先に読み込んでおく。全部終わったら done を呼ぶ。 */
+  function preload(done) {
+    var table = G.PORTRAIT_ASSETS || {};
+    var paths = [];
+    Object.keys(table).forEach(function (id) {
+      ['bust', 'full'].forEach(function (k) {
+        var pth = table[id] && table[id][k];
+        if (pth && paths.indexOf(pth) < 0) paths.push(pth);
+      });
+    });
+    if (!paths.length) { if (done) done(0); return; }
+    var left = paths.length, ok = 0;
+    paths.forEach(function (pth) {
+      var im = new Image();
+      im.onload = function () { assetReady[pth] = true; ok++; if (!--left && done) done(ok); };
+      im.onerror = function () { assetReady[pth] = false; if (!--left && done) done(ok); };
+      im.src = pth;
+    });
+  }
+
   function img(spec, px, cls, attrs) {
-    return '<img class="portrait ' + (cls || '') + '" src="' + draw(spec, px || 3) +
-      '" width="' + (W * (px || 3)) + '" height="' + (H * (px || 3)) + '" alt="" ' + (attrs || '') + '>';
+    px = px || 3;
+    var w = W * px, h = H * px;
+    var file = assetFor(spec, 'full');
+    return '<img class="portrait ' + (file ? 'drawn ' : '') + (cls || '') + '" src="' +
+      (file || draw(spec, px)) +
+      '" width="' + w + '" height="' + h + '" alt="" ' + (attrs || '') + '>';
   }
   function bustImg(spec, px, cls, attrs) {
     px = px || 3;
-    return '<img class="portrait bust ' + (cls || '') + '" src="' + drawBust(spec, px) +
-      '" width="' + (BW * px) + '" height="' + (BH * px) + '" alt="" ' + (attrs || '') + '>';
+    var w = BW * px, h = BH * px;
+    var file = assetFor(spec, 'bust');
+    return '<img class="portrait bust ' + (file ? 'drawn ' : '') + (cls || '') + '" src="' +
+      (file || drawBust(spec, px)) +
+      '" width="' + w + '" height="' + h + '" alt="" ' + (attrs || '') + '>';
   }
 
   return { draw: draw, img: img, drawBust: drawBust, bustImg: bustImg,
-           build: build, buildBust: buildBust,
+           build: build, buildBust: buildBust, preload: preload,
            W: W, H: H, BW: BW, BH: BH, HAIR: HAIR, PROP: PROP };
 })();

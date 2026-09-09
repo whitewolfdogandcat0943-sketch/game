@@ -9,13 +9,13 @@ G.FACES = (function () {
   var CAST = {
     /* 主人公。既定は見習い衛士の装い。職業で上書きされる。 */
     hero: {
-      build: 'normal', hair: 'short',
+      id: 'hero', build: 'normal', hair: 'short',
       hairHue: 24, hairSat: 34, hairLum: 26,
       hue: 214, sat: 34, lum: 42, accent: 45,
       prop: 'sword', pauldron: true, brow: 0, eye: '#2b3550'
     },
     mina: {
-      build: 'slim', hair: 'long',
+      id: 'mina', build: 'slim', hair: 'long',
       hairHue: 44, hairSat: 46, hairLum: 62,
       hue: 48, sat: 30, lum: 74, accent: 200, accentLum: 60,
       robe: true, prop: 'mace', circlet: true, beltAccent: true,
@@ -23,14 +23,14 @@ G.FACES = (function () {
     },
     /* 主人公と同い年。体は大きいが顔はまだ若い。 */
     garo: {
-      build: 'heavy', hair: 'crop',
+      id: 'garo', build: 'heavy', hair: 'crop',
       hairHue: 12, hairSat: 42, hairLum: 26,
       hue: 12, sat: 32, lum: 38, accent: 35, metalHue: 24,
       prop: 'greatsword', pauldron: true, cape: true, capeHue: 8,
       brow: -1, skinHue: 24, skinLum: 64, eye: '#5a3a24'
     },
     sera: {
-      build: 'slim', hair: 'bob',
+      id: 'sera', build: 'slim', hair: 'bob',
       hairHue: 275, hairSat: 30, hairLum: 30,
       hue: 275, sat: 34, lum: 38, accent: 190, accentLum: 58,
       robe: true, prop: 'staff', raiseRight: true, cape: true, capeHue: 268,
@@ -69,10 +69,10 @@ G.FACES = (function () {
 
   /* ---------- 物語の脇役 ---------- */
   var NPC = {
-    '衛士長': { build: 'heavy', hair: 'crop', hairHue: 210, hairSat: 8, hairLum: 52,
+    '衛士長': { id: 'captain', build: 'heavy', hair: 'crop', hairHue: 210, hairSat: 8, hairLum: 52,
                 hue: 212, sat: 18, lum: 40, accent: 45, prop: 'sword', pauldron: true,
                 beard: true, brow: -1, skinLum: 58, eye: '#4a4f5e' },
-    '枢機卿': { build: 'slim', hair: 'hood', hairHue: 0, hairSat: 0, hairLum: 40,
+    '枢機卿': { id: 'cardinal', build: 'slim', hair: 'hood', hairHue: 0, hairSat: 0, hairLum: 40,
                 hue: 350, sat: 26, lum: 30, accent: 45, prop: 'none', robe: true,
                 cape: true, capeHue: 350, skinLum: 62 },
     'ガロ': null, 'ミナ': null, 'セラ': null   /* 仲間は CAST を使う（下で解決） */
@@ -90,10 +90,14 @@ G.FACES = (function () {
 
   /** 主人公の立ち絵。今の職業の装いを重ねる。 */
   function forHero(hero) {
-    var base = CAST.hero, look = CLASS_LOOK[hero && hero.classId] || {};
+    var cid = (hero && hero.classId) || 'swordsman';
+    var base = CAST.hero, look = CLASS_LOOK[cid] || {};
     var out = {};
     for (var k in base) out[k] = base[k];
     for (var k2 in look) out[k2] = look[k2];
+    /* 職業ごとに姿が違うので、差し替え画像も職業ごとに持てるようにする */
+    out.id = 'hero_' + cid;
+    out.fallbackId = 'hero';
     return out;
   }
 

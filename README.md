@@ -353,6 +353,34 @@ mod（会心率、反射率、属性ダメージ…）と特殊効果フラグ�
 | パーティ一覧・転職の祭壇・職業選択・図鑑 | 全身（装備と体格が分かる） |
 | 戦闘中 | 16×16スプライト（情報量を優先） |
 
+### 描いた絵への差し替え
+
+用意した画像があれば、人物ごとに差し替えられます。
+
+1. 画像を `assets/portraits/` に置く
+2. `js/data/portrait-assets.js` に1行足す
+
+```js
+G.PORTRAIT_ASSETS = {
+  garo: { bust: 'assets/portraits/garo_bust.png', full: 'assets/portraits/garo_full.png' },
+};
+```
+
+起動時に実在を確かめ、見つかった人物だけ画像に切り替わります。
+**パスが間違っていても画像が無くても、黙って手続き生成に戻る**ので、
+一部だけ差し替えた状態でも破綻しません。`bust` だけ／`full` だけの指定も可能です。
+
+生成AIに渡すためのプロンプトは、外見設定から機械的に書き出せます。
+
+```bash
+node tools/portrait-prompts.js > docs/portrait-prompts.md
+```
+
+`js/data/faces.js` の体型・髪型・色相・得物・年齢を文章化し、
+**ゲーム内で実際に使っているHSLをHEXに直して埋め込む**ので、
+生成した絵と手続き生成の絵を混ぜてもパレットが揃います。
+サイズと置き方は `assets/portraits/README.md` にまとめてあります。
+
 ---
 
 ## グラフィック（すべてコード生成・画像ファイル0枚）
@@ -438,6 +466,7 @@ js/data/classtree.js  職業ツリー（25職 × 3段2択 = 150ノード）と�
 js/data/allies.js     仲間キャラクター（固定職・固定スキル）
 js/data/story.js      物語モードの筋書き（章・町・ダンジョン・会話・旅の話）
 js/data/faces.js      立ち絵の人物設定（仲間・脇役・職業ごとの装い）
+js/data/portrait-assets.js 立ち絵を用意した画像に差し替えるための宣言（既定は空）
 js/core/stats.js      ビルド集計（装備・職業・バフ → 派生ステータス）
 js/core/unlock.js     職業解放条件／ミシック取得条件の判定
 js/core/battle.js     戦闘エンジン（パーティ・ダメージ・会心・反射・波及・状態異常・仲間AI）
@@ -451,6 +480,8 @@ js/ui/ui.js           描画ヘルパー（カード・バー・ステータス�
 js/ui/screens.js      各画面の描画
 js/main.js            状態管理と画面遷移
 tools/                データ・アセットの書き出しと検証
+assets/portraits/     差し替え用の立ち絵を置く場所（既定は空・README同梱）
+docs/                 立ち絵の生成用プロンプト（tools/portrait-prompts.js が出力）
 experimental/         使っていない試作（Godotの2Dアクション版）
 ```
 
@@ -472,4 +503,5 @@ experimental/         使っていない試作（Godotの2Dアクション版）
 node tools/sim-party.js    # 試練の塔を40走行（25階到達率・全滅した階層）
 node tools/sim-story.js    # 物語モードを20周（完走率・全滅回数・最終レベル）
 node tools/sim-story.js -v # 1周ぶんの章ごとの推移を表示
+node tools/portrait-prompts.js > docs/portrait-prompts.md  # 立ち絵の生成用プロンプト
 ```
