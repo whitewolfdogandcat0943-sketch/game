@@ -20,7 +20,7 @@ try {
 }
 
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'godot', 'assets', 'sprites');
+const OUT = path.join(ROOT, 'experimental', 'godot-action', 'assets', 'sprites');
 
 function save(dir, name, dataUrl) {
   const d = path.join(OUT, dir);

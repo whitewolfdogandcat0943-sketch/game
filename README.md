@@ -248,23 +248,23 @@ dataURL としてキャッシュしています。
 
 ---
 
-## Godot版（2Dアクション化）
+## 試作: Godot版（2Dアクション／アーカイブ）
 
-`godot/` に、同じビルドシステムを **2Dアクション**として作り直すための土台があります。
-現状はアリーナ1面の縦切りで、ビルドの数値が操作と手応えに反映されることを確認する段階です。
-遊び方と現状は `godot/README.md` を参照してください。
+`experimental/godot-action/` に、同じビルドシステムを2Dアクションとして
+作り直す試みが残してあります。**現在は使っていません。**
 
-**データは二重管理しません。** Web版の `js/data/*.js` を唯一の出どころとして、
-JSONとPNGを自動生成しています。
+アクションの手応えを出すにはキャラクターのアニメーション素材が必要になる一方、
+ターン制なら1枚絵で成立するため、ターン制のWeb版を本体に戻しました。
+素材の制約はアクション特有の問題です。
+
+データとドット絵は今もWeb版から自動生成できます（エンジン非依存にしてあるため、
+将来Godotへ持っていく場合もそのまま使えます）。
 
 ```bash
-node tools/export-data.js         # データ  -> godot/data/*.json（9本）
-node tools/export-sprites.js      # ドット絵 -> godot/assets/sprites/*.png（241枚）
-node tools/validate-godot-data.js # Godot側が読むキーが揃っているかを検証
+node tools/export-data.js         # データ  -> experimental/godot-action/data/*.json
+node tools/export-sprites.js      # ドット絵 -> experimental/godot-action/assets/sprites/*.png
+node tools/validate-godot-data.js # 書き出したデータの検証
 ```
-
-手続き生成しているドット絵が16×16であることが効いていて、
-そのままGodotのテクスチャとして書き出せています（Web版と完全に同じ絵）。
 
 ---
 
@@ -293,8 +293,8 @@ js/gfx/fx.js          戦闘演出（ダメージ数字・フラッシュ）と�
 js/ui/ui.js           描画ヘルパー（カード・バー・ステータス表）
 js/ui/screens.js      各画面の描画
 js/main.js            状態管理と画面遷移
-tools/                Godot版へのデータ・アセット書き出しと検証
-godot/                Godot 4 プロジェクト（2Dアクション版の土台）
+tools/                データ・アセットの書き出しと検証
+experimental/         使っていない試作（Godotの2Dアクション版）
 ```
 
 ### バランス設計メモ

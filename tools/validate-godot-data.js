@@ -6,7 +6,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const DIR = path.resolve(__dirname, '..', 'godot', 'data');
+const DIR = path.resolve(__dirname, '..', 'experimental', 'godot-action', 'data');
 
 const problems = [];
 const read = n => JSON.parse(fs.readFileSync(path.join(DIR, n), 'utf8'));
@@ -138,7 +138,7 @@ for (const id of playerSkillIds) {
 }
 
 /* スプライトの実在チェック */
-const SPR = path.resolve(__dirname, '..', 'godot', 'assets', 'sprites');
+const SPR = path.resolve(__dirname, '..', 'experimental', 'godot-action', 'assets', 'sprites');
 const checkSprite = (dir, id) => {
   if (!fs.existsSync(path.join(SPR, dir, id + '.png'))) problems.push(`sprite: ${dir}/${id}.png がない`);
 };

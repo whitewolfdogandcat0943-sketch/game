@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const { load, ROOT } = require('./load-data.js');
 
-const OUT = path.join(ROOT, 'godot', 'data');
+const OUT = path.join(ROOT, 'experimental', 'godot-action', 'data');
 fs.mkdirSync(OUT, { recursive: true });
 
 const G = load();
