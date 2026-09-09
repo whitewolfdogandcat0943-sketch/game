@@ -265,3 +265,7 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .depth-dot{opacity:.3;transition:.15s}
 .depth-dot.done{opacity:.65;color:var(--ok)}
 .depth-dot.now{opacity:1;color:var(--acc);transform:scale(1.4)}
+
+/* レアアイテムのボタン */
+.abtn.rare{border-color:#7a4d1c;box-shadow:0 0 10px rgba(255,159,67,.10) inset}
+.abtn.rare:hover:not(:disabled){border-color:var(--legend)}

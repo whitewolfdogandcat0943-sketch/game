@@ -100,8 +100,12 @@ G.UI = (function () {
   }
 
   function itemCard(it, count, extra) {
-    return '<div class="card ' + (extra && extra.cls || '') + '" ' + (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
-      '<div class="cname">' + itemIcon(it) + it.name + (count != null ? ' <span class="muted">×' + count + '</span>' : '') + '</div>' +
+    var isRare = it.rarity === 'rare';
+    var cls = ((extra && extra.cls) || '') + (isRare ? ' bd-legend' : '');
+    return '<div class="card ' + cls + '" ' + (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
+      '<div class="cname' + (isRare ? ' r-legend' : '') + '">' + itemIcon(it) + it.name +
+      (isRare ? ' <span class="tag legend">レア</span>' : '') +
+      (count != null ? ' <span class="muted">×' + count + '</span>' : '') + '</div>' +
       '<div class="cdesc">' + it.desc + (extra && extra.note ? '<br>' + extra.note : '') + '</div></div>';
   }
 

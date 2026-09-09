@@ -189,10 +189,36 @@ G.Run = (function () {
     return U.pick(pool.length ? pool : G.NORMALS);
   }
 
+  /** 通常アイテムの抽選。深いほど上位ティアが出やすくなる。 */
   function rollItem(floor) {
     var tier = floor <= 5 ? 1 : (floor <= 12 ? 2 : 3);
-    var pool = G.ITEMS.filter(function (i) { return i.tier <= tier; });
-    return U.pick(pool);
+    var pool = (G.COMMON_ITEMS || G.ITEMS).filter(function (i) { return i.tier <= tier; });
+    if (!pool.length) pool = G.COMMON_ITEMS || G.ITEMS;
+    /* ティアが高いほど重くする。そうしないと薬草ばかりになる。 */
+    var weighted = pool.map(function (i) {
+      return { ref: i, w: 1 + (tier - i.tier === 0 ? 2 : (tier - i.tier === 1 ? 0.8 : 0)) };
+    });
+    return U.weighted(weighted).ref;
+  }
+
+  /** レアアイテムの抽選。深いほど上位ティアまで出る。 */
+  function rollRareItem(floor) {
+    var pool = (G.RARE_ITEMS || []).filter(function (i) {
+      return i.tier <= (floor <= 8 ? 2 : 3);
+    });
+    if (!pool.length) pool = G.RARE_ITEMS || [];
+    return pool.length ? U.pick(pool) : null;
+  }
+
+  /** レアアイテムが出る確率。塔（登るほど濃い）が主な入手源。 */
+  function rareItemChance(state, kind) {
+    var f = state.run.floor;
+    var base = { boss: 0.85, elite: 0.35, treasure: 0.40, battle: 0.06 }[kind] || 0.06;
+    var deep = Math.min(0.25, Math.max(0, f - 3) * 0.012);
+    var dropUp = (G.Stats.compute(state.hero).S.dropUp || 0) * 0.3;
+    /* 物語モードは塔より控えめ。レアを集めるなら塔、という差を残す。 */
+    var modeMult = (state.mode === 'story') ? 0.35 : 1;
+    return U.clamp((base + deep + dropUp) * modeMult, 0, 0.95);
   }
 
   /** 3択の報酬（ビルドを狙って伸ばすための選択肢） */
@@ -241,6 +267,11 @@ G.Run = (function () {
     for (var i = 0; i < nItems; i++) {
       var it = rollItem(state.run.floor);
       G.addItem(hero, it.id, 1); drops.push({ type: 'item', ref: it });
+    }
+    /* レアアイテム枠。ボスはほぼ確定、精鋭でもそれなりに出る。 */
+    if (U.chance(rareItemChance(state, kind))) {
+      var ri = rollRareItem(state.run.floor);
+      if (ri) { G.addItem(hero, ri.id, 1); drops.push({ type: 'item', ref: ri, rare: true }); }
     }
     if (kind === 'elite') { state.run.stats.elites++; hero.sp = (hero.sp || 0) + 1; }
     if (kind === 'boss') { state.run.stats.bosses++; hero.sp = (hero.sp || 0) + 2; }
@@ -307,9 +338,22 @@ G.Run = (function () {
       var g = rollGear(f, U.chance(0.15) ? 'legend' : null);
       stock.push({ type: 'gear', id: g.id, price: Math.round((g.price || 200) * U.rf(0.9, 1.15)) });
     }
+    /* 同じ品が並ぶと選ぶ楽しみが減るので、重複は引き直す */
     for (i = 0; i < 4; i++) {
-      var it = rollItem(f);
+      var it = null;
+      for (var tryN = 0; tryN < 8; tryN++) {
+        it = rollItem(f);
+        if (!stock.some(function (x) { return x.id === it.id; })) break;
+      }
       stock.push({ type: 'item', id: it.id, price: Math.round(it.price * U.rf(0.9, 1.1)) });
+    }
+    /* レアアイテムの特別枠。序盤は1つ、深く進むと2つ並ぶ。 */
+    var rareSlots = f >= 10 ? 2 : 1;
+    for (i = 0; i < rareSlots; i++) {
+      var ri = rollRareItem(f);
+      if (!ri) break;
+      if (stock.some(function (x) { return x.id === ri.id; })) continue;
+      stock.push({ type: 'item', id: ri.id, price: Math.round(ri.price * U.rf(0.95, 1.15)), rare: true });
     }
     /* 発見済みミシックの再入荷（高額） */
     var owned = state.hero.bag.acc;
@@ -396,6 +440,7 @@ G.Run = (function () {
     makeEncounter: makeEncounter, grantVictory: grantVictory, applyLevelUps: applyLevelUps,
     checkMythicUnlocks: checkMythicUnlocks, checkClassUnlocks: checkClassUnlocks,
     makeShop: makeShop, rest: rest, randomEvent: randomEvent, nextFloor: nextFloor,
-    rollAcc: rollAcc, rollGear: rollGear, rollItem: rollItem, EVENTS: EVENTS
+    rollAcc: rollAcc, rollGear: rollGear, rollItem: rollItem,
+    rollRareItem: rollRareItem, rareItemChance: rareItemChance, EVENTS: EVENTS
   };
 })();

@@ -116,6 +116,44 @@ G.Story = (function () {
     return false;
   }
 
+  /* ===================== 隠し場所 =====================
+   * ダンジョンを一歩進むごとに、物陰や打ち捨てられた荷から
+   * アイテムが見つかることがある。塔の宝物庫にあたるもの。 */
+
+  /** 次の一歩で見つかるものを決める。見つからなければ null。 */
+  function rollStash(state) {
+    var dg = state.story.dungeon;
+    if (!dg) return null;
+    var d = place(dg.id);
+    dg.stash = null;
+    /* 同じ場所は一度きり。踏破済みのダンジョンでは出ない。 */
+    var key = dg.id + '#' + dg.at;
+    if (state.story.flags['stash_' + key]) return null;
+    if (!U.chance(0.55)) return null;
+    state.story.flags['stash_' + key] = true;
+
+    var lv = d.lv, got = [];
+    var n = U.rint(1, 2);
+    for (var i = 0; i < n; i++) {
+      var it = G.Run.rollItem(lv);
+      G.addItem(state.hero, it.id, 1);
+      got.push({ ref: it, rare: false });
+    }
+    if (U.chance(G.Run.rareItemChance(state, 'treasure'))) {
+      var ri = G.Run.rollRareItem(lv);
+      if (ri) { G.addItem(state.hero, ri.id, 1); got.push({ ref: ri, rare: true }); }
+    }
+    var gold = Math.round((25 + lv * 14) * U.rf(0.8, 1.3));
+    state.hero.gold += gold;
+    dg.stash = { items: got, gold: gold, place: U.pick(STASH_PLACES) };
+    return dg.stash;
+  }
+
+  var STASH_PLACES = [
+    '崩れた壁の裏', '打ち捨てられた荷', '朽ちた木箱', '倒れた冒険者の荷袋',
+    '苔むした祭壇の窪み', 'water', '瓦礫の隙間'
+  ].filter(function (x) { return x !== 'water'; });
+
   /* ===================== 章の進行 ===================== */
 
   /** 章の目標を達成しているか */
@@ -166,7 +204,7 @@ G.Story = (function () {
   return {
     begin: begin, chapter: chapter, places: places, place: place,
     fill: fill, fillLines: fillLines,
-    enterDungeon: enterDungeon, leaveDungeon: leaveDungeon,
+    enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
     nextEncounter: nextEncounter, advanceDungeon: advanceDungeon,
     chapterDone: chapterDone, nextChapter: nextChapter, joinForChapter: joinForChapter,
     inn: inn

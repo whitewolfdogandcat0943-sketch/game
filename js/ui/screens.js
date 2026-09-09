@@ -239,6 +239,15 @@ G.Screens = (function () {
       '<button class="btn primary" data-act="dungeonGo">' +
       (last ? '⚔ 主に挑む' : '⚔ 奥へ進む') + '</button> ' +
       '<button class="btn" data-act="dungeonLeave">引き返す</button></div></div>';
+    if (dg.stash) {
+      h += '<div class="panel"><h3>🎁 ' + dg.stash.place + '</h3>' +
+        '<p class="muted small">物資が残されていた。' +
+        (dg.stash.gold ? '（' + dg.stash.gold + 'G）' : '') + '</p><div class="grid g3">' +
+        dg.stash.items.map(function (x) {
+          return UI.itemCard(x.ref, null, x.rare
+            ? { note: '<span class="r-legend">✦ レアアイテム</span>', cls: 'bd-legend' } : null);
+        }).join('') + '</div></div>';
+    }
     h += partyPanel(state);
     render(h);
   }
@@ -448,13 +457,20 @@ G.Screens = (function () {
 
   function itemActions(state) {
     var hero = state.hero;
-    var ids = Object.keys(hero.items);
+    var ids = Object.keys(hero.items).filter(function (id) { return !!G.ITEM_BY_ID[id]; });
     if (!ids.length) return '<div class="muted small">アイテムを持っていない。</div>';
+    /* レアアイテムは数が限られるので、探さずに済むよう先頭に出す */
+    ids.sort(function (a2, b2) {
+      var ra = G.ITEM_BY_ID[a2].rarity === 'rare' ? 0 : 1;
+      var rb = G.ITEM_BY_ID[b2].rarity === 'rare' ? 0 : 1;
+      return ra - rb;
+    });
     return ids.map(function (id) {
       var it = G.ITEM_BY_ID[id];
-      if (!it) return '';
-      return '<button class="abtn" data-act="useitem:' + id + '">' +
-        '<div class="an"><span>🧪 ' + it.name + '</span><span>×' + hero.items[id] + '</span></div>' +
+      var isRare = it.rarity === 'rare';
+      return '<button class="abtn' + (isRare ? ' rare' : '') + '" data-act="useitem:' + id + '">' +
+        '<div class="an"><span' + (isRare ? ' class="r-legend"' : '') + '>' +
+        (isRare ? '✦ ' : '🧪 ') + it.name + '</span><span>×' + hero.items[id] + '</span></div>' +
         '<div class="ad">' + it.desc + '</div></button>';
     }).join('');
   }
@@ -853,6 +869,15 @@ G.Screens = (function () {
         '<div class="cdesc"><span class="r-mythic">【取得条件】' + m.cond.label + '</span><br><span class="muted">ヒント: ' + m.cond.hint + '</span></div></div>';
     });
     h += '</div>';
+
+    h += '<div class="sep"></div><h3 class="r-legend">レアアイテム（' + G.RARE_ITEMS.length + '種）</h3>';
+    h += '<p class="tiny muted">通常の抽選には出ない特別な消耗品。' +
+      '<b>試練の塔</b>の精鋭・ボス・宝物庫が主な入手源で、' +
+      '物語のダンジョンでは隠し場所やボスから、より控えめな確率で見つかる。店の特別枠にも並ぶ。</p>';
+    h += '<div class="grid g2">' +
+      G.RARE_ITEMS.map(function (it) {
+        return UI.itemCard(it, null, { note: '<span class="muted">相場 ' + it.price + 'G</span>' });
+      }).join('') + '</div>';
 
     h += '<div class="sep"></div><h3 class="r-legend">職業ツリー</h3><div class="grid g2">';
     [1, 2, 3].forEach(function (t) {

@@ -1037,44 +1037,107 @@ G.Battle = (function () {
 
   function resolveItem(b, src, it, targetIdx) {
     var u = it.use, scale = 1 + (src.S.itemPower || 0), lvl = 1 + b.state.hero.level * 0.05;
-    var ben = allyOf(b, src, targetIdx);
+    var mates = alliesOf(b, src);
+    var idxAlly = (targetIdx != null && typeof targetIdx === 'object') ? targetIdx.ally : null;
+    var idxFoe = (targetIdx != null && typeof targetIdx === 'object') ? targetIdx.foe : targetIdx;
+    /* 効果の受け手。target:'allies' ならパーティ全体。 */
+    var bens = (u.target === 'allies') ? mates.filter(alive) : [allyOf(b, src, targetIdx)];
+    if (!bens.length) bens = [src];
+
+    /* --- 蘇生 --- */
     if (u.revive) {
-      var mates = alliesOf(b, src);
-      var i2 = (targetIdx != null && typeof targetIdx === 'object') ? targetIdx.ally : null;
-      var down = (i2 != null && mates[i2] && !alive(mates[i2])) ? mates[i2]
-        : mates.filter(function (x) { return !alive(x); })[0];
-      if (down) { revive(b, down, u.revive); return; }
+      var downs = mates.filter(function (x) { return !alive(x); });
+      if (idxAlly != null && mates[idxAlly] && !alive(mates[idxAlly])) downs = [mates[idxAlly]];
+      var revived = 0;
+      downs.forEach(function (t) {
+        if (!u.reviveAll && revived) return;
+        if (revive(b, t, u.revive)) revived++;
+      });
+      if (!revived) log(b, '　（倒れている仲間がいない）');
+      /* 蘇生だけのアイテムはここで終わり。回復も持つものは続ける。 */
+      if (!u.type) return;
+      bens = mates.filter(alive);
     }
-    if (u.type === 'heal') { heal(b, ben, Math.round(u.power * scale * lvl), it.name); return; }
-    if (u.type === 'mp') { ben.mp = Math.min(ben.S.maxMp, ben.mp + Math.round(u.power * scale)); log(b, '🔷 ' + ben.name + ' のMPが回復した。', 'good'); return; }
-    if (u.type === 'full') {
-      ben.hp = ben.S.maxHp; ben.mp = ben.S.maxMp; ben.statuses = []; refresh(ben);
-      log(b, '✨ ' + ben.name + ' のHPとMPが全回復した！', 'good'); return;
-    }
-    if (u.type === 'cleanse') {
-      ben.statuses = []; refresh(ben);
-      heal(b, ben, Math.round(u.power * scale * lvl), it.name);
-      log(b, '✨ 状態異常が解除された。', 'good'); return;
-    }
-    if (u.type === 'buff') {
-      (u.buffs || []).forEach(function (x) { addBuff(b, ben, x.k, x.v, x.t); });
-      if (u.endure) { ben.extraEndure = true; ben.endureUsed = false; log(b, '🕊 致死ダメージを1度耐える加護を得た。', 'good'); }
+
+    if (u.type === 'heal') {
+      bens.forEach(function (t) { heal(b, t, Math.round(u.power * scale * lvl), it.name); });
       return;
     }
+    if (u.type === 'mp') {
+      bens.forEach(function (t) {
+        t.mp = Math.min(t.S.maxMp, t.mp + Math.round(u.power * scale));
+        log(b, '🔷 ' + t.name + ' のMPが回復した。', 'good');
+      });
+      return;
+    }
+    if (u.type === 'full') {
+      bens.forEach(function (t) {
+        t.hp = t.S.maxHp; t.mp = t.S.maxMp; t.statuses = []; refresh(t);
+        log(b, '✨ ' + t.name + ' のHPとMPが全回復した！', 'good');
+      });
+      return;
+    }
+    if (u.type === 'cleanse') {
+      bens.forEach(function (t) {
+        t.statuses = []; refresh(t);
+        heal(b, t, Math.round(u.power * scale * lvl), it.name);
+      });
+      log(b, '✨ 状態異常が解除された。', 'good');
+      return;
+    }
+    if (u.type === 'buff') {
+      bens.forEach(function (t) {
+        (u.buffs || []).forEach(function (x) { addBuff(b, t, x.k, x.v, x.t); });
+        if (u.endure) {
+          t.extraEndure = true; t.endureUsed = false;
+          log(b, '🕊 ' + t.name + ' は致死ダメージを1度耐える加護を得た。', 'good');
+        }
+      });
+      return;
+    }
+
+    /* --- 敵に作用するもの --- */
+    function foeList() {
+      if (u.target === 'all') return aliveEnemies(b);
+      var t = (idxFoe != null) ? b.enemies[idxFoe] : null;
+      if (!t || !alive(t)) t = aliveEnemies(b)[0];
+      return t ? [t] : [];
+    }
+
+    if (u.type === 'util') {
+      foeList().forEach(function (t) {
+        if (u.dispel) dispel(b, t);
+        if (u.seal && U.chance(u.seal.c != null ? u.seal.c : 1)) addStatus(b, t, 'seal', u.seal.t);
+        if (u.blind && U.chance(u.blind.c != null ? u.blind.c : 1)) addStatus(b, t, 'blind', u.blind.t);
+        if (u.mark) {
+          t.mark = { t: u.mark.t + 1, v: u.mark.v };
+          log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(u.mark.v * 100) + '%）。', 'good');
+        }
+        if (u.debuff) addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t);
+      });
+      return;
+    }
+
     if (u.type === 'dmg' || u.type === 'dmgMulti') {
       var els = u.type === 'dmgMulti' ? u.els : [u.el];
-      var list = (u.target === 'all') ? aliveEnemies(b) : [b.enemies[targetIdx] && alive(b.enemies[targetIdx]) ? b.enemies[targetIdx] : aliveEnemies(b)[0]];
+      var list = foeList();
       els.forEach(function (el) {
         list.filter(function (t) { return t && alive(t); }).forEach(function (t) {
           strike(b, src, t, {
             kind: 'mag', el: el, power: Math.round(u.power * scale * lvl),
-            isAoe: u.target === 'all', trueHit: true, atkStat: Math.max(src.S.mag, 30)
+            isAoe: u.target === 'all', trueHit: true, defIgnore: u.defIgnore || 0,
+            atkStat: Math.max(src.S.mag, src.S.atk, 30)
           });
         });
       });
-      if (u.freeze) list.filter(function (t) { return t && alive(t); }).forEach(function (t) { if (U.chance(u.freeze)) addStatus(b, t, 'freeze', 2); });
-      if (u.shock) list.filter(function (t) { return t && alive(t); }).forEach(function (t) { if (U.chance(u.shock)) addStatus(b, t, 'shock', 2); });
-      if (u.debuff) list.filter(function (t) { return t && alive(t); }).forEach(function (t) { addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t); });
+      function living() { return list.filter(function (t) { return t && alive(t); }); }
+      if (u.freeze) living().forEach(function (t) { if (U.chance(u.freeze)) addStatus(b, t, 'freeze', 2); });
+      if (u.shock) living().forEach(function (t) { if (U.chance(u.shock)) addStatus(b, t, 'shock', 2); });
+      if (u.debuff) living().forEach(function (t) { addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t); });
+      if (u.mark) living().forEach(function (t) {
+        t.mark = { t: u.mark.t + 1, v: u.mark.v };
+        log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(u.mark.v * 100) + '%）。', 'good');
+      });
       if (u.healSelf) heal(b, src, Math.round(u.power * scale * u.healSelf), it.name);
     }
   }

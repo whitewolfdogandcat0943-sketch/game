@@ -130,8 +130,19 @@
     if (!dg) { go('world'); return; }
     var d = G.Story.place(dg.id);
     var done = G.Story.advanceDungeon(state);
+    if (!done) {
+      /* 奥へ進む途中で、物陰から物資が見つかることがある */
+      var stash = G.Story.rollStash(state);
+      if (stash) {
+        UI.toast('🎁 ' + stash.place + 'から物資を見つけた。', 'legend');
+        stash.items.filter(function (x) { return x.rare; }).forEach(function (x) {
+          UI.toast('✦ レアアイテム: <b>' + x.ref.name + '</b>', 'mythic');
+        });
+      }
+      G.Save.saveRun(state);
+      go('dungeon'); return;
+    }
     G.Save.saveRun(state);
-    if (!done) { go('dungeon'); return; }
     UI.toast('👑 ' + d.name + ' を踏破した！', 'legend');
     G.Story.leaveDungeon(state);
     var isGoal = (G.Story.chapter(state) || {}).goal === d.id;
@@ -210,8 +221,13 @@
     if (U.chance(0.5 + (Sx.dropUp || 0))) {
       var g = G.Run.rollGear(f); G.addGear(hero, g.id); got.push({ type: 'gear', ref: g });
     }
-    var n = U.rint(1, 2);
+    var n = U.rint(2, 3);
     for (var i = 0; i < n; i++) { var it = G.Run.rollItem(f); G.addItem(hero, it.id, 1); got.push({ type: 'item', ref: it }); }
+    /* 宝物庫はレアアイテムの主要な入手源 */
+    if (U.chance(G.Run.rareItemChance(state, 'treasure'))) {
+      var ri = G.Run.rollRareItem(f);
+      if (ri) { G.addItem(hero, ri.id, 1); got.push({ type: 'item', ref: ri, rare: true }); }
+    }
     var gold = Math.round((40 + f * 22) * (1 + (Sx.goldUp || 0)) * U.rf(0.8, 1.3));
     hero.gold += gold;
 
