@@ -326,14 +326,15 @@ G.Screens = (function () {
 
   /* ===================== 戦闘 ===================== */
   function battle(state) {
-    var b = state.battle, hero = b.hero;
+    var b = state.battle;
     var where = state.run.floor + 'F';
     if (state.mode === 'story' && state.story && state.story.dungeon) {
       var dgp = G.Story.place(state.story.dungeon.id);
       if (dgp) where = dgp.name + ' ' + Math.min(state.story.dungeon.at + 1, state.story.dungeon.depth) +
         '/' + state.story.dungeon.depth;
     }
-    var h = '<h1>戦闘 <span class="muted small">― ' + where + ' ― ラウンド ' + b.round + '</span></h1>';
+    var h = '<h1>戦闘 <span class="muted small">― ' + where + ' ― ラウンド ' + b.round + '</span>' +
+      (b.rage ? ' <span class="r-mythic small">🔥 激昂 +' + Math.round(b.rage * 100) + '%</span>' : '') + '</h1>';
 
     h += '<div class="enemies">';
     b.enemies.forEach(function (e, i) {
@@ -353,7 +354,7 @@ G.Screens = (function () {
 
     h += '<div class="grid g2" style="margin-top:10px"><div class="party">';
     G.Battle.partyUnits(b).forEach(function (m, mi) {
-      var isActor = (b.actor === m) || (mi === 0 && b.awaiting);
+      var isActor = (b.actor === m);
       var cls = 'unit member' + (m.hp > 0 ? '' : ' dead') + (isActor ? ' acting' : '') +
         (state.allyIdx === mi ? ' picked' : '');
       h += '<div class="' + cls + '" data-unit="' + m.idx + '" data-act="selectAlly:' + mi + '">' +
@@ -385,8 +386,10 @@ G.Screens = (function () {
       h += '<div class="panel center"><button class="btn primary" data-act="battleEnd">' +
         (b.result === 'win' ? '戦利品を確認する' : (b.result === 'flee' ? '引き返す' : '結果を見る')) + '</button></div>';
     } else {
+      var actorName = (b.actor && b.actor !== b.hero)
+        ? '<span class="r-legend tiny" style="align-self:center">' + U.esc(b.actor.name) + ' の手番</span>' : '';
       h += '<div class="panel"><div class="row" style="gap:6px">' +
-        tabBtn(state, 'skill', 'スキル') + tabBtn(state, 'item', 'アイテム') +
+        actorName + tabBtn(state, 'skill', 'スキル') + tabBtn(state, 'item', 'アイテム') +
         (G.Battle.canFlee(b)
           ? '<button class="btn tiny" data-act="flee">逃げる（' +
             Math.round(G.Battle.fleeChance(b) * 100) + '%）</button>'
@@ -429,8 +432,8 @@ G.Screens = (function () {
   }
 
   function skillActions(state) {
-    var b = state.battle, hero = b.hero;
-    return G.Stats.skillList(state.hero).map(function (id) {
+    var b = state.battle, hero = b.actor || b.hero;
+    return G.Stats.skillList(hero.hero).map(function (id) {
       var s = G.SKILLS[id];
       var lack = hero.mp < (s.mp || 0);
       var tgt = { all: '敵全体', random: 'ランダム', allies: '味方全体', ally: '味方単体',

@@ -114,7 +114,7 @@ G.Battle = (function () {
     var b = {
       state: state, hero: hero, party: party, actor: null,
       enemies: enemyUnits, units: party.concat(enemyUnits),
-      round: 0, queue: [], qi: 0, log: [], over: false, result: null,
+      round: 0, queue: [], qi: 0, log: [], over: false, result: null, rage: 0,
       awaiting: false, isBoss: !!opts.isBoss, floor: state.run.floor,
       rec: {
         critStreak: 0, critStreakMax: 0, reflectDmg: 0, reflectKills: 0, elementsUsed: {},
@@ -192,6 +192,14 @@ G.Battle = (function () {
   function alliesOf(b, u) { return u.side === 'player' ? partyUnits(b) : b.enemies; }
   /** そのユニットから見た敵 */
   function foesOf(b, u) { return u.side === 'player' ? aliveEnemies(b) : aliveParty(b); }
+  /** プレイヤーが操作するユニット。主人公が倒れたら次の生存者へ移る。
+   * これが無いと主人公の戦闘不能で入力手段が消え、戦闘が終わらなくなる。 */
+  function controller(b) {
+    var p = partyUnits(b);
+    if (p[0] && alive(p[0])) return p[0];
+    return p.filter(alive)[0] || null;
+  }
+
   /** 敵が狙う相手。かばう・挑発を考慮する */
   function pickTarget(b, attacker) {
     var cands = aliveParty(b);
@@ -225,8 +233,8 @@ G.Battle = (function () {
       var u = b.queue[b.qi];
       if (!alive(u)) { b.qi++; continue; }
       if (u.side === 'player') {
-        if (u.isLeader) { b.actor = u; u._b = b; b.awaiting = true; return; }
-        /* 仲間は自動で動く。プレイヤーが操るのは主人公だけ。 */
+        if (u === controller(b)) { b.actor = u; u._b = b; b.awaiting = true; return; }
+        /* 操作しないメンバーは自動で動く */
         b.actor = u; u._b = b;
         takeAllyTurn(b, u);
         b.qi++;
@@ -238,6 +246,9 @@ G.Battle = (function () {
       b.qi++;
       if (checkEnd(b)) return;
     }
+    /* 保険: 何らかの理由で手番が回らなかった場合も入力を受け付ける */
+    var c = controller(b);
+    if (c) { b.actor = c; c._b = b; b.awaiting = true; }
   }
 
   /** ターン開始時の行動不能判定 */
@@ -247,7 +258,20 @@ G.Battle = (function () {
     return false;
   }
 
+  /* 決着がつかない盤面を作らないための「激昂」。
+   * 回復量が敵の火力を上回ると、勝てないが負けもしない膠着が起きる。
+   * 一定ラウンドを過ぎたら敵の火力が増え続け、必ず決着がつくようにする。 */
+  var RAGE_FROM = 25, RAGE_STEP = 0.12;
+
+  function updateRage(b) {
+    var over = b.round - RAGE_FROM;
+    if (over <= 0) return;
+    if (!b.rage) log(b, '🔥 敵が激昂した！ これ以上長引くほど、敵の攻撃は激しくなる。', 'bad');
+    b.rage = over * RAGE_STEP;
+  }
+
   function endRound(b) {
+    updateRage(b);
     aliveParty(b).forEach(function (m) {
       if (!m.flags.thornAura) return;
       var td = Math.max(1, Math.round(m.S.maxHp * 0.012 * (1 + (m.S.reflect || 0) * 2)));
@@ -369,6 +393,7 @@ G.Battle = (function () {
     }
     dmg *= eMult;
     dmg *= (1 + (S.dmgUp || 0) + damageMods(src, tgt, b));
+    if (src.side === 'enemy' && b.rage) dmg *= (1 + b.rage);
     if (tgt.mark && tgt.mark.t > 0) dmg *= (1 + tgt.mark.v);
     if (hasStatus(src, 'blind') && !o.trueHit && U.chance(0.30)) {
       if (!o.silent) log(b, '🌑 ' + src.name + ' の攻撃は外れた。');
@@ -1226,7 +1251,7 @@ G.Battle = (function () {
     start: start, advance: advance, playerAction: playerAction, refresh: refresh,
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
     partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
-    canFlee: canFlee, fleeChance: fleeChance,
+    canFlee: canFlee, fleeChance: fleeChance, controller: controller,
     alive: alive, log: log, heal: heal
   };
 })();
