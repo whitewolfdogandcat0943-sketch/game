@@ -269,3 +269,8 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 /* レアアイテムのボタン */
 .abtn.rare{border-color:#7a4d1c;box-shadow:0 0 10px rgba(255,159,67,.10) inset}
 .abtn.rare:hover:not(:disabled){border-color:var(--legend)}
+
+/* 旅の話（仲間どうしのやりとり） */
+.talk{padding:2px 0}
+.talk.sep-top{border-top:1px dashed #1a1f33;margin-top:10px;padding-top:10px}
+.talk .narration{margin:0 0 8px;font-size:12px;color:var(--dim2);font-style:italic}

@@ -81,6 +81,7 @@
   /** 章の目標を達成した → 仲間加入 → 章末会話 → 次章 */
   function chapterNext() {
     var c = G.Story.chapter(state);
+    /* 通常はダンジョン踏破時に加入済み。取りこぼしがあればここで拾う。 */
     var joined = G.Story.joinForChapter(state);
     if (joined) UI.toast('🤝 <b>' + joined.name + '</b>（' + joined.role + '）が仲間になった！', 'class');
     playScene(c.close, { title: '第' + c.id + '章　' + c.title, endLabel: '次の章へ', then: function () {
@@ -151,6 +152,12 @@
         /* 最終章のクリア。エンディングまで一気に流す。 */
         chapterNext();
         return;
+      }
+      if (isGoal) {
+        /* 仲間は「ついていく」と言った場面で加わる。
+         * 章を跨ぐ前に加入させることで、その章の町で旅の話が聞ける。 */
+        var joined = G.Story.joinForChapter(state);
+        if (joined) UI.toast('🤝 <b>' + joined.name + '</b>（' + joined.role + '）が仲間になった！', 'class');
       }
       G.Save.saveRun(state);
       go('world');

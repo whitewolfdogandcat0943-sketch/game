@@ -216,6 +216,22 @@ G.Screens = (function () {
         return '<p class="line"><b class="who">' + U.esc(x.who) + '</b><span class="say">' +
           U.esc(G.Story.fill(x.t, state)) + '</span></p>';
       }).join('') + '</div>';
+
+    /* 仲間どうしのやりとり。町でだけ聞ける。 */
+    var pt = G.Story.partyTalks(state);
+    if (pt.length) {
+      h += '<div class="panel"><h3>旅の話</h3>' +
+        '<p class="tiny muted">道中で交わされた、本筋とは関係のないやりとり。</p>';
+      pt.forEach(function (conv, i) {
+        h += '<div class="talk' + (i ? ' sep-top' : '') + '">' +
+          conv.lines.map(function (l) {
+            if (!l.w) return '<p class="narration">' + U.esc(l.t) + '</p>';
+            return '<p class="line"><b class="who">' + U.esc(l.w) + '</b>' +
+              '<span class="say">' + U.esc(l.t) + '</span></p>';
+          }).join('') + '</div>';
+      });
+      h += '</div>';
+    }
     h += partyPanel(state);
     render(h);
   }

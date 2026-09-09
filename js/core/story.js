@@ -192,6 +192,23 @@ G.Story = (function () {
     return a;
   }
 
+  /* ===================== 旅の会話 =====================
+   * 町で交わされる仲間どうしのやりとり。本筋には絡まないが、
+   * 誰が誰を見ているかは、こちらに書いてある。 */
+
+  /** 今の章と加入状況で読める会話を返す */
+  function partyTalks(state) {
+    var c = chapter(state);
+    if (!c || !c.party) return [];
+    var joined = (state.party || []).map(function (m) { return m.allyId; })
+      .filter(function (x) { return !!x; });
+    return c.party.filter(function (t) {
+      return (t.by || []).every(function (id) { return joined.indexOf(id) >= 0; });
+    }).map(function (t) {
+      return { by: t.by, lines: fillLines(t.lines, state) };
+    });
+  }
+
   /* ===================== 宿 ===================== */
 
   function inn(state, cost) {
@@ -207,6 +224,7 @@ G.Story = (function () {
     enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
     nextEncounter: nextEncounter, advanceDungeon: advanceDungeon,
     chapterDone: chapterDone, nextChapter: nextChapter, joinForChapter: joinForChapter,
+    partyTalks: partyTalks,
     inn: inn
   };
 })();
