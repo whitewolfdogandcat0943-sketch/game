@@ -3,8 +3,9 @@
   var U = G.U, S = G.Screens, UI = G.UI;
 
   var state = {
-    hero: null, run: null, meta: G.Save.loadMeta(), battle: null,
+    hero: null, run: null, party: null, meta: G.Save.loadMeta(), battle: null,
     screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill',
+    mode: 'tower', story: null, scene: null,
     nodeKind: null, rewardData: null, currentEvent: null
   };
   G.state = state;
@@ -17,8 +18,13 @@
 
   function draw() {
     switch (state.screen) {
-      case 'title': S.title(state, !!G.Save.loadRun()); break;
+      case 'title': S.modeSelect(state, !!G.Save.loadRun()); break;
       case 'classSelect': S.classSelect(state); break;
+      case 'storyIntro': S.storyIntro(state); break;
+      case 'scene': S.scene(state); break;
+      case 'world': S.world(state); break;
+      case 'town': S.town(state); break;
+      case 'dungeon': S.dungeon(state); break;
       case 'map': S.map(state); break;
       case 'battle': S.battle(state); break;
       case 'reward': S.reward(state, state.rewardData); break;
@@ -27,8 +33,146 @@
       case 'altar': S.altar(state, false); break;
       case 'altarPreview': S.altar(state, true); break;
       case 'event': S.event(state, state.currentEvent, state.eventResult); break;
-      default: S.title(state, !!G.Save.loadRun());
+      default: S.modeSelect(state, !!G.Save.loadRun());
     }
+  }
+
+  /** 店・祭壇などから元の画面へ戻る。物語モードなら町か地図へ。 */
+  function backToField(stay) {
+    if (state.mode !== 'story' || !state.story) {
+      if (stay) go('map'); else nextFloor();
+      return;
+    }
+    if (state.story.dungeon) { go('dungeon'); return; }
+    if (state.story.place && G.Story.place(state.story.place)) go('town');
+    else go('world');
+  }
+
+  /* ===================== 物語モード ===================== */
+
+  /** 会話を再生する。読み終えたら then を呼ぶ。 */
+  function playScene(lines, opts) {
+    opts = opts || {};
+    state.scene = {
+      lines: G.Story.fillLines(lines, state), i: 0,
+      title: opts.title || '', endLabel: opts.endLabel || '進む', then: opts.then || null
+    };
+    go('scene');
+  }
+
+  function sceneDone() {
+    var then = state.scene && state.scene.then;
+    state.scene = null;
+    if (typeof then === 'function') then();
+    else go('world');
+  }
+
+  /** 章の頭の会話 → 地図へ */
+  function chapterOpen() {
+    var c = G.Story.chapter(state);
+    if (!c) { go('world'); return; }
+    if (state.story.phase !== 'open') { go('world'); return; }
+    state.story.phase = 'field';
+    G.Save.saveRun(state);
+    playScene(c.open, { title: '第' + c.id + '章　' + c.title, endLabel: '旅を続ける',
+                        then: function () { go('world'); } });
+  }
+
+  /** 章の目標を達成した → 仲間加入 → 章末会話 → 次章 */
+  function chapterNext() {
+    var c = G.Story.chapter(state);
+    var joined = G.Story.joinForChapter(state);
+    if (joined) UI.toast('🤝 <b>' + joined.name + '</b>（' + joined.role + '）が仲間になった！', 'class');
+    playScene(c.close, { title: '第' + c.id + '章　' + c.title, endLabel: '次の章へ', then: function () {
+      var nx = G.Story.nextChapter(state);
+      G.Save.saveRun(state);
+      if (!nx) { go('world'); return; }
+      chapterOpen();
+    } });
+  }
+
+  function enterPlace(id) {
+    var p = G.Story.place(id);
+    if (!p) return;
+    if (p.kind === 'town') { state.story.place = id; state.story.dungeon = null; go('town'); return; }
+    G.Story.enterDungeon(state, id);
+    G.Save.saveRun(state);
+    go('dungeon');
+  }
+
+  /** ダンジョンで一歩踏み込む。道中・ボス前の会話はここで挟む。 */
+  function dungeonGo() {
+    var dg = state.story.dungeon;
+    if (!dg) { go('world'); return; }
+    var d = G.Story.place(dg.id);
+    var isBoss = dg.at >= dg.depth - 1;
+    if (dg.at === 0 && d.intro && !state.story.flags['intro_' + dg.id]) {
+      state.story.flags['intro_' + dg.id] = true;
+      playScene(d.intro, { title: d.name, endLabel: '奥へ進む', then: dungeonGo });
+      return;
+    }
+    if (isBoss && d.bossIntro && !state.story.flags['bi_' + dg.id]) {
+      state.story.flags['bi_' + dg.id] = true;
+      playScene(d.bossIntro, { title: d.name, endLabel: '戦う', then: dungeonGo });
+      return;
+    }
+    var enc = G.Story.nextEncounter(state);
+    if (!enc) { go('world'); return; }
+    state.nodeKind = enc.kind;
+    state.targetIdx = 0; state.allyIdx = 0; state.battleTab = 'skill';
+    state.battle = G.Battle.start(state, enc.units, { isBoss: enc.isBoss });
+    go('battle');
+  }
+
+  /** 物語モードで戦闘に勝ったあと */
+  function storyAfterBattle() {
+    var dg = state.story.dungeon;
+    if (!dg) { go('world'); return; }
+    var d = G.Story.place(dg.id);
+    var done = G.Story.advanceDungeon(state);
+    G.Save.saveRun(state);
+    if (!done) { go('dungeon'); return; }
+    UI.toast('👑 ' + d.name + ' を踏破した！', 'legend');
+    G.Story.leaveDungeon(state);
+    var isGoal = (G.Story.chapter(state) || {}).goal === d.id;
+    playScene(d.clear || [], { title: d.name, endLabel: '地上へ戻る', then: function () {
+      if (isGoal && G.Story.chapter(state).id === G.STORY.CHAPTERS[G.STORY.CHAPTERS.length - 1].id) {
+        /* 最終章のクリア。エンディングまで一気に流す。 */
+        chapterNext();
+        return;
+      }
+      G.Save.saveRun(state);
+      go('world');
+    } });
+  }
+
+  /** 物語モードの全滅。所持金の半分を失い、章の町から立て直す。 */
+  function storyRecover() {
+    /* 誰かが宿まで運んでくれた、という体。全快で立て直せる。 */
+    G.Run.healParty(state, 1);
+    G.Story.leaveDungeon(state);
+    var c = G.Story.chapter(state);
+    var town = (c.places.filter(function (p) { return p.kind === 'town'; })[0] || {}).id;
+    state.rewardData = null;
+    state.battle = null;
+    state.run.active = true;
+    G.Save.saveRun(state);
+    if (town) { state.story.place = town; go('town'); } else go('world');
+  }
+
+  /** 物語で育てたパーティのまま、試練の塔へ移る */
+  function towerFromStory() {
+    state.mode = 'tower';
+    state.run.floor = 1;
+    state.run.active = true;
+    state.run.cleared = 0;
+    state.run.shop = null;
+    state.nodeKind = null;
+    G.Run.healParty(state, 1);
+    G.Run.generateNodes(state);
+    G.Save.saveRun(state);
+    UI.toast('🗼 試練の塔に足を踏み入れた。', 'class');
+    go('map');
   }
 
   /* ===================== ノード処理 ===================== */
@@ -81,6 +225,23 @@
     var b = state.battle;
     G.Battle.syncParty(b);
 
+    if (b.result === 'flee') {
+      state.battle = null;
+      state.rewardData = null;
+      if (state.mode === 'story' && state.story && state.story.dungeon) {
+        /* 逃げると、そのダンジョンは入口からやり直しになる */
+        G.Story.enterDungeon(state, state.story.dungeon.id);
+        UI.toast('🏃 入口まで引き返した。');
+        G.Save.saveRun(state);
+        go('dungeon');
+      } else {
+        UI.toast('🏃 その場を離れた。');
+        G.Save.saveRun(state);
+        backToField(true);
+      }
+      return;
+    }
+
     if (b.result === 'win') {
       var r = G.Run.grantVictory(state, b, state.nodeKind);
       var mys = G.Run.checkMythicUnlocks(state, b.rec, 'battleEnd');
@@ -103,7 +264,19 @@
         G.Save.saveMeta(state);
       }
       state.rewardData = { win: true, exp: r.exp, gold: r.gold, levels: r.levels, drops: r.drops,
-                           mythics: mys, classes: cls, choices: r.choices, cleared: cleared };
+                           mythics: mys, classes: cls, choices: r.choices, cleared: cleared,
+                           sp: r.sp, mastery: r.mastery, masteryTotal: r.masteryTotal,
+                           story: state.mode === 'story' };
+      state.battle = null;
+      G.Save.saveRun(state);
+      go('reward');
+    } else if (state.mode === 'story') {
+      /* 物語モードでは全滅しても終わらない。代償は所持金の半分。 */
+      var lost = Math.floor(state.hero.gold / 2);
+      state.hero.gold -= lost;
+      state.meta.deaths++;
+      G.Save.saveMeta(state);
+      state.rewardData = { win: false, story: true, lostGold: lost };
       state.battle = null;
       G.Save.saveRun(state);
       go('reward');
@@ -120,6 +293,7 @@
 
   /** 報酬確認後 → 次の階層へ */
   function afterReward() {
+    if (state.mode === 'story') { storyAfterBattle(); return; }
     if (state.nodeKind === 'boss') {
       UI.toast('👑 階層の主を撃破した！', 'legend');
     }
@@ -154,24 +328,71 @@
     switch (a) {
       /* --- タイトル --- */
       case 'newgame': go('classSelect'); break;
+      case 'towerStart': state.mode = 'tower'; state.story = null; go('classSelect'); break;
+      case 'storyStart': go('storyIntro'); break;
+      case 'storyBegin': {
+        var snEl = document.getElementById('heroName');
+        var snm = (snEl && snEl.value.trim()) || G.STORY.HERO.defaultName;
+        G.Story.begin(state, snm);
+        G.Save.saveRun(state);
+        chapterOpen();
+        break;
+      }
+      case 'sceneNext': {
+        if (!state.scene) { go('world'); break; }
+        if (state.scene.i < state.scene.lines.length - 1) { state.scene.i++; draw(); }
+        else sceneDone();
+        break;
+      }
+      case 'sceneSkip':
+        if (state.scene) { state.scene.i = state.scene.lines.length - 1; draw(); }
+        break;
+      case 'place': enterPlace(p[1]); break;
+      case 'toWorld': state.story.place = null; go('world'); break;
+      case 'town': go('town'); break;
+      case 'inn': {
+        var cost = parseInt(p[1], 10);
+        if (G.Story.inn(state, cost)) { UI.toast('🛏 ひと晩休み、全員が回復した。'); G.Save.saveRun(state); }
+        else UI.toast('所持金が足りない。');
+        draw(); break;
+      }
+      case 'townShop':
+        if (!state.run.shop) state.run.shop = G.Run.makeShop(state);
+        go('shop'); break;
+      case 'dungeonGo': dungeonGo(); break;
+      case 'dungeonLeave': G.Story.leaveDungeon(state); G.Save.saveRun(state); go('world'); break;
+      case 'chapterNext': chapterNext(); break;
+      case 'storyRecover': storyRecover(); break;
+      case 'towerFromStory': towerFromStory(); break;
       case 'continue': {
         var d = G.Save.loadRun();
         if (!d) { UI.toast('保存された冒険がありません。'); go('title'); break; }
         state.hero = d.hero; state.run = d.run;
         state.party = d.party || [state.hero];
+        state.mode = d.mode || 'tower';
+        state.story = d.story || null;
         if (!state.run.stats) state.run.stats = {};
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
          'statusApplied', 'evades']
           .forEach(function (k) { if (state.run.stats[k] == null) state.run.stats[k] = 0; });
         if (!state.run.stats.style) state.run.stats.style = G.Style.newRecord();
-        go('map');
+        if (state.mode === 'story' && state.story) {
+          if (state.story.phase === 'open') chapterOpen();
+          else if (state.story.dungeon) go('dungeon');
+          else if (state.story.place && G.Story.place(state.story.place)) go('town');
+          else go('world');
+        } else go('map');
         break;
       }
-      case 'toTitle': state.hero = null; state.run = null; state.party = null; state.battle = null; go('title'); break;
+      case 'toTitle':
+        state.hero = null; state.run = null; state.party = null; state.battle = null;
+        state.story = null; state.scene = null; state.mode = 'tower';
+        go('title'); break;
       case 'start': {
         var nameEl = document.getElementById('heroName');
         var nm = (nameEl && nameEl.value.trim()) || '冒険者';
         G.Run.newRun(state, p[1], nm.slice(0, 12));
+        state.mode = 'tower'; state.story = null;
         G.Save.saveMeta(state); G.Save.saveRun(state);
         go('map');
         break;
@@ -179,7 +400,7 @@
 
       /* --- マップ --- */
       case 'node': enterNode(parseInt(p[1], 10)); break;
-      case 'leaveNode': nextFloor(); break;
+      case 'leaveNode': backToField(); break;
       case 'afterReward':
         if (state.rewardData && state.rewardData.treasure) nextFloor(); else afterReward();
         break;
@@ -197,6 +418,7 @@
       }
       case 'tab': state.battleTab = p[1]; draw(); break;
       case 'skill': doAction({ type: 'skill', id: p[1] }); break;
+      case 'flee': doAction({ type: 'flee' }); break;
       case 'useitem': doAction({ type: 'item', id: p[1] }); break;
       case 'battleEnd': finishBattle(); break;
 
@@ -261,7 +483,7 @@
         draw(); break;
       }
       case 'altarPreview': go('altarPreview'); break;
-      case 'closeOverlay': go('map'); break;
+      case 'closeOverlay': backToField(true); break;
 
       /* --- イベント --- */
       case 'event': {

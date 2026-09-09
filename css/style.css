@@ -238,3 +238,30 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .unit.member.picked{border-color:var(--ok)}
 .unit.member.acting{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
 .unit.member .tag{font-size:9px;padding:0 5px;border-radius:99px;background:#0c1020;border:1px solid var(--line);color:var(--dim)}
+
+/* ===== 物語モード ===== */
+.modeico{font-size:30px;line-height:1;width:44px;text-align:center}
+.node.done{opacity:.72;border-style:dashed}
+.node .big-ico{font-size:30px;line-height:1.1;text-align:center;margin-bottom:4px}
+.node .tag{font-size:9px;padding:0 5px;border-radius:99px;background:#0c1020;border:1px solid var(--line);color:var(--dim)}
+
+.scene{max-width:820px;margin:0 auto}
+.scene-head{margin-bottom:8px}
+.scene-body{background:#080a12;border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+  min-height:240px;font-size:14px;line-height:1.9}
+.scene-body .narration{color:var(--dim);margin:0 0 10px;opacity:.55;transition:opacity .2s}
+.scene-body .line{margin:0 0 10px;opacity:.55;transition:opacity .2s}
+.scene-body .narration.now,.scene-body .line.now{opacity:1}
+.scene-body .narration.now{color:var(--ink)}
+.scene-body .who{display:block;font-size:12px;color:var(--acc);margin-bottom:2px}
+.scene-body .say{display:block;padding-left:2px}
+.scene-foot{margin-top:12px;text-align:center}
+
+.panel .line{margin:0 0 10px;font-size:13px;line-height:1.75}
+.panel .who{display:block;font-size:11px;color:var(--acc)}
+.panel .say{display:block;color:var(--dim)}
+
+.depth{display:flex;gap:10px;justify-content:center;align-items:center;font-size:18px}
+.depth-dot{opacity:.3;transition:.15s}
+.depth-dot.done{opacity:.65;color:var(--ok)}
+.depth-dot.now{opacity:1;color:var(--acc);transform:scale(1.4)}

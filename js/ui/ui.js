@@ -161,7 +161,10 @@ G.UI = (function () {
       '<span>MP <b>' + hero.mp + '</b>/' + S.maxMp + '</span>' +
       '<span>💰 <b>' + hero.gold + '</b></span>' +
       (hero.sp ? '<span style="color:var(--xp)">SP <b>' + hero.sp + '</b></span>' : '') +
-      '<span>階層 <b>' + state.run.floor + '</b>F</span>';
+      (state.mode === 'story' && state.story
+        ? '<span>第 <b>' + state.story.ch + '</b> 章</span>' +
+          (state.party && state.party.length > 1 ? '<span>👥 <b>' + state.party.length + '</b></span>' : '')
+        : '<span>階層 <b>' + state.run.floor + '</b>F</span>');
   }
 
   return {

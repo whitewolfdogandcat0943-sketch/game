@@ -17,7 +17,8 @@ const FILES = [
   'js/data/allies.js',
   'js/data/enemies.js',
   'js/data/skilltree.js',
-  'js/data/classtree.js'
+  'js/data/classtree.js',
+  'js/data/story.js'
 ];
 
 /* 戦闘まで含めたエンジン一式（DOMに触れないファイルのみ） */
@@ -25,7 +26,8 @@ const CORE_FILES = [
   'js/core/stats.js',
   'js/core/unlock.js',
   'js/core/battle.js',
-  'js/core/run.js'
+  'js/core/run.js',
+  'js/core/story.js'
 ];
 
 function load() {

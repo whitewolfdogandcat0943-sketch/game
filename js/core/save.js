@@ -37,7 +37,8 @@ G.Save = (function () {
     /* パーティは主人公＋仲間。主人公は hero として別に保存するので、
      * 仲間だけを保存して読み込み時に組み直す。 */
     var allies = (state.party || []).filter(function (m) { return m !== state.hero; });
-    var data = { hero: state.hero, run: state.run, allies: allies };
+    var data = { hero: state.hero, run: state.run, allies: allies,
+                 mode: state.mode || 'tower', story: state.story || null };
     safeSet(RUN_KEY, JSON.stringify(data));
   }
 
@@ -78,6 +79,19 @@ G.Save = (function () {
         while (m.equip.acc.length < 4) m.equip.acc.push(null);
       });
       d.party = [d.hero].concat(d.allies);
+      /* 物語の進行。章や場所が消えていたら塔モードとして読む。 */
+      d.mode = d.mode === 'story' ? 'story' : 'tower';
+      if (d.mode === 'story') {
+        var st = d.story;
+        var okCh = st && G.STORY.CHAPTERS.some(function (c) { return c.id === st.ch; });
+        if (!okCh) { d.mode = 'tower'; d.story = null; }
+        else {
+          if (!st.cleared) st.cleared = {};
+          if (!st.flags) st.flags = {};
+          if (st.place && !G.STORY.PLACE_BY_ID[st.place]) st.place = null;
+          if (st.dungeon && !G.STORY.PLACE_BY_ID[st.dungeon.id]) st.dungeon = null;
+        }
+      } else d.story = null;
       return d;
     } catch (e) { return null; }
   }

@@ -30,7 +30,10 @@ G.Screens = (function () {
       '<li><b>職業は条件解放。</b> 初級職からはじめ、ビルドの数値条件（例: 会心率35%以上）を満たすと<span class="r-legend">上級職</span>へ、さらに厳しい条件で<span class="r-mythic">最上級職</span>へ転職できます。転職は「転職の祭壇」で行います。</li>' +
       '<li><b>スキルは引き継がれます。</b> 一度就いた職業のスキルは転職後も使えます（前職の基礎能力も15%引き継ぎ）。</li>' +
       '<li><b>アクセサリは3階級。</b> <span class="r-normal">通常</span>＝素直な強化、<span class="r-legend">レジェンド</span>＝クセの強い特殊効果、<span class="r-mythic">ミシック</span>＝戦闘中の特殊条件を満たすと「発見」され、以後の冒険にも永続的に引き継がれます。</li>' +
-      '<li><b>5階ごとにボス。</b> 倒すと大きな報酬。倒れると冒険は終了しますが、発見したミシックと解放した職業の記録は残ります。</li>' +
+      '<li><b>パーティで戦う。</b> 主人公のほかに最大3人の仲間が加わります。仲間は自動で動き、回復・かばう・蘇生など役割どおりに振る舞います。操作するのは主人公だけ。</li>' +
+      '<li><b>特殊攻撃が戦術になる。</b> 溜め・反撃の構え・かばう・刻印・封印・打ち消し・蘇生・連携追撃など、数値ではなく「仕掛け」で状況を動かす技が多数あります。</li>' +
+      '<li><b>2つのモード。</b> <b>物語</b>は全6章、町とダンジョンを行き来しながら進みます（全滅しても所持金を半分失うだけで再開できます）。<b>試練の塔</b>は25階の登り切り勝負で、倒れればそこで終わりです。</li>' +
+      '<li><b>記録は残ります。</b> 発見したミシックと解放した職業は、どちらのモードでも永続的に記録されます。</li>' +
       '</ul>';
   }
 
@@ -55,6 +58,188 @@ G.Screens = (function () {
           '<div class="cname r-mythic">' + c.name + '</div></div>' +
           '<div class="cdesc">' + c.desc + '</div></div>';
       }).join('') + '</div></div>';
+    render(h);
+  }
+
+
+  /* ===================== 物語モード ===================== */
+
+  /** 遊び方の入口。物語と試練の塔を選ぶ。 */
+  function modeSelect(state, hasSave) {
+    var m = state.meta;
+    var h = '<div class="title-hero"><h1>相剋のビルドサーガ</h1>' +
+      '<p class="muted">褪せていく世界を、組み上げたビルドで刻み直す</p></div>';
+    if (hasSave) {
+      h += '<div class="panel center"><button class="btn primary" data-act="continue">冒険を再開する</button></div>';
+    }
+    h += '<div class="grid g2">';
+    h += '<div class="card" data-act="storyStart">' +
+      '<div class="classcard-head"><div class="modeico">📖</div><div class="cname" style="font-size:16px">物語をはじめる</div></div>' +
+      '<div class="cdesc">全6章。仲間と旅をしながら、褪せの原因を追う。' +
+      '町で装備を整え、ダンジョンに潜り、章の主を討つ。<br><br>' +
+      '<b>主人公:</b> ' + G.STORY.HERO.title + '（剣士）／ <b>仲間:</b> 最大3人<br>' +
+      '<b>推奨:</b> はじめての人はこちら。</div></div>';
+    h += '<div class="card" data-act="towerStart">' +
+      '<div class="classcard-head"><div class="modeico">🗼</div><div class="cname" style="font-size:16px">試練の塔</div></div>' +
+      '<div class="cdesc">25階の登り切り勝負。道は毎回変わり、倒れればそこで終わり。' +
+      '好きな初級職から始められる、腕試しのモード。<br><br>' +
+      '<b>到達最深:</b> ' + m.bestFloor + 'F ／ <b>挑戦:</b> ' + m.runs + '回</div></div>';
+    h += '</div>';
+    h += '<div class="panel center"><button class="btn" data-act="codex">図鑑を見る</button></div>';
+    h += '<div class="panel"><h3>記録</h3><div class="grid g4">' +
+      kv('到達最深階層', m.bestFloor + 'F') + kv('挑戦回数', m.runs + '回') +
+      kv('発見したミシック', m.mythics.length + ' / ' + G.MYTHICS.length) +
+      kv('到達した職業', m.classesSeen.length + ' / ' + G.CLASS_LIST.filter(function (c) { return c.tier > 1; }).length) +
+      '</div></div>';
+    h += '<div class="panel"><h3>このゲームの遊び方</h3>' + helpHtml() + '</div>';
+    render(h);
+  }
+
+  /** 主人公の名前を決める（物語モード） */
+  function storyIntro(state) {
+    var H = G.STORY.HERO;
+    var h = '<h1>物語のはじまり</h1>';
+    h += '<div class="panel"><div class="classcard-head">' + G.Gfx.classImg(H.classId, 5) +
+      '<div><div class="cname" style="font-size:16px">' + H.title + '</div>' +
+      '<div class="muted small">' + H.intro + '</div></div></div>';
+    h += '<div class="sep"></div><h3>名前</h3>' +
+      '<input id="heroName" class="btn wide" style="cursor:text" maxlength="12" placeholder="' +
+      H.defaultName + '" value="' + H.defaultName + '">' +
+      '<div class="sep"></div>' +
+      '<button class="btn primary wide" data-act="storyBegin">旅に出る</button></div>';
+    h += '<div class="panel"><h3>この世界のこと</h3>' +
+      G.STORY.LORE.map(function (l) {
+        return '<div class="kv"><span>' + l.t + '</span><span class="muted" style="text-align:right;max-width:70%">' + l.d + '</span></div>';
+      }).join('') + '</div>';
+    render(h);
+  }
+
+  /** 会話。1行ずつ送る。 */
+  function scene(state) {
+    var sc = state.scene;
+    if (!sc) { render('<div class="panel">…</div>'); return; }
+    var shown = sc.lines.slice(0, sc.i + 1);
+    var h = '<div class="scene">';
+    h += '<div class="scene-head"><span class="muted small">' + (sc.title || '') + '</span></div>';
+    h += '<div class="scene-body">';
+    shown.forEach(function (l, i) {
+      var last = (i === shown.length - 1);
+      if (!l.w) {
+        h += '<p class="narration' + (last ? ' now' : '') + '">' + U.esc(l.t) + '</p>';
+      } else {
+        h += '<p class="line' + (last ? ' now' : '') + '"><b class="who">' + U.esc(l.w) + '</b>' +
+          '<span class="say">' + U.esc(l.t) + '</span></p>';
+      }
+    });
+    h += '</div>';
+    var more = sc.i < sc.lines.length - 1;
+    h += '<div class="scene-foot">' +
+      '<button class="btn primary" data-act="sceneNext">' + (more ? '▼ つづける' : '▶ ' + (sc.endLabel || '進む')) + '</button>' +
+      (more ? ' <button class="btn tiny" data-act="sceneSkip">最後まで読む</button>' : '') +
+      '</div></div>';
+    render(h);
+  }
+
+  /** 章の地図。町とダンジョンを選ぶ。 */
+  function world(state) {
+    var c = G.Story.chapter(state);
+    var st = state.story;
+    G.Fx.applyBackground(c ? c.lv : 1);
+    var h = '<h1>第' + c.id + '章 <span class="muted small">' + c.title + '</span>' +
+      (st.done ? ' <span class="r-mythic">― 旅の終わりのあとで ―</span>' : '') + '</h1>';
+    h += '<p class="muted">' + (G.Story.chapterDone(state)
+      ? 'この章でやるべきことは終わった。先へ進める。'
+      : '行き先を選べ。町では備え、ダンジョンでは戦う。') + '</p>';
+
+    h += '<div class="grid g3">';
+    G.Story.places(state).forEach(function (p) {
+      var r = p.ref;
+      h += '<div class="node' + (p.cleared ? ' done' : '') + '" data-act="place:' + r.id + '">' +
+        '<div class="node-ico big-ico">' + r.icon + '</div>' +
+        '<div class="nn">' + r.name + (p.cleared ? ' <span class="tag">踏破</span>' : '') + '</div>' +
+        '<div class="nd">' + r.desc + '</div></div>';
+    });
+    h += '</div>';
+
+    if (G.Story.chapterDone(state) && !st.done) {
+      h += '<div class="panel center"><button class="btn primary" data-act="chapterNext">次の章へ進む</button></div>';
+    }
+    if (st.done) {
+      h += '<div class="panel center"><p class="muted">物語は終わった。鍛えたビルドのまま、試練の塔に挑める。</p>' +
+        '<button class="btn primary" data-act="towerFromStory">試練の塔へ挑む</button></div>';
+    }
+    h += partyPanel(state);
+    h += '<div class="panel"><div class="row" style="justify-content:space-between;align-items:center">' +
+      '<h3 style="margin:0">現在のビルド</h3>' +
+      '<div><button class="btn tiny" data-act="buildOpen">装備を組み替える</button> ' +
+      '<button class="btn tiny" data-act="treeOpen">スキルツリー' +
+      (state.hero.sp ? ' <span class="r-legend">+' + state.hero.sp + '</span>' : '') + '</button> ' +
+      '<button class="btn tiny" data-act="altarPreview">転職条件を見る</button></div></div>';
+    h += '<div class="sep"></div>' + stylePanel(state) + '</div>';
+    render(h);
+  }
+
+  /** パーティの状態一覧（地上用） */
+  function partyPanel(state) {
+    var party = state.party || [state.hero];
+    var h = '<div class="panel"><h3>パーティ</h3><div class="grid g2">';
+    party.forEach(function (m) {
+      var S = G.Stats.compute(m).S;
+      h += '<div class="card" style="cursor:default">' +
+        '<div class="classcard-head">' + G.Gfx.memberImg(m, 4) +
+        '<div><div class="cname">' + U.esc(m.name) + '</div>' +
+        '<div class="muted tiny">Lv' + m.level + ' ' + G.CLASSES[m.classId].name +
+        (m.role ? ' / ' + m.role : '') + '</div></div></div>' +
+        '<div style="margin-top:6px">' + UI.bar(m.hp, S.maxHp, 'hp', 'HP') +
+        '<div style="height:4px"></div>' + UI.bar(m.mp, S.maxMp, 'mp', 'MP') + '</div></div>';
+    });
+    h += '</div></div>';
+    return h;
+  }
+
+  /** 町。宿・店・祭壇・立ち話。 */
+  function town(state) {
+    var t = G.Story.place(state.story.place);
+    var h = '<h1>' + t.icon + ' ' + t.name + '</h1><p class="muted">' + t.desc + '</p>';
+    h += '<div class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">';
+    if (t.inn) h += '<button class="btn primary" data-act="inn:' + t.inn + '">宿に泊まる（' + t.inn + 'G・全員全回復）</button>';
+    if (t.shop) h += '<button class="btn" data-act="townShop">道具屋</button>';
+    if (t.altar) h += '<button class="btn" data-act="altar">転職の祭壇</button>';
+    h += '<button class="btn" data-act="buildOpen">装備を組み替える</button>';
+    h += '<button class="btn" data-act="treeOpen">スキルツリー' +
+      (state.hero.sp ? ' <span class="r-legend">+' + state.hero.sp + '</span>' : '') + '</button>';
+    if (t.tower) h += '<button class="btn" data-act="towerFromStory">試練の塔へ</button>';
+    h += '<button class="btn" data-act="toWorld" style="margin-left:auto">町を出る</button>';
+    h += '</div></div>';
+    h += '<div class="panel"><h3>街の声</h3>' +
+      (t.talks || []).map(function (x) {
+        return '<p class="line"><b class="who">' + U.esc(x.who) + '</b><span class="say">' +
+          U.esc(G.Story.fill(x.t, state)) + '</span></p>';
+      }).join('') + '</div>';
+    h += partyPanel(state);
+    render(h);
+  }
+
+  /** ダンジョン内の進行画面 */
+  function dungeon(state) {
+    var dg = state.story.dungeon;
+    var d = G.Story.place(dg.id);
+    G.Fx.applyBackground(d.lv);
+    var last = dg.at >= dg.depth - 1;
+    var h = '<h1>' + d.icon + ' ' + d.name +
+      ' <span class="muted small">― ' + Math.min(dg.at + 1, dg.depth) + ' / ' + dg.depth + ' ―</span></h1>';
+    h += '<p class="muted">' + d.desc + '</p>';
+    h += '<div class="panel"><div class="depth">';
+    for (var i = 0; i < dg.depth; i++) {
+      var cls = i < dg.at ? 'done' : (i === dg.at ? 'now' : '');
+      h += '<span class="depth-dot ' + cls + '">' + (i === dg.depth - 1 ? '👑' : '·') + '</span>';
+    }
+    h += '</div>';
+    h += '<div class="center" style="margin-top:12px">' +
+      '<button class="btn primary" data-act="dungeonGo">' +
+      (last ? '⚔ 主に挑む' : '⚔ 奥へ進む') + '</button> ' +
+      '<button class="btn" data-act="dungeonLeave">引き返す</button></div></div>';
+    h += partyPanel(state);
     render(h);
   }
 
@@ -142,7 +327,13 @@ G.Screens = (function () {
   /* ===================== 戦闘 ===================== */
   function battle(state) {
     var b = state.battle, hero = b.hero;
-    var h = '<h1>戦闘 <span class="muted small">― ' + state.run.floor + 'F ― ラウンド ' + b.round + '</span></h1>';
+    var where = state.run.floor + 'F';
+    if (state.mode === 'story' && state.story && state.story.dungeon) {
+      var dgp = G.Story.place(state.story.dungeon.id);
+      if (dgp) where = dgp.name + ' ' + Math.min(state.story.dungeon.at + 1, state.story.dungeon.depth) +
+        '/' + state.story.dungeon.depth;
+    }
+    var h = '<h1>戦闘 <span class="muted small">― ' + where + ' ― ラウンド ' + b.round + '</span></h1>';
 
     h += '<div class="enemies">';
     b.enemies.forEach(function (e, i) {
@@ -192,10 +383,14 @@ G.Screens = (function () {
 
     if (b.over) {
       h += '<div class="panel center"><button class="btn primary" data-act="battleEnd">' +
-        (b.result === 'win' ? '戦利品を確認する' : '結果を見る') + '</button></div>';
+        (b.result === 'win' ? '戦利品を確認する' : (b.result === 'flee' ? '引き返す' : '結果を見る')) + '</button></div>';
     } else {
       h += '<div class="panel"><div class="row" style="gap:6px">' +
         tabBtn(state, 'skill', 'スキル') + tabBtn(state, 'item', 'アイテム') +
+        (G.Battle.canFlee(b)
+          ? '<button class="btn tiny" data-act="flee">逃げる（' +
+            Math.round(G.Battle.fleeChance(b) * 100) + '%）</button>'
+          : '<span class="muted tiny" style="align-self:center">逃走不可</span>') +
         '<span class="muted tiny" style="margin-left:auto;align-self:center">敵: ' +
         (b.enemies[state.targetIdx] && b.enemies[state.targetIdx].hp > 0 ? b.enemies[state.targetIdx].name : '自動') +
         ' ／ 味方: ' + (G.Battle.partyUnits(b)[state.allyIdx || 0] || { name: '自身' }).name +
@@ -315,6 +510,14 @@ G.Screens = (function () {
         ' data-act="afterReward">先へ進む</button> ' +
         '<button class="btn" data-act="buildOpen">装備を整える</button>' +
         (mustChoose ? '<div class="tiny muted" style="margin-top:6px">報酬を選ぶと先へ進める。</div>' : '') + '</div>';
+    } else if (data.story) {
+      h += '<div class="panel"><h3>全滅</h3>' +
+        '<p>気づけば、宿の寝台の上だった。誰かが運んでくれたらしい。</p>' +
+        '<p class="muted small">物語モードでは全滅しても冒険は終わらない。所持金の半分を失い、直前の町から再開する。</p>' +
+        '<div class="kv"><span>撃破数</span><span>' + state.run.stats.kills + '</span></div>' +
+        '<div class="kv"><span>失った所持金</span><span>-' + (data.lostGold || 0) + 'G</span></div>' +
+        '</div>';
+      h += '<div class="panel center"><button class="btn primary" data-act="storyRecover">町から立て直す</button></div>';
     } else {
       h += '<div class="panel"><p>あなたの冒険はここで潰えた。</p>' +
         '<div class="kv"><span>到達階層</span><span>' + state.run.floor + 'F</span></div>' +
@@ -343,7 +546,8 @@ G.Screens = (function () {
     });
     h += '</div>';
     h += '<div class="panel center"><button class="btn" data-act="buildOpen">装備を組み替える</button> ' +
-      '<button class="btn primary" data-act="leaveNode">次の階層へ</button></div>';
+      '<button class="btn primary" data-act="leaveNode">' +
+      (state.mode === 'story' ? '町へ戻る' : '次の階層へ') + '</button></div>';
     render(h);
   }
 
@@ -393,7 +597,8 @@ G.Screens = (function () {
     });
     h += '<div class="panel center"><button class="btn" data-act="buildOpen">装備を組み替えて条件を満たす</button> ' +
       (standalone ? '<button class="btn primary" data-act="closeOverlay">戻る</button>'
-                  : '<button class="btn primary" data-act="leaveNode">先へ進む</button>') + '</div>';
+                  : '<button class="btn primary" data-act="leaveNode">' +
+                    (state.mode === 'story' ? '町へ戻る' : '先へ進む') + '</button>') + '</div>';
     render(h);
   }
 
@@ -680,6 +885,7 @@ G.Screens = (function () {
 
   return {
     title: title, classSelect: classSelect, map: map, battle: battle, reward: reward,
+    modeSelect: modeSelect, storyIntro: storyIntro, scene: scene, world: world, town: town, dungeon: dungeon,
     shop: shop, rest: rest, altar: altar, event: event,
     buildModal: buildModal, accPicker: accPicker, gearPicker: gearPicker, codex: codex, help: help,
     skillTree: skillTree,

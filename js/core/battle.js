@@ -1056,15 +1056,45 @@ G.Battle = (function () {
 
   /* ===================== プレイヤー行動 ===================== */
 
+  /** 逃走できるか。ボス戦からは逃げられない。 */
+  function canFlee(b) { return !b.isBoss; }
+
+  /** 逃走の成功率。素早さの差で決まる。 */
+  function fleeChance(b) {
+    var mine = aliveParty(b), foes = aliveEnemies(b);
+    if (!mine.length || !foes.length) return 1;
+    function avg(list) {
+      return list.reduce(function (a, u) { return a + u.S.spd; }, 0) / list.length;
+    }
+    return U.clamp(0.45 + (avg(mine) - avg(foes)) * 0.012, 0.15, 0.92);
+  }
+
+  /** 逃走を試みる。失敗すると手番を1つ失う。 */
+  function tryFlee(b) {
+    if (!canFlee(b)) { log(b, 'この相手からは逃げられない！', 'bad'); return false; }
+    if (U.chance(fleeChance(b))) {
+      b.over = true; b.result = 'flee';
+      log(b, '🏃 逃げ出した。', 'sys');
+      return true;
+    }
+    log(b, '🏃 逃げられなかった！', 'bad');
+    return true;   /* 手番は消費する */
+  }
+
   function playerAction(b, act) {
     if (b.over || !b.awaiting) return false;
     var src = b.actor || b.hero;
     src._b = b;
+    if (act.type === 'flee' && !canFlee(b)) { log(b, 'この相手からは逃げられない！', 'bad'); return false; }
     if (stunned(b, src)) { b.awaiting = false; b.qi++; advance(b); return true; }
 
     var ok = true;
     if (act.type === 'skill') ok = useSkill(b, src, act.id, act.target);
     else if (act.type === 'item') ok = useItem(b, act.id, act.target);
+    else if (act.type === 'flee') {
+      ok = tryFlee(b);
+      if (ok && b.over) { syncParty(b); b.awaiting = false; return true; }
+    }
     if (!ok) return false;
 
     /* 撃破数（同時撃破の記録） */
@@ -1196,6 +1226,7 @@ G.Battle = (function () {
     start: start, advance: advance, playerAction: playerAction, refresh: refresh,
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
     partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
+    canFlee: canFlee, fleeChance: fleeChance,
     alive: alive, log: log, heal: heal
   };
 })();
