@@ -59,6 +59,7 @@ G.Save = (function () {
       Object.keys(d.hero.mastery).forEach(function (cid) {
         if (!G.CLASSTREE[cid]) delete d.hero.mastery[cid];
       });
+      if (!d.hero.style) d.hero.style = G.Style.newRecord();
       if (!d.hero.tree) d.hero.tree = {};
       Object.keys(d.hero.tree).forEach(function (id) {
         if (!G.TREE.byId[id]) delete d.hero.tree[id];
@@ -70,14 +71,26 @@ G.Save = (function () {
         return m && G.CLASSES[m.classId] && G.ALLIES[m.allyId];
       });
       d.allies.forEach(function (m) {
-        if (!m.fixedSkills) m.fixedSkills = G.ALLIES[m.allyId].skills.slice();
-        m.fixedSkills = m.fixedSkills.filter(function (id) { return !!G.SKILLS[id]; });
+        var def = G.ALLIES[m.allyId];
+        /* 固有技。旧データの fixedSkills からも拾う。 */
+        if (!m.signature) m.signature = (m.fixedSkills || def.signature || []).slice();
+        delete m.fixedSkills;
+        m.signature = m.signature.filter(function (id) { return !!G.SKILLS[id]; });
         if (!m.tree) m.tree = {};
         if (!m.mastery) m.mastery = {};
         if (!m.items) m.items = {};
         if (!m.bag) m.bag = { gear: [], acc: [] };
+        if (m.sp == null) m.sp = 0;
+        if (!m.style) m.style = G.Style.newRecord();
+        if (!m.classHistory) m.classHistory = [];
+        /* 系統の外に出ている職業は初期職へ戻す（データ更新で系統が変わった場合） */
+        if (!G.CLASSES[m.classId] || (def.line || []).indexOf(m.classId) < 0) m.classId = def.classId;
+        Object.keys(m.mastery).forEach(function (cid) { if (!G.CLASSTREE[cid]) delete m.mastery[cid]; });
+        Object.keys(m.tree).forEach(function (id) { if (!G.TREE.byId[id]) delete m.tree[id]; });
         m.equip.acc = (m.equip.acc || []).map(function (id) { return G.ACC_BY_ID[id] ? id : null; });
         while (m.equip.acc.length < 4) m.equip.acc.push(null);
+        if (m.equip.weapon && !G.GEAR[m.equip.weapon]) m.equip.weapon = null;
+        if (m.equip.armor && !G.GEAR[m.equip.armor]) m.equip.armor = null;
       });
       d.party = [d.hero].concat(d.allies);
       /* 物語の進行。章や場所が消えていたら塔モードとして読む。 */

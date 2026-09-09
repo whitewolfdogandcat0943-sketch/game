@@ -101,12 +101,31 @@ G.FACES = (function () {
     return out;
   }
 
+  /** 仲間が転職したときの姿。
+   * 職業の装い（色・得物・マント）を取りつつ、髪と肌はその人のものを残す。
+   * 全部を職業で上書きすると、転職のたびに別人になってしまう。 */
+  function forAllyClass(allyId, classId) {
+    var base = CAST[allyId];
+    if (!base) return forHero({ classId: classId });
+    var look = CLASS_LOOK[classId] || {};
+    var out = {};
+    for (var k in base) out[k] = base[k];
+    ['hue', 'sat', 'lum', 'accent', 'accentSat', 'accentLum', 'prop', 'robe',
+     'pauldron', 'cape', 'capeHue', 'circlet', 'metalHue'].forEach(function (key) {
+      if (look[key] !== undefined) out[key] = look[key];
+      else if (key === 'robe' || key === 'pauldron' || key === 'cape' || key === 'circlet') out[key] = false;
+    });
+    out.id = allyId + '_' + classId;
+    out.fallbackId = allyId;
+    return out;
+  }
+
   /** パーティメンバー（主人公も仲間も）の立ち絵 */
   function forMember(m) {
-    if (m && m.allyId && CAST[m.allyId]) return CAST[m.allyId];
+    if (m && m.allyId && CAST[m.allyId]) return forAllyClass(m.allyId, m.classId);
     return forHero(m);
   }
 
   return { CAST: CAST, CLASS_LOOK: CLASS_LOOK, NPC: NPC,
-           byName: byName, forHero: forHero, forMember: forMember };
+           byName: byName, forHero: forHero, forMember: forMember, forAllyClass: forAllyClass };
 })();

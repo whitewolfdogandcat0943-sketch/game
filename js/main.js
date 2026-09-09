@@ -4,7 +4,7 @@
 
   var state = {
     hero: null, run: null, party: null, meta: G.Save.loadMeta(), battle: null,
-    screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill',
+    screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill', buildIdx: 0,
     mode: 'tower', story: null, scene: null,
     nodeKind: null, rewardData: null, currentEvent: null
   };
@@ -279,7 +279,10 @@
         });
       }
       mys.forEach(function (m) { UI.toast('✦ ミシック発見: <b>' + m.name + '</b><br>' + m.cond.label, 'mythic'); });
-      cls.forEach(function (c) { UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>（' + (c.tier === 3 ? '最上級職' : '上級職') + '）', 'class'); });
+      cls.forEach(function (c) {
+        UI.toast('☆ ' + U.esc(c.who.name) + ' が <b>' + c.cls.name + '</b>（' +
+          (c.cls.tier === 3 ? '最上級職' : '上級職') + '）の条件を満たした。', 'class');
+      });
       var cleared = (state.nodeKind === 'boss' && state.run.floor >= 25 && !state.run.clearedGame);
       if (cleared) {
         state.run.clearedGame = true;
@@ -337,7 +340,7 @@
       UI.toast('✦ ミシック発見: <b>' + m.name + '</b><br>' + m.cond.label, 'mythic');
     });
     G.Run.checkClassUnlocks(state).forEach(function (c) {
-      UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class');
+      UI.toast('☆ ' + U.esc(c.who.name) + ' が <b>' + c.cls.name + '</b> の条件を満たした。', 'class');
     });
     G.Save.saveRun(state);
     go('map');
@@ -398,7 +401,17 @@
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
          'statusApplied', 'evades']
           .forEach(function (k) { if (state.run.stats[k] == null) state.run.stats[k] = 0; });
-        if (!state.run.stats.style) state.run.stats.style = G.Style.newRecord();
+        /* 旧データの移行: run にあった戦い方の記録は主人公のものとして引き継ぐ */
+        if (state.run.stats.style) {
+          if (!state.hero.style) state.hero.style = state.run.stats.style;
+          delete state.run.stats.style;
+        }
+        (state.party || [state.hero]).forEach(function (m) {
+          if (!m.style) m.style = G.Style.newRecord();
+          if (m.sp == null) m.sp = 0;
+          if (!m.tree) m.tree = {};
+          if (!m.mastery) m.mastery = {};
+        });
         if (state.mode === 'story' && state.story) {
           if (state.story.phase === 'open') chapterOpen();
           else if (state.story.dungeon) go('dungeon');
@@ -482,7 +495,7 @@
           state.hero.exp += e;
           var lv = G.Run.applyLevelUps(state);
           UI.toast('経験値 +' + e + (lv ? ' / レベルが' + lv + '上がった！' : ''));
-          G.Run.checkClassUnlocks(state).forEach(function (c) { UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class'); });
+          G.Run.checkClassUnlocks(state).forEach(function (c) { UI.toast('☆ ' + U.esc(c.who.name) + ' が <b>' + c.cls.name + '</b> の条件を満たした。', 'class'); });
           nextFloor();
         } else if (p[1] === 'forge') { S.buildModal(state); }
         break;
@@ -490,19 +503,22 @@
 
       /* --- 転職 --- */
       case 'changeClass': {
-        var cid = p[1];
-        var chk = G.Unlock.classCheck(cid, G.Unlock.ctx(state));
+        var cid = p[1], who = buildTarget();
+        /* 仲間は自分の系統の外へは行けない */
+        if (G.Unlock.classLine(who).indexOf(cid) < 0) { UI.toast(who.name + ' はその道へは進めない。'); break; }
+        var chk = G.Unlock.classCheck(cid, G.Unlock.ctx(state, null, who));
         if (!chk.ok) { UI.toast('条件を満たしていない。'); break; }
-        if (state.hero.classHistory.indexOf(state.hero.classId) < 0) state.hero.classHistory.push(state.hero.classId);
-        state.hero.classId = cid;
+        if (who.classHistory.indexOf(who.classId) < 0) who.classHistory.push(who.classId);
+        who.classId = cid;
         state.run.stats.classChanges = (state.run.stats.classChanges || 0) + 1;
         if (state.meta.classesSeen.indexOf(cid) < 0) state.meta.classesSeen.push(cid);
         G.Save.saveMeta(state);
-        var newS = G.Stats.compute(state.hero).S;
-        state.hero.hp = Math.min(newS.maxHp, state.hero.hp + Math.round(newS.maxHp * 0.4));
-        state.hero.mp = newS.maxMp;
+        var newS = G.Stats.compute(who).S;
+        who.hp = Math.min(newS.maxHp, who.hp + Math.round(newS.maxHp * 0.4));
+        who.mp = newS.maxMp;
         var c2 = G.CLASSES[cid];
-        UI.toast('⛩ <b>' + c2.name + '</b> に転職した！' + (c2.tier === 3 ? '（最上級職）' : ''), c2.tier === 3 ? 'mythic' : 'class');
+        UI.toast('⛩ ' + U.esc(who.name) + ' が <b>' + c2.name + '</b> に転職した！' +
+          (c2.tier === 3 ? '（最上級職）' : ''), c2.tier === 3 ? 'mythic' : 'class');
         G.Save.saveRun(state);
         draw(); break;
       }
@@ -523,19 +539,34 @@
       }
 
       /* --- ビルド操作 --- */
-      case 'buildOpen': S.buildModal(state); break;
+      case 'buildWho': {
+        state.buildIdx = parseInt(p[1], 10) || 0;
+        if (state.screen === 'altar' || state.screen === 'altarPreview') { draw(); break; }
+        if (document.getElementById('modal') &&
+            document.getElementById('modal').classList.contains('on')) {
+          if (state.treeOpenNow) S.skillTree(state); else S.buildModal(state);
+        } else draw();
+        break;
+      }
+      case 'buildOpen': state.treeOpenNow = false; S.buildModal(state); break;
       case 'closeModal': UI.closeModal(); draw(); break;
       case 'pickAcc': S.accPicker(state, parseInt(p[1], 10)); break;
       case 'setAcc': {
-        var slot = parseInt(p[1], 10), id = p[2];
-        state.hero.equip.acc[slot] = (id === '-1') ? null : id;
+        var slot = parseInt(p[1], 10), id = p[2], wa = buildTarget();
+        if (id !== '-1' && G.Run.freeCount(state, id, 'acc', wa, slot) <= 0) {
+          UI.toast('それは他のメンバーが装備している。'); break;
+        }
+        wa.equip.acc[slot] = (id === '-1') ? null : id;
         G.Save.saveRun(state);
         S.buildModal(state); refreshBattleStats(); draw(); break;
       }
       case 'pickGear': S.gearPicker(state, p[1]); break;
       case 'setGear': {
-        var sl = p[1], gid = p[2];
-        state.hero.equip[sl] = (gid === '-1') ? null : gid;
+        var sl = p[1], gid = p[2], wg = buildTarget();
+        if (gid !== '-1' && G.Run.freeCount(state, gid, sl, wg, sl) <= 0) {
+          UI.toast('それは他のメンバーが装備している。'); break;
+        }
+        wg.equip[sl] = (gid === '-1') ? null : gid;
         G.Save.saveRun(state);
         S.buildModal(state); refreshBattleStats(); draw(); break;
       }
@@ -559,28 +590,30 @@
       }
 
       /* --- スキルツリー --- */
-      case 'treeOpen': S.skillTree(state); break;
+      case 'treeOpen': state.treeOpenNow = true; S.skillTree(state); break;
       case 'treeTab': state.treeTab = p[1]; S.skillTree(state); break;
       case 'treeTake': {
-        var chk = G.Tree.check(state.hero, p[1]);
+        var wt = buildTarget();
+        var chk = G.Tree.check(wt, p[1]);
         if (!chk.ok) { UI.toast('まだ取得できない。'); break; }
-        state.hero.tree[p[1]] = true;
-        state.hero.sp -= chk.node.cost;
+        wt.tree[p[1]] = true;
+        wt.sp -= chk.node.cost;
         refreshBattleStats();
         UI.toast('🌿 <b>' + chk.node.name + '</b> を習得した。', 'class');
         G.Run.checkClassUnlocks(state).forEach(function (c) {
-          UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class');
+          UI.toast('☆ ' + U.esc(c.who.name) + ' が <b>' + c.cls.name + '</b> の条件を満たした。', 'class');
         });
         G.Save.saveRun(state);
         S.skillTree(state); draw(); break;
       }
       case 'treeRespec': {
-        var rc = G.Tree.respecCost(state.hero);
+        var wr = buildTarget();
+        var rc = G.Tree.respecCost(wr);
         if (rc <= 0) break;
         if (state.hero.gold < rc) { UI.toast('ゴールドが足りない。'); break; }
-        state.hero.gold -= rc;
-        state.hero.sp = (state.hero.sp || 0) + G.Tree.totalSpent(state.hero);
-        state.hero.tree = {};
+        state.hero.gold -= rc;              /* 財布はパーティ共有 */
+        wr.sp = (wr.sp || 0) + G.Tree.totalSpent(wr);
+        wr.tree = {};
         refreshBattleStats();
         UI.toast('🌿 スキルポイントを振り直した。');
         G.Save.saveRun(state);
@@ -589,23 +622,24 @@
 
       case 'treeMode': state.treeMode = p[1]; S.skillTree(state); break;
       case 'classPick': {
-        var tier = parseInt(p[1], 10);
-        if (!G.Mastery.pick(state.hero, state.hero.classId, tier, p[2])) { UI.toast('まだ選べない。'); break; }
-        var picked = G.CLASSTREE[state.hero.classId][tier - 1][p[2]];
+        var tier = parseInt(p[1], 10), wp = buildTarget();
+        if (!G.Mastery.pick(wp, wp.classId, tier, p[2])) { UI.toast('まだ選べない。'); break; }
+        var picked = G.CLASSTREE[wp.classId][tier - 1][p[2]];
         refreshBattleStats();
         UI.toast('⚔ <b>' + picked.name + '</b> の道を選んだ。', 'class');
         G.Run.checkClassUnlocks(state).forEach(function (c) {
-          UI.toast('☆ 転職条件達成: <b>' + c.name + '</b>', 'class');
+          UI.toast('☆ ' + U.esc(c.who.name) + ' が <b>' + c.cls.name + '</b> の条件を満たした。', 'class');
         });
         G.Save.saveRun(state);
         S.skillTree(state); draw(); break;
       }
       case 'classRespec': {
-        var mc = G.Mastery.respecCost(state.hero);
+        var wm = buildTarget();
+        var mc = G.Mastery.respecCost(wm);
         if (mc <= 0) break;
         if (state.hero.gold < mc) { UI.toast('ゴールドが足りない。'); break; }
-        state.hero.gold -= mc;
-        G.Mastery.reset(state.hero);
+        state.hero.gold -= mc;              /* 財布はパーティ共有 */
+        G.Mastery.reset(wm);
         refreshBattleStats();
         UI.toast('⚔ 職業ツリーを選び直した。');
         G.Save.saveRun(state);
@@ -618,15 +652,26 @@
     }
   }
 
+  /** ビルド画面・祭壇・ツリーで今編集している相手 */
+  function buildTarget() {
+    var list = state.party || [state.hero];
+    var i = Math.min(state.buildIdx || 0, list.length - 1);
+    return list[Math.max(0, i)] || state.hero;
+  }
+
   /** 装備変更後のステータス反映（最大値が下がった場合の現在値の丸め込みを含む） */
   function refreshBattleStats() {
-    var S = G.Stats.compute(state.hero).S;
-    state.hero.hp = Math.min(state.hero.hp, S.maxHp);
-    state.hero.mp = Math.min(state.hero.mp, S.maxMp);
+    /* 装備の付け替えで最大値が下がることがあるので、全員ぶん丸める */
+    (state.party || [state.hero]).forEach(function (m) {
+      var S = G.Stats.compute(m).S;
+      m.hp = Math.min(m.hp, S.maxHp);
+      m.mp = Math.min(m.mp, S.maxMp);
+    });
     if (state.battle && !state.battle.over) {
-      var hu = state.battle.hero;
-      hu.hp = Math.min(hu.hp, S.maxHp); hu.mp = Math.min(hu.mp, S.maxMp);
-      G.Battle.refresh(hu);
+      G.Battle.partyUnits(state.battle).forEach(function (u) {
+        G.Battle.refresh(u);
+        u.hp = Math.min(u.hp, u.S.maxHp); u.mp = Math.min(u.mp, u.S.maxMp);
+      });
       G.Battle.syncParty(state.battle);
     }
   }

@@ -328,10 +328,56 @@ G.Screens = (function () {
     render(h);
   }
 
+  /* ===================== メンバー切替 =====================
+   * 装備・祭壇・スキルツリーは「誰のビルドを見ているか」を持つ。
+   * 仲間も転職して装備を組むので、主人公と同じ画面をそのまま使う。 */
+
+  /** その装備を誰が着けているかを一言で返す */
+  function whoHas(state, id, kind, exceptMember, exceptSlot) {
+    var names = [];
+    (state.party || [state.hero]).forEach(function (m) {
+      if (!m.equip) return;
+      if (kind === 'acc') {
+        (m.equip.acc || []).forEach(function (x, i) {
+          if (x !== id) return;
+          if (m === exceptMember && i === exceptSlot) return;
+          if (names.indexOf(m.name) < 0) names.push(m.name);
+        });
+      } else if (m.equip[kind] === id) {
+        if (m === exceptMember && exceptSlot === kind) return;
+        if (names.indexOf(m.name) < 0) names.push(m.name);
+      }
+    });
+    return names.length ? '<span class="muted">' + U.esc(names.join('・')) + ' が装備中</span>'
+                        : '<span class="muted">装備中</span>';
+  }
+
+  /** 今ビルドを編集している相手 */
+  function target(state) {
+    var list = state.party || [state.hero];
+    var i = Math.min(state.buildIdx || 0, list.length - 1);
+    return list[Math.max(0, i)] || state.hero;
+  }
+
+  /** メンバーを選ぶ帯。1人しかいないときは出さない。 */
+  function memberTabs(state) {
+    var list = state.party || [state.hero];
+    if (list.length < 2) return '';
+    var cur = target(state);
+    return '<div class="row memtabs" style="gap:6px;margin-bottom:10px;flex-wrap:wrap">' +
+      list.map(function (m, i) {
+        var on = (m === cur);
+        return '<button class="btn tiny' + (on ? ' primary' : '') + '" data-act="buildWho:' + i + '">' +
+          U.esc(m.name) + ' <span class="muted">' + G.CLASSES[m.classId].name + '</span>' +
+          (m.sp ? ' <span class="r-legend">+' + m.sp + '</span>' : '') + '</button>';
+      }).join('') + '</div>';
+  }
+
   /** 戦い方（行動の実績）と、アクセ構成のスタイルを並べて見せる */
-  function stylePanel(state) {
-    var rec = G.Style.behaviour(state), sh = G.Style.shares(rec);
-    var acc = G.Style.accShares(state.hero);
+  function stylePanel(state, who) {
+    var m = who || target(state);
+    var rec = G.Style.behaviourOf(m), sh = G.Style.shares(rec);
+    var acc = G.Style.accShares(m);
     var rows = G.Style.AXIS_IDS.map(function (ax) {
       return { ax: ax, b: rec[ax] || 0, bs: sh.share[ax], a: acc.score[ax], as: acc.share[ax] };
     }).sort(function (x, y) { return (y.b + y.a) - (x.b + x.a); });
@@ -565,10 +611,13 @@ G.Screens = (function () {
       }
       if (data.classes && data.classes.length) {
         h += '<div class="panel"><h3 class="r-legend">☆ 転職条件を満たした職業</h3><div class="grid g2">' +
-          data.classes.map(function (c) {
-            return '<div class="card"><div class="cname ' + (c.tier === 3 ? 'r-mythic' : 'r-legend') + '">' + G.Gfx.classImg(c.id, 2, '', 'style="display:inline-block;vertical-align:-8px"') + c.name +
+          data.classes.map(function (x) {
+            var c = x.cls;
+            return '<div class="card"><div class="cname ' + (c.tier === 3 ? 'r-mythic' : 'r-legend') + '">' +
+              G.Gfx.classImg(c.id, 2, '', 'style="display:inline-block;vertical-align:-8px"') + c.name +
               ' <span class="tag">' + (c.tier === 3 ? '最上級職' : '上級職') + '</span></div>' +
-              '<div class="cdesc">' + c.desc + '<br>「転職の祭壇」で転職できる。</div></div>';
+              '<div class="cdesc"><b>' + U.esc(x.who.name) + '</b> が条件を満たした。<br>' +
+              c.desc + '<br>「転職の祭壇」で転職できる。</div></div>';
           }).join('') + '</div></div>';
       }
       var mustChoose = data.choices && data.choices.length && !data.chosen;
@@ -629,13 +678,16 @@ G.Screens = (function () {
 
   /* ===================== 転職の祭壇 ===================== */
   function altar(state, standalone) {
-    var checks = G.Unlock.availableClasses(state);
-    var cur = G.CLASSES[state.hero.classId];
+    var who = target(state);
+    var checks = G.Unlock.availableClasses(state, who);
+    var cur = G.CLASSES[who.classId];
     var h = '<h1>⛩ 転職の祭壇</h1>';
-    h += '<div class="panel">' + stylePanel(state) + '</div>';
-    h += '<p class="muted">現在の職業: <b>' + cur.name + '</b>（' +
+    h += memberTabs(state);
+    h += '<div class="panel">' + stylePanel(state, who) + '</div>';
+    h += '<p class="muted">' + U.esc(who.name) + ' の現在の職業: <b>' + cur.name + '</b>（' +
       (cur.tier === 3 ? '最上級職' : cur.tier === 2 ? '上級職' : '初級職') + '）／ ' +
-      'これまでの職業のスキルは全て使用できる。</p>';
+      'これまでの職業のスキルは全て使用できる。' +
+      (who.allyId ? '<br><span class="tiny">仲間は自分の系統の中でだけ転職できる。</span>' : '') + '</p>';
 
     [3, 2, 1].forEach(function (tier) {
       var list = checks.filter(function (r) { return r.cls.tier === tier; });
@@ -644,11 +696,13 @@ G.Screens = (function () {
       h += '<div class="panel"><h3>' + tname + '</h3><div class="grid g2">';
       list.forEach(function (r) {
         var c = r.cls;
-        var isCur = state.hero.classId === c.id;
+        var isCur = who.classId === c.id;
         h += '<div class="card ' + (r.ok ? '' : 'locked') + ' ' + (tier === 3 ? 'bd-mythic' : tier === 2 ? 'bd-legend' : '') + '" ' +
           (r.ok && !standalone ? 'data-act="changeClass:' + c.id + '"' : '') + '>' +
           '<div class="row" style="gap:10px;align-items:flex-start">' +
-          '<div class="class-face">' + G.Portraits.img(G.FACES.forHero({ classId: c.id }), 2, r.ok ? '' : 'locked-face') + '</div>' +
+          '<div class="class-face">' + G.Portraits.img(
+            who.allyId ? G.FACES.forAllyClass(who.allyId, c.id) : G.FACES.forHero({ classId: c.id }),
+            2, r.ok ? '' : 'locked-face') + '</div>' +
           '<div style="flex:1;min-width:0">' +
           '<div class="cname ' + (tier === 3 ? 'r-mythic' : tier === 2 ? 'r-legend' : '') + '">' + c.name +
           (isCur ? ' <span class="tag">現在</span>' : '') + (r.ok && !isCur ? ' <span class="tag legend">転職可能</span>' : '') + '</div>' +
@@ -692,8 +746,10 @@ G.Screens = (function () {
 
   /* ===================== ビルド（装備）画面 ===================== */
   function buildModal(state) {
-    var hero = state.hero, c = G.Stats.compute(hero), S = c.S;
-    var h = '<h2 style="color:var(--gold);margin-top:0">ビルド構成</h2>';
+    var hero = target(state), c = G.Stats.compute(hero), S = c.S;
+    var h = '<h2 style="color:var(--gold);margin-top:0">ビルド構成' +
+      '<span class="muted small"> ― ' + U.esc(hero.name) + '（' + G.CLASSES[hero.classId].name + '）</span></h2>';
+    h += memberTabs(state);
     h += '<div class="grid g2"><div>';
     h += '<h3 class="small">装備</h3>';
     h += '<div class="slots">' +
@@ -702,11 +758,11 @@ G.Screens = (function () {
       '</div>';
     h += '<h3 class="small" style="margin-top:12px">アクセサリ（4枠）</h3>' + UI.accSlots(hero, 'pickAcc');
     h += '<h3 class="small" style="margin-top:12px">所持アイテム</h3><div class="grid g3">';
-    var ids = Object.keys(hero.items);
+    var ids = Object.keys(state.hero.items);
     h += ids.length ? ids.map(function (id) {
       var it = G.ITEM_BY_ID[id]; if (!it) return '';
       var usable = (it.use.type === 'heal' || it.use.type === 'mp' || it.use.type === 'full' || it.use.type === 'cleanse');
-      return UI.itemCard(it, hero.items[id], usable ? { act: 'useOut:' + id, note: '<span class="r-legend">クリックで使用</span>' } : { cls: 'locked', note: '<span class="muted">戦闘中に使用</span>' });
+      return UI.itemCard(it, state.hero.items[id], usable ? { act: 'useOut:' + id, note: '<span class="r-legend">クリックで使用</span>' } : { cls: 'locked', note: '<span class="muted">戦闘中に使用</span>' });
     }).join('') : '<div class="muted small">なし</div>';
     h += '</div>';
     h += '</div><div>';
@@ -717,6 +773,7 @@ G.Screens = (function () {
       (flagKeys.length ? '<div class="small">' + flagKeys.map(function (f) { return '◆ ' + (G.FLAGS[f] || f); }).join('<br>') + '</div>'
                        : '<div class="muted small">なし</div>');
     h += '</div></div>';
+    h += '<div class="sep"></div>' + stylePanel(state, hero);
     h += '<div class="sep"></div><div class="center"><button class="btn primary" data-act="closeModal">閉じる</button></div>';
     UI.modal(h);
   }
@@ -730,22 +787,20 @@ G.Screens = (function () {
 
   /** アクセサリ選択 */
   function accPicker(state, slotIdx) {
-    var hero = state.hero;
-    var equipped = hero.equip.acc;
-    var h = '<h2 style="margin-top:0">アクセサリ 枠' + (slotIdx + 1) + ' を選ぶ</h2>';
-    h += '<p class="muted small">同じアクセサリを複数の枠に付けることはできない。</p>';
+    var hero = target(state);
+    var h = '<h2 style="margin-top:0">' + U.esc(hero.name) + ' ― アクセサリ 枠' + (slotIdx + 1) + ' を選ぶ</h2>';
+    h += '<p class="muted small">持ち物はパーティ共有。誰かが装備しているものは選べない。</p>';
     h += '<div class="grid g2">';
     h += '<div class="card" data-act="setAcc:' + slotIdx + ':-1"><div class="cname muted">― 外す ―</div></div>';
     var counts = {};
-    hero.bag.acc.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
+    state.hero.bag.acc.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
     Object.keys(counts).forEach(function (id) {
       var a = G.ACC_BY_ID[id];
       if (!a) return;
-      var usedElsewhere = equipped.filter(function (x, i) { return x === id && i !== slotIdx; }).length;
-      var free = counts[id] - usedElsewhere;
+      var free = G.Run.freeCount(state, id, 'acc', hero, slotIdx);
       var note = counts[id] > 1 ? '所持: ' + counts[id] : '';
       if (free <= 0) {
-        h += UI.accCard(a, { cls: 'locked', note: '他の枠で装備中' });
+        h += UI.accCard(a, { cls: 'locked', note: whoHas(state, id, 'acc', hero, slotIdx) });
       } else {
         h += UI.accCard(a, { act: 'setAcc:' + slotIdx + ':' + id, note: note });
       }
@@ -756,15 +811,23 @@ G.Screens = (function () {
 
   /** 武器・防具選択 */
   function gearPicker(state, slot) {
-    var hero = state.hero;
-    var h = '<h2 style="margin-top:0">' + (slot === 'weapon' ? '武器' : '防具') + 'を選ぶ</h2><div class="grid g2">';
+    var hero = target(state);
+    var h = '<h2 style="margin-top:0">' + U.esc(hero.name) + ' ― ' +
+      (slot === 'weapon' ? '武器' : '防具') + 'を選ぶ</h2>';
+    h += '<p class="muted small">持ち物はパーティ共有。誰かが装備しているものは選べない。</p><div class="grid g2">';
     h += '<div class="card" data-act="setGear:' + slot + ':-1"><div class="cname muted">― 外す ―</div></div>';
     var counts = {};
-    hero.bag.gear.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
+    state.hero.bag.gear.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
     Object.keys(counts).forEach(function (id) {
       var g = G.GEAR[id];
       if (!g || g.slot !== slot) return;
-      h += UI.gearCard(g, { act: 'setGear:' + slot + ':' + id, note: hero.equip[slot] === id ? '<span class="r-legend">装備中</span>' : (counts[id] > 1 ? '所持: ' + counts[id] : '') });
+      if (hero.equip[slot] === id) {
+        h += UI.gearCard(g, { note: '<span class="r-legend">装備中</span>' });
+        return;
+      }
+      var free = G.Run.freeCount(state, id, slot, hero, slot);
+      if (free <= 0) { h += UI.gearCard(g, { cls: 'locked', note: whoHas(state, id, slot, hero, slot) }); return; }
+      h += UI.gearCard(g, { act: 'setGear:' + slot + ':' + id, note: counts[id] > 1 ? '所持: ' + counts[id] : '' });
     });
     h += '</div><div class="sep"></div><div class="center"><button class="btn" data-act="buildOpen">戻る</button></div>';
     UI.modal(h);
@@ -774,7 +837,7 @@ G.Screens = (function () {
   /* ===================== スキルツリー ===================== */
   function skillTree(state) {
     if ((state.treeMode || 'common') === 'class') return classTree(state);
-    var hero = state.hero;
+    var hero = target(state);
     var tabId = state.treeTab || G.TREE.branches[0].id;
     var br = G.TREE.branches.filter(function (x) { return x.id === tabId; })[0] || G.TREE.branches[0];
     var spent = G.Tree.totalSpent(hero), cost = G.Tree.respecCost(hero);
@@ -783,7 +846,7 @@ G.Screens = (function () {
     h += '<div class="row" style="justify-content:space-between;align-items:center">' +
       '<div class="small">残りSP <b style="color:var(--xp);font-size:16px">' + (hero.sp || 0) + '</b>' +
       ' <span class="muted">／ 使用済み ' + spent + 'SP</span></div>' +
-      '<button class="btn tiny" ' + (spent > 0 && hero.gold >= cost ? '' : 'disabled') + ' data-act="treeRespec">' +
+      '<button class="btn tiny" ' + (spent > 0 && state.hero.gold >= cost ? '' : 'disabled') + ' data-act="treeRespec">' +
       '振り直す（' + cost + 'G）</button></div>';
     h += '<p class="tiny muted">SPはレベルアップで1、精鋭撃破で1、ボス撃破で2 手に入る。' +
       'ここで伸ばした数値はそのまま職業の解放条件に反映される。</p>';
@@ -813,7 +876,10 @@ G.Screens = (function () {
 
   /** 共通／職業ツリーの切り替えヘッダ */
   function treeHeader(state, mode) {
-    return '<h2 style="color:var(--gold);margin-top:0">スキルツリー</h2>' +
+    var who = target(state);
+    return '<h2 style="color:var(--gold);margin-top:0">スキルツリー' +
+      '<span class="muted small"> ― ' + U.esc(who.name) + '</span></h2>' +
+      memberTabs(state) +
       '<div class="treetabs" style="margin-bottom:8px">' +
       '<button class="btn tiny' + (mode === 'common' ? ' primary' : '') + '" data-act="treeMode:common">共通ツリー</button>' +
       '<button class="btn tiny' + (mode === 'class' ? ' primary' : '') + '" data-act="treeMode:class">職業ツリー</button>' +
@@ -822,7 +888,7 @@ G.Screens = (function () {
 
   /* ===================== 職業ツリー ===================== */
   function classTree(state) {
-    var hero = state.hero, cls = G.CLASSES[hero.classId];
+    var hero = target(state), cls = G.CLASSES[hero.classId];
     var rows = G.CLASSTREE[hero.classId] || [];
     var wins = G.Mastery.wins(hero, hero.classId);
     var picks = G.Mastery.picks(hero, hero.classId);
@@ -833,7 +899,7 @@ G.Screens = (function () {
       '<div class="classcard-head">' + G.Gfx.classImg(hero.classId, 3) +
       '<div><div style="font-weight:700">' + cls.name + '</div>' +
       '<div class="tiny muted">習熟度 <b style="color:var(--xp)">' + wins + '</b></div></div></div>' +
-      '<button class="btn tiny" ' + (cost > 0 && hero.gold >= cost ? '' : 'disabled') + ' data-act="classRespec">' +
+      '<button class="btn tiny" ' + (cost > 0 && state.hero.gold >= cost ? '' : 'disabled') + ' data-act="classRespec">' +
       '選び直す（' + cost + 'G）</button></div>';
     h += '<p class="tiny muted">習熟度はこの職業で戦うと貯まる（通常+1／精鋭+2／ボス+3）。' +
       '各段は<b>どちらか一方しか選べない</b>。効果が有効なのは<b>今就いている職業</b>の選択だけで、' +
@@ -887,7 +953,7 @@ G.Screens = (function () {
   }
 
   function treeNode(state, n) {
-    var hero = state.hero;
+    var hero = target(state);
     var chk = G.Tree.check(hero, n.id);
     var cls = chk.owned ? 'owned' : (chk.ok ? '' : 'locked');
     var body = '';

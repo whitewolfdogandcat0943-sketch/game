@@ -1,7 +1,12 @@
 /* allies.js - 仲間キャラクター
  *
- * 主人公は戦い方で職業が変わるが、仲間は固定職。
- * そのぶん役割がはっきりし、物語上の人物像とも噛み合う。
+ * 仲間も主人公と同じく転職する。ただし進める先は「系統（line）」で限る。
+ * 誰でも何にでもなれると人物像が崩れるので、
+ * その人が選ぶに足る道だけを用意し、その中で自由に育てる。
+ *
+ * signature は系統に関わらず常に持つ固有技。転職しても失われない。
+ * 「職業は変わっても、この人がやることは変わらない」という部分。
+ *
  * 加入は物語の進行（chapter）で決まる。
  */
 G.ALLIES = {};
@@ -14,7 +19,10 @@ G.ALLIES = {};
     join: 1,
     desc: '灰都の施療院で育った治し手。誰かが倒れることを、理屈ではなく体で拒む。',
     weapon: 'w_mace', armor: 'a_robe', acc: ['n_wardearring'],
-    skills: ['heal', 'sanctuary', 'smite', 'aid_mend', 'aid_shelter']
+    /* 守りと浄化の道。攻めには向かないが、支える形は何通りもある。 */
+    line: ['priest', 'exorcist', 'guardian', 'alchemist',
+           'finalArbiter', 'astralArchmage', 'mirrorEmperor', 'alchemySovereign'],
+    signature: ['aid_mend', 'aid_shelter']
   });
 
   ally({
@@ -24,7 +32,10 @@ G.ALLIES = {};
     desc: '元・城塞守備隊の大男。{hero}と同い年だが、体だけは頭ひとつ大きい。' +
           '守るべき城が無くなってからも、守り方しか知らない。',
     weapon: 'w_thornmace', armor: 'a_chain', acc: ['n_ironcharm'],
-    skills: ['slash', 'thornGuard', 'aid_cover', 'aid_rally', 'crushArmor']
+    /* 守るか、猛るか。どちらに転んでも前に立つことは変わらない。 */
+    line: ['swordsman', 'guardian', 'berserker',
+           'mirrorEmperor', 'bloodfiend', 'voidSovereign'],
+    signature: ['aid_cover', 'aid_rally']
   });
 
   ally({
@@ -33,7 +44,10 @@ G.ALLIES = {};
     join: 3,
     desc: '塔を追われた研究者。人の心には疎いが、世界の理屈には誰よりも近い。',
     weapon: 'w_oakstaff', armor: 'a_robe', acc: ['n_sagering'],
-    skills: ['fireball', 'iceLance', 'boltStrike', 'aid_amplify', 'aid_siphon']
+    /* 元素・嵐・呪。世界の理屈へ寄る道ばかりで、剣を持つ道は無い。 */
+    line: ['mage', 'elementalist', 'stormcaller', 'hexer',
+           'astralArchmage', 'calamityKing', 'plaguelord'],
+    signature: ['aid_amplify', 'aid_siphon']
   });
 
   G.ALLY_LIST = Object.keys(G.ALLIES).map(function (k) { return G.ALLIES[k]; });

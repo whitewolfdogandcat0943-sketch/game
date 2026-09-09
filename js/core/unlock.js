@@ -1,9 +1,9 @@
 /* unlock.js - 職業解放条件 / ミシック取得条件の判定 */
 G.Unlock = (function () {
 
-  /** 判定に使う文脈を作る */
-  function ctx(state, battle) {
-    var hero = state.hero;
+  /** 判定に使う文脈を作る。member を渡せば、その人について判定する。 */
+  function ctx(state, battle, member) {
+    var hero = member || state.hero;
     var c = G.Stats.compute(hero);
     return {
       S: c.S, flags: c.flags, hero: hero, run: state.run, meta: state.meta,
@@ -36,10 +36,22 @@ G.Unlock = (function () {
     return res;
   }
 
+  /** その人が進める職業の一覧。
+   * 仲間は line（系統）で限られる。主人公は全職が対象。 */
+  function classLine(member) {
+    if (member && member.allyId && G.ALLIES[member.allyId]) {
+      return G.ALLIES[member.allyId].line || [member.classId];
+    }
+    return G.CLASS_LIST.map(function (c) { return c.id; });
+  }
+
   /** 転職可能な職業一覧 */
-  function availableClasses(state) {
-    var c = ctx(state);
-    return G.CLASS_LIST.map(function (cl) { return classCheck(cl.id, c); });
+  function availableClasses(state, member) {
+    var who = member || state.hero;
+    var c = ctx(state, null, who);
+    var line = classLine(who);
+    return G.CLASS_LIST.filter(function (cl) { return line.indexOf(cl.id) >= 0; })
+      .map(function (cl) { return classCheck(cl.id, c); });
   }
 
   /** ミシック条件の判定。新規発見分を返す（メタ保存＋インベントリ付与は呼び出し側） */
@@ -63,5 +75,5 @@ G.Unlock = (function () {
   }
 
   return { ctx: ctx, classCheck: classCheck, availableClasses: availableClasses,
-           checkMythics: checkMythics, mythicStatus: mythicStatus };
+           classLine: classLine, checkMythics: checkMythics, mythicStatus: mythicStatus };
 })();

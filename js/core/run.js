@@ -16,6 +16,7 @@ G.Run = (function () {
     var hero = {
       name: name || '冒険者', classId: classId, classHistory: [], level: 1, exp: 0,
       hp: 1, mp: 1, gold: 120, sp: 2, tree: {}, mastery: {},
+      style: G.Style.newRecord(),
       equip: { weapon: null, armor: null, acc: [null, null, null, null] },
       bag: { gear: [], acc: [] },
       items: {}
@@ -44,14 +45,15 @@ G.Run = (function () {
   function makeAlly(def, level) {
     var a = {
       allyId: def.id, name: def.name, classId: def.classId, classHistory: [],
-      level: Math.max(1, level || 1), exp: 0, hp: 1, mp: 1, gold: 0, sp: 0,
-      tree: {}, mastery: {},
+      level: Math.max(1, level || 1), exp: 0, hp: 1, mp: 1, gold: 0, sp: 2,
+      tree: {}, mastery: {}, style: G.Style.newRecord(),
       equip: {
         weapon: def.weapon || null, armor: def.armor || null,
         acc: (def.acc || []).concat([null, null, null, null]).slice(0, 4)
       },
       bag: { gear: [], acc: [] }, items: {},
-      fixedSkills: def.skills.slice(), isAlly: true,
+      /* 転職しても失われない固有技。「職業は変わっても、この人がやること」 */
+      signature: (def.signature || []).slice(), isAlly: true,
       arch: def.arch, hue: def.hue, accent: def.accent, role: def.role
     };
     var S = G.Stats.compute(a).S;
@@ -66,8 +68,50 @@ G.Run = (function () {
     if (!state.party) state.party = [state.hero];
     if (state.party.some(function (m) { return m.allyId === id; })) return null;
     var a = makeAlly(def, state.hero.level);
+    /* 初期装備は共有の持ち物に登録する。
+     * これをやらないと「誰が何を持っているか」の勘定が合わなくなる。 */
+    if (a.equip.weapon) G.addGear(state.hero, a.equip.weapon);
+    if (a.equip.armor) G.addGear(state.hero, a.equip.armor);
+    (a.equip.acc || []).forEach(function (id) { if (id) G.addAcc(state.hero, id); });
     state.party.push(a);
     return a;
+  }
+
+  /* ===================== 共有の持ち物 =====================
+   * 装備は1つのカバンをパーティで分け合う。
+   * 同じ指輪を2人が同時に着けられてはいけないので、
+   * 「持っている数」から「誰かが装備している数」を引いた残りで判定する。 */
+
+  function members(state) { return state.party || [state.hero]; }
+
+  function ownedCount(state, id, kind) {
+    var bag = (state.hero && state.hero.bag) || { gear: [], acc: [] };
+    var list = (kind === 'acc') ? bag.acc : bag.gear;
+    return list.filter(function (x) { return x === id; }).length;
+  }
+
+  /** その id を今いくつ装備されているか。exceptSlot は「これから外す枠」。 */
+  function equippedCount(state, id, kind, exceptMember, exceptSlot) {
+    var n = 0;
+    members(state).forEach(function (m) {
+      if (!m.equip) return;
+      if (kind === 'acc') {
+        (m.equip.acc || []).forEach(function (x, i) {
+          if (x !== id) return;
+          if (m === exceptMember && i === exceptSlot) return;
+          n++;
+        });
+      } else if (m.equip[kind] === id) {
+        if (m === exceptMember && exceptSlot === kind) return;
+        n++;
+      }
+    });
+    return n;
+  }
+
+  /** その人が今その id を装備できるか（残りの数） */
+  function freeCount(state, id, kind, exceptMember, exceptSlot) {
+    return ownedCount(state, id, kind) - equippedCount(state, id, kind, exceptMember, exceptSlot);
   }
 
   /** 仲間は主人公と同じレベルで戦う（置いていかれないように） */
@@ -101,8 +145,9 @@ G.Run = (function () {
     state.party = [state.hero];
     state.run = {
       floor: 1, nodes: [], current: null, active: true, cleared: 0,
+      /* 戦い方の記録は run ではなく各メンバーが持つ（誰がどう戦ったかを分けるため） */
       stats: { kills: 0, crits: 0, itemsUsed: 0, reflectKills: 0, aoeKills: 0, elites: 0, bosses: 0,
-               classChanges: 0, statusApplied: 0, evades: 0, style: G.Style.newRecord() },
+               classChanges: 0, statusApplied: 0, evades: 0 },
       notifiedClasses: {}, shop: null, pendingRewards: null
     };
     state.meta.runs++;
@@ -277,10 +322,14 @@ G.Run = (function () {
     if (kind === 'boss') { state.run.stats.bosses++; hero.sp = (hero.sp || 0) + 2; }
 
     var choices = (kind === 'elite' || kind === 'boss') ? makeChoices(state, kind) : null;
-    /* その職業での実戦経験＝習熟度 */
+    /* その職業での実戦経験＝習熟度。仲間もそれぞれの職業で積む。 */
     var mGain = kind === 'boss' ? 3 : (kind === 'elite' ? 2 : 1);
-    G.Mastery.gain(hero, hero.classId, mGain);
+    members(state).forEach(function (m) { G.Mastery.gain(m, m.classId, mGain); });
+    /* SPは全員に同じだけ配る。仲間だけ育たない状況を作らない。 */
     var spGain = levels + (kind === 'boss' ? 2 : (kind === 'elite' ? 1 : 0));
+    members(state).forEach(function (m) {
+      if (m !== hero) m.sp = (m.sp || 0) + (kind === 'boss' ? 2 : (kind === 'elite' ? 1 : 0));
+    });
     return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices,
              sp: spGain, mastery: mGain, masteryTotal: G.Mastery.wins(hero, hero.classId) };
   }
@@ -297,6 +346,9 @@ G.Run = (function () {
       hero.hp = Math.min(S.maxHp, hero.hp + Math.round(S.maxHp * 0.5 * gained));
       hero.mp = Math.min(S.maxMp, hero.mp + Math.round(S.maxMp * 0.5 * gained));
       syncAllies(state);
+      members(state).forEach(function (m) {
+        if (m !== hero) m.sp = (m.sp || 0) + gained;
+      });
     }
     return gained;
   }
@@ -312,15 +364,21 @@ G.Run = (function () {
     return found;
   }
 
-  /** 新たに転職可能になった上級/最上級職を返す（通知用に一度だけ） */
+  /** 新たに転職可能になった上級/最上級職を返す（通知用に一度だけ）
+   * 仲間もそれぞれの戦い方で解放されるので、全員ぶん見る。 */
   function checkClassUnlocks(state) {
     var out = [];
-    G.Unlock.availableClasses(state).forEach(function (r) {
-      if (r.cls.tier === 1 || !r.ok) return;
-      if (state.run.notifiedClasses[r.cls.id]) return;
-      state.run.notifiedClasses[r.cls.id] = true;
-      if (state.meta.classesSeen.indexOf(r.cls.id) < 0) { state.meta.classesSeen.push(r.cls.id); G.Save.saveMeta(state); }
-      out.push(r.cls);
+    members(state).forEach(function (m) {
+      G.Unlock.availableClasses(state, m).forEach(function (r) {
+        if (r.cls.tier === 1 || !r.ok) return;
+        var key = (m.allyId || 'hero') + ':' + r.cls.id;
+        if (state.run.notifiedClasses[key]) return;
+        state.run.notifiedClasses[key] = true;
+        if (state.meta.classesSeen.indexOf(r.cls.id) < 0) {
+          state.meta.classesSeen.push(r.cls.id); G.Save.saveMeta(state);
+        }
+        out.push({ cls: r.cls, who: m });
+      });
     });
     return out;
   }
@@ -437,6 +495,7 @@ G.Run = (function () {
   return {
     makeChoices: makeChoices, newHero: newHero, newRun: newRun, generateNodes: generateNodes, isBossFloor: isBossFloor,
     makeAlly: makeAlly, joinAlly: joinAlly, syncAllies: syncAllies, healParty: healParty,
+    members: members, ownedCount: ownedCount, equippedCount: equippedCount, freeCount: freeCount,
     makeEncounter: makeEncounter, grantVictory: grantVictory, applyLevelUps: applyLevelUps,
     checkMythicUnlocks: checkMythicUnlocks, checkClassUnlocks: checkClassUnlocks,
     makeShop: makeShop, rest: rest, randomEvent: randomEvent, nextFloor: nextFloor,

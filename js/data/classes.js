@@ -53,11 +53,11 @@
              ' 以上／全体の ' + Math.round(share * 100) + '% 以上）',
       d: { t: 'style', k: axis, v: pts, share: share },
       test: function (c) {
-        var rec = G.Style.behaviour(c), sh = G.Style.shares(rec);
+        var rec = G.Style.behaviourOf(c.hero), sh = G.Style.shares(rec);
         return (rec[axis] || 0) >= pts && sh.share[axis] >= share;
       },
       prog: function (c) {
-        var rec = G.Style.behaviour(c), sh = G.Style.shares(rec);
+        var rec = G.Style.behaviourOf(c.hero), sh = G.Style.shares(rec);
         return (rec[axis] || 0) + ' / ' + pts + '（' + Math.round(sh.share[axis] * 100) + '%）';
       }
     };
@@ -68,11 +68,11 @@
       label: '戦い方が「' + names + '」に寄っている（実績 ' + pts + ' 以上）',
       d: { t: 'styleAny', ks: axes, v: pts, share: share },
       test: function (c) {
-        var rec = G.Style.behaviour(c), sh = G.Style.shares(rec);
+        var rec = G.Style.behaviourOf(c.hero), sh = G.Style.shares(rec);
         return axes.some(function (a) { return (rec[a] || 0) >= pts && sh.share[a] >= share; });
       },
       prog: function (c) {
-        var rec = G.Style.behaviour(c);
+        var rec = G.Style.behaviourOf(c.hero);
         return axes.map(function (a) { return G.Style.axisName(a) + (rec[a] || 0); }).join(' ');
       }
     };
@@ -82,11 +82,11 @@
       label: G.ELEMENTS[a].name + 'と' + G.ELEMENTS[b].name + 'の両方で ' + n + '回以上ダメージを与えた',
       d: { t: 'styleDual', a: a, b: b, v: n },
       test: function (c) {
-        var rec = G.Style.behaviour(c);
+        var rec = G.Style.behaviourOf(c.hero);
         return (rec[a] || 0) >= n && (rec[b] || 0) >= n;
       },
       prog: function (c) {
-        var rec = G.Style.behaviour(c);
+        var rec = G.Style.behaviourOf(c.hero);
         return (rec[a] || 0) + ' / ' + (rec[b] || 0);
       }
     };
@@ -96,11 +96,11 @@
       label: '物理と魔法の両方で ' + n + '回以上ダメージを与えた',
       d: { t: 'styleHybrid', v: n },
       test: function (c) {
-        var rec = G.Style.behaviour(c);
+        var rec = G.Style.behaviourOf(c.hero);
         return (rec.phys || 0) >= n && (rec.mag || 0) >= n;
       },
       prog: function (c) {
-        var rec = G.Style.behaviour(c);
+        var rec = G.Style.behaviourOf(c.hero);
         return '物理' + (rec.phys || 0) + ' / 魔法' + (rec.mag || 0);
       }
     };

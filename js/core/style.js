@@ -1,7 +1,7 @@
 /* style.js - 「戦闘スタイル」の計測と、アクセサリ構成から読み取るスタイル
  *
  * 職業の解放を、数値の閾値ではなく次の2種類の証拠で行うための土台。
- *   上級職   … 実際にどう戦ったか（行動の実績）        -> G.Style.behaviour
+ *   上級職   … 実際にどう戦ったか（行動の実績）        -> G.Style.behaviourOf
  *   最上級職 … アクセサリ4枠がどんな構成か（組み方）   -> G.Style.fromAccessories
  *
  * どちらも同じ9軸で表す。
@@ -58,7 +58,7 @@ G.Style = (function () {
 
   /* ---------- 冒険中の行動から積み上がるスタイル ---------- */
 
-  /** run.stats.style を初期化する */
+  /** 1人ぶんの戦い方の記録を作る。仲間もそれぞれ持つ。 */
   function newRecord() {
     var o = empty();
     o.light = 0; o.dark = 0;      /* 破魔僧・終焉審判者の判定用 */
@@ -66,15 +66,27 @@ G.Style = (function () {
     return o;
   }
 
-  /** 行動の実績を加算する */
-  function add(state, axis, n) {
-    if (!state.run || !state.run.stats) return;
-    var st = state.run.stats.style || (state.run.stats.style = newRecord());
+  /** 行動の実績を、その行動をした本人に加算する。
+   * 上級職は「どう戦ったか」で解放されるので、記録は人ごとに分かれていないといけない。 */
+  function addTo(member, axis, n) {
+    if (!member) return;
+    var st = member.style || (member.style = newRecord());
     st[axis] = (st[axis] || 0) + (n == null ? 1 : n);
   }
 
-  function behaviour(state) {
-    return (state.run && state.run.stats && state.run.stats.style) || newRecord();
+  /** その人の戦い方 */
+  function behaviourOf(member) {
+    return (member && member.style) || newRecord();
+  }
+
+  /** パーティ全体の戦い方（表示用の合算） */
+  function behaviourOfParty(party) {
+    var out = newRecord();
+    (party || []).forEach(function (m) {
+      var r = m.style; if (!r) return;
+      Object.keys(r).forEach(function (k) { out[k] = (out[k] || 0) + r[k]; });
+    });
+    return out;
   }
 
   /** 行動スタイルの総量と、各軸の占有率 */
@@ -138,7 +150,8 @@ G.Style = (function () {
 
   return {
     AXES: AXES, AXIS_IDS: AXIS_IDS, MOD_AXES: MOD_AXES, FLAG_AXES: FLAG_AXES,
-    empty: empty, newRecord: newRecord, add: add, behaviour: behaviour,
+    empty: empty, newRecord: newRecord,
+    addTo: addTo, behaviourOf: behaviourOf, behaviourOfParty: behaviourOfParty,
     shares: shares, scoreOf: scoreOf, fromAccessories: fromAccessories, accShares: accShares,
     axisName: axisName, axisClass: axisClass
   };
