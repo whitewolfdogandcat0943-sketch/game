@@ -45,8 +45,15 @@ G.Story = (function () {
     var c = chapter(state);
     if (!c) return [];
     return c.places.map(function (p) {
-      return { ref: p, cleared: !!state.story.cleared[p.id] };
+      return { ref: p, cleared: !!state.story.cleared[p.id], locked: !placeOpen(state, p) };
     });
+  }
+
+  /* need を持つ場所は、指定の場所を踏破するまで開かない。
+   * 章のなかに順番を作るための鍵。最終章を一段の崖ではなく階段にするために使う。 */
+  function placeOpen(state, p) {
+    if (!p || !p.need) return true;
+    return !!state.story.cleared[p.need];
   }
 
   function place(id) { return G.STORY.PLACE_BY_ID[id]; }
@@ -114,7 +121,8 @@ G.Story = (function () {
    * 章の設計値を下回ることはなく、上限も +8 までに留める。 */
   function effLv(state, base) {
     var lv = (state.hero && state.hero.level) || 1;
-    return Math.max(base, Math.min(base + 8, Math.round(lv * 0.68)));
+    var dm = G.Diff.get();
+    return Math.max(base, Math.min(base + (dm.trackCap || 8), Math.round(lv * (dm.track || 0.68))));
   }
 
   /** 次に戦う相手。最後の一戦はボス。 */
@@ -125,7 +133,14 @@ G.Story = (function () {
     var isBoss = dg.at >= dg.depth - 1;
     /* 道中だけを育ちに合わせて引き上げる。章の主は設計どおりの相手のままにして、
      * 強さの上乗せは難易度モードに任せる。ボスまで追随させると最終章だけが崖になる。 */
-    var lvN = effLv(state, d.lv), bossN = d.bossLv;
+    /* 道中は育ちに合わせて引き上げるが、その章の主を追い越させない。
+     * 追い越すと、道中一戦の総HPが主より多くなり、
+     * 「難しい」ではなく「長い」だけの戦いが並ぶ。飽きはそこから来る。 */
+    var lvN = Math.min(effLv(state, d.lv), Math.max(d.lv, d.bossLv - 1)), bossN = d.bossLv;
+    /* 高い難度では、章の主もこちらの育ちに一定まで付いてくる。
+     * 標準では bossTrack が 0 なので、主は設計どおりの相手のまま。 */
+    var bt = G.Diff.get().bossTrack || 0;
+    if (bt > 0) bossN = Math.min(d.bossLv + bt, effLv(state, d.bossLv));
     /* 残響の主は、育ち具合に追いついたうえで、挑むたびに格が上がる。
      * 章の設計値だけを基準にすると、レベル40で第1章の残響に行っても
      * 相手が弱すぎて腕試しにならない。 */
@@ -138,17 +153,27 @@ G.Story = (function () {
     if (isBoss) {
       var boss = G.ENEMY_BY_ID[dg.echo ? dg.echoBoss : d.boss] || G.ENEMY_BY_ID[d.boss];
       units.push(G.Battle.makeEnemyUnit(boss, bossN, 0));
-      var addN = (bossN >= 9 ? 2 : 1) + G.Diff.get().adds;
+      /* 難易度による取り巻きの上乗せは、こちらに手札が揃ってから。
+       * 第一章は主人公ひとり・アクセ0・技も数えるほどで、
+       * ここで数を増やすと「難しい」ではなく「どうしようもない」になる。
+       * 一番手詰まりになりやすい場所を一番きつくするのは、いちばん人が離れる作り。 */
+      var addN = (bossN >= 9 ? 2 : 1) + (bossN >= 8 ? G.Diff.get().adds : 0);
       for (i = 0; i < addN; i++) {
         units.push(G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], Math.max(1, bossN - 2), i + 1));
       }
       return { units: units, isBoss: true, kind: 'boss' };
     }
-    var n = lvN <= 5 ? U.rint(2, 3) : (lvN <= 11 ? U.rint(3, 4) : U.rint(3, 5));
+    /* 敵が上位ティアに入ると一体あたりのHPが跳ね上がる。
+     * そこで数まで増やすと戦闘が延びるだけなので、後半はむしろ絞る。 */
+    var n = lvN <= 5 ? U.rint(2, 3)
+      : (lvN <= 11 ? U.rint(3, 4)
+      : (lvN <= 17 ? U.rint(3, 5) : U.rint(3, 4)));
     n += (lvN >= 4 ? G.Diff.get().mobPlus : 0);
     /* 最後の一歩手前は少し歯応えを増やす */
     var elite = (dg.at === dg.depth - 2) && d.depth >= 4;
-    if (elite) n = Math.max(2, n - 1);
+    /* 精鋭は一体ずつが重い。数を増やすと難しくなるのではなく長くなるだけなので、
+     * 数は絞って、一体あたりの手応えで見せる。 */
+    if (elite) n = Math.min(3, Math.max(2, n - 1));
     for (i = 0; i < n; i++) {
       var e = G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], elite ? lvN + 1 : lvN, i);
       if (elite) {
@@ -284,7 +309,7 @@ G.Story = (function () {
   }
 
   return {
-    begin: begin, chapter: chapter, places: places, place: place,
+    begin: begin, chapter: chapter, places: places, place: place, placeOpen: placeOpen,
     fill: fill, fillLines: fillLines,
     enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
     nextEncounter: nextEncounter, advanceDungeon: advanceDungeon,

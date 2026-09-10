@@ -243,6 +243,15 @@ G.Screens = (function () {
       var r = p.ref;
       var echo = p.cleared && r.kind === 'dungeon' ? G.Story.echoCount(state, r.id) : 0;
       var isEcho = p.cleared && r.kind === 'dungeon';
+      if (p.locked) {
+        var gate = G.Story.place(r.need);
+        h += '<div class="node locked">' +
+          '<div class="node-ico big-ico">🔒</div>' +
+          '<div class="nn">' + r.name + ' <span class="tag">閉じている</span></div>' +
+          '<div class="nd">' + (gate ? gate.name + ' を抜けるまで、ここへの道は開かない。' : 'まだ行けない。') +
+          '</div></div>';
+        return;
+      }
       h += '<div class="node' + (p.cleared ? ' done' : '') + '" data-act="place:' + r.id + '">' +
         '<div class="node-ico big-ico">' + r.icon + '</div>' +
         '<div class="nn">' + r.name +

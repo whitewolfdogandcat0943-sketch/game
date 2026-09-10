@@ -505,6 +505,8 @@ G.SKILLS = {};
   S({ id: 'e_inferno', name: '獄炎', mp: 0, kind: 'mag', el: 'fire', power: 160, target: 'all',
       desc: '', eff: { burn: { t: 3, v: 0.05, c: 0.5 } } });
   S({ id: 'e_heal', name: '自己修復', mp: 0, kind: 'heal', target: 'self', power: 95, desc: '' });
+  S({ id: 'e_blizzard', name: '氷嵐', mp: 0, kind: 'mag', el: 'ice', power: 155, target: 'all',
+      desc: '', eff: { freeze: { t: 2, c: 0.35 } } });
   S({ id: 'e_roar', name: '咆哮', mp: 0, kind: 'buff', target: 'self', desc: '',
       eff: { buffs: [{ k: 'atkPct', v: 0.35, t: 3 }] } });
   S({ id: 'e_thorn', name: '棘鎧', mp: 0, kind: 'buff', target: 'self', desc: '',

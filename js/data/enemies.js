@@ -49,15 +49,35 @@
   e({ id: 'b_ogre', name: '暴食のオーガ', icon: '👹', tier: 1, boss: true, hp: 318, atk: 33, mag: 11, def: 26, res: 13, spd: 12,
       exp: 90, gold: 160, weak: ['ice'], resist: ['dark'], skills: ['e_slam', 'e_quake', 'e_roar'] });
   e({ id: 'b_frostqueen', name: '氷獄の女王', icon: '❄', tier: 2, boss: true, hp: 672, atk: 32, mag: 55, def: 33, res: 48, spd: 22,
-      exp: 190, gold: 320, weak: ['fire'], resist: ['ice', 'wind'], skills: ['e_frost', 'e_curse', 'e_heal'] });
+      exp: 190, gold: 320, weak: ['fire'], resist: ['ice', 'wind'], skills: ['e_frost', 'e_curse', 'e_blizzard'] });
   e({ id: 'b_thornbeast', name: '棘鎧の獣王', icon: '🦂', tier: 2, boss: true, hp: 912, atk: 59, mag: 23, def: 62, res: 33, spd: 14,
       exp: 220, gold: 360, weak: ['thunder'], resist: ['phys'], skills: ['e_thorn', 'e_slam', 'e_quake'] });
   e({ id: 'b_stormdrake', name: '天空竜', icon: '🐉', tier: 3, boss: true, hp: 1380, atk: 78, mag: 82, def: 57, res: 55, spd: 28,
       exp: 340, gold: 520, weak: ['ice'], resist: ['wind', 'thunder'], skills: ['e_gust', 'e_meteorfall', 'e_claw', 'e_roar'] });
   e({ id: 'b_voidlord', name: '虚無の王', icon: '🕳', tier: 3, boss: true, hp: 1920, atk: 93, mag: 98, def: 68, res: 68, spd: 30,
       exp: 500, gold: 760, weak: [], resist: ['dark', 'phys'], skills: ['e_voidbeam', 'e_drain', 'e_curse', 'e_meteorfall'] });
-  e({ id: 'b_worldmirror', name: '世界の鏡像', icon: '🪟', tier: 3, boss: true, hp: 1700, atk: 105, mag: 105, def: 77, res: 77, spd: 32,
-      exp: 700, gold: 1000, weak: [], resist: ['light', 'dark', 'phys'], skills: ['e_thorn', 'e_voidbeam', 'e_meteorfall', 'e_heal'] });
+  /* 最終章の前段。物理だけで来た者に、一度だけ持ち替えを迫る。
+   * 全体攻撃を持たないので、長引いても事故で終わらない。 */
+  e({ id: 'b_mirrorself', name: '鏡写しの衛士', icon: '🛡', tier: 3, boss: true, hp: 1210, atk: 98, mag: 58, def: 72, res: 56, spd: 34,
+      exp: 560, gold: 820, weak: ['light'], resist: ['phys'], skills: ['e_claw', 'e_slam', 'e_thorn', 'e_roar'] });
+
+  /* 世界の鏡像は「相（そう）」を四つ持つ。
+   * 残HPが下がるたびに弱点と耐性が入れ替わり、通る手段が入れ替わる。
+   * 一枚岩の耐性にすると、噛み合わないビルドには越えられない壁、
+   * 噛み合うビルドにはただの作業になる。相を回すことで、どのビルドにも
+   * 「今なら通る」時間帯が一度は来るようにしてある。
+   * 物理を弾くのは第二相だけ。自己回復は持たせない（長引くだけで難しくならないため）。 */
+  e({ id: 'b_worldmirror', name: '世界の鏡像', icon: '🪟', tier: 3, boss: true, hp: 1650, atk: 122, mag: 122, def: 77, res: 77, spd: 32,
+      exp: 700, gold: 1000, weak: [], resist: ['light', 'dark'],
+      skills: ['e_thorn', 'e_voidbeam', 'e_meteorfall', 'e_curse'],
+      phases: [
+        { at: 0.72, name: '焔氷の相', weak: ['thunder'], resist: ['fire', 'ice', 'phys'],
+          say: '——お前たちの刃を、写した。' },
+        { at: 0.45, name: '雷風の相', weak: ['fire', 'ice'], resist: ['thunder', 'wind'],
+          say: '——お前たちの速さを、写した。' },
+        { at: 0.20, name: '相剋の相', weak: ['light', 'dark'], resist: [],
+          say: '——もう、写すものがない。' }
+      ] });
 
   G.ENEMIES = E;
   G.ENEMY_BY_ID = {};

@@ -12,7 +12,10 @@ const G = loadEngine();
 
 const di = process.argv.indexOf('--diff');
 G.Diff.set(di >= 0 ? process.argv[di + 1] : 'normal');
-const RUNS = 6;
+const ri = process.argv.indexOf('--runs');
+/* 章ごとの数字は1周ごとのばらつきが大きい（残HPで±10ポイント動く）。
+ * 微調整の判断をするときは --runs 24 くらいまで上げること。 */
+const RUNS = ri >= 0 ? Math.max(1, parseInt(process.argv[ri + 1], 10) || 6) : 6;
 
 function ai(G, b) {
   const u = b.actor;
@@ -69,7 +72,7 @@ function story() {
     for (let ci = 0; ci < G.STORY.CHAPTERS.length; ci++) {
       const c = G.Story.chapter(st);
       const k = c.id;
-      acc[k] = acc[k] || { hp: [], rounds: [], fights: 0, wipes: 0, lv: [], foeLv: [],
+      acc[k] = acc[k] || { hp: [], rounds: [], fights: 0, wipes: 0, downs: 0, lv: [], foeLv: [],
                            skills: [], classes: [], legends: [], sp: [], boss: [] };
       for (const d of c.places.filter(p => p.kind === 'dungeon')) {
         restock(st);
@@ -89,6 +92,7 @@ function story() {
             st.hero.gold = Math.floor(st.hero.gold / 2); G.Run.healParty(st, 1); continue;
           }
           const mates = G.Battle.partyUnits(b);
+          acc[k].downs += mates.filter(m => m.hp <= 0).length;
           const ratio = mates.reduce((a, m) => a + Math.max(0, m.hp) / m.S.maxHp, 0) / mates.length;
           acc[k].hp.push(ratio);
           acc[k].rounds.push(b.round);
@@ -122,7 +126,7 @@ function story() {
       (avg(a.hp) * 100).toFixed(0).padStart(12) + '%' +
       (avg(a.boss) * 100).toFixed(0).padStart(10) + '%' +
       avg(a.rounds).toFixed(1).padStart(10) +
-      String(a.wipes).padStart(8) + String(a.wipes).padStart(6));
+      String(a.downs).padStart(8) + String(a.wipes).padStart(6));
   });
   console.log('\n■ 育ちと、相手の格');
   console.log('章  こちらのLv  敵の格(道中)  差');

@@ -40,7 +40,9 @@ G.Battle = (function () {
       },
       exp: Math.round(def.exp * s.rw), gold: Math.round(def.gold * s.rw),
       /* ボスが追撃を始める残HP割合。0 なら追撃しない。難易度で変わる。 */
-      follow: def.boss ? (G.Diff ? G.Diff.get().bossFollow : 0) : 0, raged: false
+      follow: def.boss ? (G.Diff ? G.Diff.get().bossFollow : 0) : 0, raged: false,
+      /* 相（そう）の切り替え。残HPが下がるたびに弱点と耐性が入れ替わる。 */
+      phases: (def.phases || []).slice(), phase: 0
     };
     refresh(u);
     u.hp = u.S.maxHp; u.mp = 999;
@@ -259,6 +261,7 @@ G.Battle = (function () {
      * 2度目は追撃あつかいで威力を落とす。等倍で2回動かれると
      * 立て直す隙がなく、ビルドの差ではなく事故で決まる戦いになる。 */
     b.units.forEach(function (u) { u._actNo = 0; });
+    aliveEnemies(b).forEach(function (u) { checkPhase(b, u); });
     aliveEnemies(b).forEach(function (u) {
       if (!u.isBoss || !u.follow) return;
       if (u.hp > u.S.maxHp * u.follow) return;
@@ -569,6 +572,34 @@ G.Battle = (function () {
   }
 
   /** 純粋なダメージ適用（バリア・反射・撃破処理を含む） */
+  /* ボスの「相」を進める。
+   * 一本調子の耐性を持つボスは、噛み合わないビルドにとってただの壁になり、
+   * 噛み合うビルドにとっては作業になる。残HPで弱点と耐性を入れ替えると、
+   * 同じ一戦のなかに、どのビルドにも通る時間帯が必ず一度は来る。 */
+  function checkPhase(b, u) {
+    if (!u.phases || !u.phases.length || u.hp <= 0) return;
+    while (u.phase < u.phases.length) {
+      var ph = u.phases[u.phase];
+      if (u.hp > u.S.maxHp * ph.at) return;
+      u.phase++;
+      u.weak = (ph.weak || []).slice();
+      u.resist = (ph.resist || []).slice();
+      log(b, '🪞 ' + u.name + ' の相が変わった —— 《' + ph.name + '》', 'bad');
+      if (ph.say) log(b, ph.say);
+      var lines = [];
+      if (u.weak.length) {
+        lines.push('弱点: ' + u.weak.map(function (e) {
+          return G.ELEMENTS[e] ? G.ELEMENTS[e].icon + G.ELEMENTS[e].name : e;
+        }).join('・'));
+      }
+      lines.push(u.resist.length ? '耐性: ' + u.resist.map(function (e) {
+        return e === 'phys' ? '⚔物理' : (G.ELEMENTS[e] ? G.ELEMENTS[e].icon + G.ELEMENTS[e].name : e);
+      }).join('・') : '耐性: なし');
+      log(b, '　' + lines.join(' ／ '), 'good');
+      fx(b, { t: 'phase', i: u.idx });
+    }
+  }
+
   function applyRawDamage(b, tgt, amount, label, src, meta) {
     meta = meta || {};
     if (!alive(tgt)) return 0;
@@ -650,6 +681,7 @@ G.Battle = (function () {
       sty(b, tgt, 'reflect', 1);
     }
     if (tgt.hp <= 0) onDeath(b, tgt, src, meta);
+    else checkPhase(b, tgt);
     return dmg;
   }
 

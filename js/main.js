@@ -97,6 +97,7 @@
   function enterPlace(id) {
     var p = G.Story.place(id);
     if (!p) return;
+    if (!G.Story.placeOpen(state, p)) { UI.toast('🔒 まだ、そこへの道は開いていない。'); return; }
     if (p.kind === 'town') { state.story.place = id; state.story.dungeon = null; go('town'); return; }
     /* 踏破済みなら「残響」。道中は無く、別の主に直行する。 */
     G.Story.enterDungeon(state, id, !!state.story.cleared[id]);
