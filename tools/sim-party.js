@@ -43,6 +43,10 @@ function runBattle(G, state, kind, verbose) {
 
 function main() {
   const G = loadEngine();
+  /* 難易度を指定できる: node tools/sim-party.js --diff hard */
+  const di = process.argv.indexOf('--diff');
+  G.Diff.set(di >= 0 ? process.argv[di + 1] : 'normal');
+  console.log('難易度:', G.Diff.get().name);
   const verbose = process.argv.indexOf('-v') >= 0;
   const runs = verbose ? 1 : 40;
   let wins = 0, floors = [], deaths = {};

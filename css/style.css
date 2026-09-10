@@ -39,6 +39,9 @@ button{font-family:inherit}
 .btn.primary{background:linear-gradient(180deg,#2b6f8f,#1d4a63);border-color:#3f9dc4}
 .btn.primary:hover{color:#fff;border-color:var(--acc)}
 .btn.danger{border-color:#63303c}
+.btn.sel{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.diffbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.diffnote{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.5}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
 .panel h2,.panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.08em;color:var(--acc)}
 h1{font-size:20px;letter-spacing:.1em;margin:18px 0 6px}

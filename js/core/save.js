@@ -5,7 +5,7 @@ G.Save = (function () {
 
   function defaultMeta() {
     return { mythics: [], classesSeen: [], bestFloor: 1, runs: 0, wins: 0, deaths: 0,
-             portraitStyle: 'anime' };
+             portraitStyle: 'anime', diff: 'normal' };
   }
 
   function safeGet(key) {
@@ -39,7 +39,8 @@ G.Save = (function () {
      * 仲間だけを保存して読み込み時に組み直す。 */
     var allies = (state.party || []).filter(function (m) { return m !== state.hero; });
     var data = { hero: state.hero, run: state.run, allies: allies,
-                 mode: state.mode || 'tower', story: state.story || null };
+                 mode: state.mode || 'tower', story: state.story || null,
+                 diff: state.diff || 'normal' };
     safeSet(RUN_KEY, JSON.stringify(data));
   }
 
@@ -93,6 +94,7 @@ G.Save = (function () {
         if (m.equip.armor && !G.GEAR[m.equip.armor]) m.equip.armor = null;
       });
       d.party = [d.hero].concat(d.allies);
+      if (!G.DIFF_BY_ID[d.diff]) d.diff = 'normal';
       /* 物語の進行。章や場所が消えていたら塔モードとして読む。 */
       d.mode = d.mode === 'story' ? 'story' : 'tower';
       if (d.mode === 'story') {

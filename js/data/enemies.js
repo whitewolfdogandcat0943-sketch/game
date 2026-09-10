@@ -46,17 +46,17 @@
       exp: 82, gold: 100, weak: ['dark'], resist: ['light'], skills: ['e_ray', 'e_heal', 'e_curse'] });
 
   /* --- ボス --- */
-  e({ id: 'b_ogre', name: '暴食のオーガ', icon: '👹', tier: 1, boss: true, hp: 265, atk: 29, mag: 10, def: 24, res: 12, spd: 12,
+  e({ id: 'b_ogre', name: '暴食のオーガ', icon: '👹', tier: 1, boss: true, hp: 318, atk: 33, mag: 11, def: 26, res: 13, spd: 12,
       exp: 90, gold: 160, weak: ['ice'], resist: ['dark'], skills: ['e_slam', 'e_quake', 'e_roar'] });
-  e({ id: 'b_frostqueen', name: '氷獄の女王', icon: '❄', tier: 2, boss: true, hp: 560, atk: 28, mag: 48, def: 30, res: 44, spd: 22,
+  e({ id: 'b_frostqueen', name: '氷獄の女王', icon: '❄', tier: 2, boss: true, hp: 672, atk: 32, mag: 55, def: 33, res: 48, spd: 22,
       exp: 190, gold: 320, weak: ['fire'], resist: ['ice', 'wind'], skills: ['e_frost', 'e_curse', 'e_heal'] });
-  e({ id: 'b_thornbeast', name: '棘鎧の獣王', icon: '🦂', tier: 2, boss: true, hp: 760, atk: 52, mag: 20, def: 56, res: 30, spd: 14,
+  e({ id: 'b_thornbeast', name: '棘鎧の獣王', icon: '🦂', tier: 2, boss: true, hp: 912, atk: 59, mag: 23, def: 62, res: 33, spd: 14,
       exp: 220, gold: 360, weak: ['thunder'], resist: ['phys'], skills: ['e_thorn', 'e_slam', 'e_quake'] });
-  e({ id: 'b_stormdrake', name: '天空竜', icon: '🐉', tier: 3, boss: true, hp: 1150, atk: 68, mag: 72, def: 52, res: 50, spd: 28,
+  e({ id: 'b_stormdrake', name: '天空竜', icon: '🐉', tier: 3, boss: true, hp: 1380, atk: 78, mag: 82, def: 57, res: 55, spd: 28,
       exp: 340, gold: 520, weak: ['ice'], resist: ['wind', 'thunder'], skills: ['e_gust', 'e_meteorfall', 'e_claw', 'e_roar'] });
-  e({ id: 'b_voidlord', name: '虚無の王', icon: '🕳', tier: 3, boss: true, hp: 1600, atk: 82, mag: 86, def: 62, res: 62, spd: 30,
+  e({ id: 'b_voidlord', name: '虚無の王', icon: '🕳', tier: 3, boss: true, hp: 1920, atk: 93, mag: 98, def: 68, res: 68, spd: 30,
       exp: 500, gold: 760, weak: [], resist: ['dark', 'phys'], skills: ['e_voidbeam', 'e_drain', 'e_curse', 'e_meteorfall'] });
-  e({ id: 'b_worldmirror', name: '世界の鏡像', icon: '🪟', tier: 3, boss: true, hp: 2100, atk: 92, mag: 92, def: 70, res: 70, spd: 32,
+  e({ id: 'b_worldmirror', name: '世界の鏡像', icon: '🪟', tier: 3, boss: true, hp: 1700, atk: 105, mag: 105, def: 77, res: 77, spd: 32,
       exp: 700, gold: 1000, weak: [], resist: ['light', 'dark', 'phys'], skills: ['e_thorn', 'e_voidbeam', 'e_meteorfall', 'e_heal'] });
 
   G.ENEMIES = E;

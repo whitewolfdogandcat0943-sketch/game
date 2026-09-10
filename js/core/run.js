@@ -198,19 +198,24 @@ G.Run = (function () {
       var boss = bossList[Math.min(idx, bossList.length - 1)] || U.pick(G.BOSSES);
       if (f >= 25) boss = G.ENEMY_BY_ID.b_worldmirror;
       units.push(G.Battle.makeEnemyUnit(boss, f, 0));
-      var addN = f >= 10 ? 2 : 1;
+      var addN = (f >= 8 ? 2 : 1) + G.Diff.get().adds;
       for (i = 0; i < addN; i++) units.push(G.Battle.makeEnemyUnit(U.pick(enemyPool(f)), Math.max(1, f - 2), i + 1));
       return { units: units, isBoss: true };
     }
     var pool = enemyPool(f, (kind === 'elite' && f >= 6) ? 1 : 0);
     var n;
     if (f <= 3) n = U.rint(2, 3);
-    else if (f <= 9) n = U.rint(2, 4);
-    else n = U.rint(3, 4);
+    else if (f <= 9) n = U.rint(3, 4);
+    else n = U.rint(3, 5);
     if (kind === 'elite') n = Math.max(2, n - 1);
+    n += (f >= 4 ? G.Diff.get().mobPlus : 0);
     for (i = 0; i < n; i++) {
       var e = G.Battle.makeEnemyUnit(U.pick(pool), kind === 'elite' ? f + 1 : f, i);
-      if (kind === 'elite') { e.base.maxHp = Math.round(e.base.maxHp * 1.35); G.Battle.refresh(e); e.hp = e.S.maxHp; e.name = '精鋭' + e.name; }
+      if (kind === 'elite') {
+        e.base.maxHp = Math.round(e.base.maxHp * 1.45);
+        e.base.atk = Math.round(e.base.atk * 1.15); e.base.mag = Math.round(e.base.mag * 1.15);
+        G.Battle.refresh(e); e.hp = e.S.maxHp; e.name = '精鋭' + e.name;
+      }
       units.push(e);
     }
     return { units: units, isBoss: false };
@@ -228,7 +233,8 @@ G.Run = (function () {
   }
 
   function rollAcc(floor, dropUp, forceLegend) {
-    var legendChance = U.clamp(0.06 + floor * 0.018 + (dropUp || 0) * 0.5, 0, 0.6);
+    var legendChance = U.clamp(0.06 + floor * 0.018 + (dropUp || 0) * 0.5 +
+                                G.Diff.get().drop * 0.6, 0, 0.6);
     if (forceLegend || U.chance(legendChance)) return U.pick(G.LEGENDS);
     var pool = G.NORMALS.filter(function (a) { return a.tier <= (floor <= 6 ? 1 : (floor <= 12 ? 2 : 3)); });
     return U.pick(pool.length ? pool : G.NORMALS);
@@ -263,7 +269,7 @@ G.Run = (function () {
     var dropUp = (G.Stats.compute(state.hero).S.dropUp || 0) * 0.3;
     /* 物語モードは塔より控えめ。レアを集めるなら塔、という差を残す。 */
     var modeMult = (state.mode === 'story') ? 0.35 : 1;
-    return U.clamp((base + deep + dropUp) * modeMult, 0, 0.95);
+    return U.clamp((base + deep + dropUp + G.Diff.get().drop) * modeMult, 0, 0.95);
   }
 
   /** 3択の報酬（ビルドを狙って伸ばすための選択肢） */

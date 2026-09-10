@@ -71,31 +71,44 @@ G.Story = (function () {
     state.story.place = null;
   }
 
+  /* 章の想定レベルを大きく超えて育っていると、中盤が素通りになり
+   * 最終章だけが壁になる。育ったぶんは敵の格も上げて、道中に手応えを残す。
+   * 章の設計値を下回ることはなく、上限も +8 までに留める。 */
+  function effLv(state, base) {
+    var lv = (state.hero && state.hero.level) || 1;
+    return Math.max(base, Math.min(base + 8, Math.round(lv * 0.68)));
+  }
+
   /** 次に戦う相手。最後の一戦はボス。 */
   function nextEncounter(state) {
     var dg = state.story.dungeon;
     if (!dg) return null;
     var d = place(dg.id);
     var isBoss = dg.at >= dg.depth - 1;
-    state.run.floor = isBoss ? d.bossLv : d.lv;
+    /* 道中だけを育ちに合わせて引き上げる。章の主は設計どおりの相手のままにして、
+     * 強さの上乗せは難易度モードに任せる。ボスまで追随させると最終章だけが崖になる。 */
+    var lvN = effLv(state, d.lv), bossN = d.bossLv;
+    state.run.floor = isBoss ? bossN : lvN;
     var units = [], i;
     if (isBoss) {
       var boss = G.ENEMY_BY_ID[d.boss];
-      units.push(G.Battle.makeEnemyUnit(boss, d.bossLv, 0));
-      var addN = d.bossLv >= 12 ? 2 : 1;
+      units.push(G.Battle.makeEnemyUnit(boss, bossN, 0));
+      var addN = (bossN >= 9 ? 2 : 1) + G.Diff.get().adds;
       for (i = 0; i < addN; i++) {
-        units.push(G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], Math.max(1, d.bossLv - 2), i + 1));
+        units.push(G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], Math.max(1, bossN - 2), i + 1));
       }
       return { units: units, isBoss: true, kind: 'boss' };
     }
-    var n = d.lv <= 5 ? U.rint(2, 3) : U.rint(2, 4);
+    var n = lvN <= 5 ? U.rint(2, 3) : (lvN <= 11 ? U.rint(3, 4) : U.rint(3, 5));
+    n += (lvN >= 4 ? G.Diff.get().mobPlus : 0);
     /* 最後の一歩手前は少し歯応えを増やす */
     var elite = (dg.at === dg.depth - 2) && d.depth >= 4;
     if (elite) n = Math.max(2, n - 1);
     for (i = 0; i < n; i++) {
-      var e = G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], elite ? d.lv + 1 : d.lv, i);
+      var e = G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], elite ? lvN + 1 : lvN, i);
       if (elite) {
-        e.base.maxHp = Math.round(e.base.maxHp * 1.3);
+        e.base.maxHp = Math.round(e.base.maxHp * 1.42);
+        e.base.atk = Math.round(e.base.atk * 1.15); e.base.mag = Math.round(e.base.mag * 1.15);
         G.Battle.refresh(e); e.hp = e.S.maxHp; e.name = '精鋭' + e.name;
       }
       units.push(e);

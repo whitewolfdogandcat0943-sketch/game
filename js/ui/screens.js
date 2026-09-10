@@ -59,11 +59,67 @@ G.Screens = (function () {
           '<div class="cname r-mythic">' + c.name + '</div></div>' +
           '<div class="cdesc">' + c.desc + '</div></div>';
       }).join('') + '</div></div>';
+    h += diffRow(state);
     render(h);
   }
 
 
   /* ===================== 物語モード ===================== */
+
+  /** 難易度の選択。カード表示（開始前）と一行表示（冒険中）の2形態。 */
+  function diffCards(state) {
+    var cur = state.diff || 'normal';
+    var h = '<div class="panel"><h3>難易度</h3>' +
+      '<p class="tiny muted">敵の強さだけでなく、取り巻きの数・狙われ方・終盤のボスの動きまで変わる。' +
+      'あとから町（塔なら焚き火）でいつでも変えられる。</p><div class="sep"></div><div class="grid g4">';
+    G.DIFFS.forEach(function (d) {
+      h += '<div class="card' + (d.id === cur ? ' sel' : '') + '" data-act="setDiff:' + d.id + '">' +
+        '<div class="classcard-head"><div class="modeico">' + d.icon + '</div>' +
+        '<div><div class="cname" style="font-size:15px">' + d.name +
+        (d.id === cur ? ' <span class="tag">選択中</span>' : '') + '</div>' +
+        '<div class="tiny muted">' + d.lead + '</div></div></div>' +
+        '<div class="cdesc">' + d.desc + '</div>' +
+        '<div class="diffnote">' + diffNumbers(d) + '</div></div>';
+    });
+    h += '</div><p class="tiny muted" style="margin-top:8px">' +
+      '「追撃」はボスの残りHPがその割合を切ってから、ラウンドの終わりにもう一撃入れてくるもの。' +
+      '威力5割の単体攻撃だけで、全体技や自己回復には使わない。' +
+      '相剋のボス倍率が標準より低いのは、追撃で受ける総ダメージのぶんを差し引いているため。</p>';
+    return h + '</div>';
+  }
+
+  /** 難易度の中身を数字で見せる。何が変わるのか分からないまま選ばせない。 */
+  function diffNumbers(d) {
+    function pct(v) { return (v >= 1 ? '+' : '') + Math.round((v - 1) * 100) + '%'; }
+    var acts = d.bossFollow ? '残りHP' + Math.round(d.bossFollow * 100) + '%から' : 'なし';
+    var out = ['敵HP ' + pct(d.ehp) + ' / 敵の火力 ' + pct(d.epw),
+               'ボスHP ' + pct(d.bhp) + ' / ボスの火力 ' + pct(d.bpw),
+               'ボスの追撃 ' + acts,
+               '経験値・金 ' + pct(d.rw) + (d.drop ? ' / レア率 +' + Math.round(d.drop * 100) + '%' : '')];
+    if (d.playerDr) out.push('こちらの被ダメージ -' + Math.round(d.playerDr * 100) + '%');
+    return out.join('<br>');
+  }
+
+  /** 冒険中に難易度を切り替える一行。町から呼ぶ。 */
+  function diffRow(state) {
+    var cur = state.diff || 'normal';
+    var h = '<div class="panel"><div class="row" style="justify-content:space-between;align-items:center">' +
+      '<h3 style="margin:0">難易度</h3>' +
+      '<span class="tiny muted">次の戦闘から変わる</span></div><div class="sep"></div>' +
+      '<div class="diffbar">';
+    G.DIFFS.forEach(function (d) {
+      h += '<button class="btn tiny' + (d.id === cur ? ' sel' : '') + '" data-act="setDiff:' + d.id + '">' +
+        d.icon + ' ' + d.name + '</button>';
+    });
+    h += '</div><div class="diffnote">' + diffNumbers(G.DIFF_BY_ID[cur]) + '</div></div>';
+    return h;
+  }
+
+  /** 見出しに出す難易度の札 */
+  function diffTag(state) {
+    var d = G.DIFF_BY_ID[state.diff || 'normal'];
+    return '<span class="tag">' + d.icon + ' ' + d.name + '</span>';
+  }
 
   /** 遊び方の入口。物語と試練の塔を選ぶ。 */
   function modeSelect(state, hasSave) {
@@ -86,6 +142,7 @@ G.Screens = (function () {
       '好きな初級職から始められる、腕試しのモード。<br><br>' +
       '<b>到達最深:</b> ' + m.bestFloor + 'F ／ <b>挑戦:</b> ' + m.runs + '回</div></div>';
     h += '</div>';
+    h += diffCards(state);
     h += '<div class="panel center"><button class="btn" data-act="codex">図鑑を見る</button></div>';
     h += '<div class="panel"><h3>記録</h3><div class="grid g4">' +
       kv('到達最深階層', m.bestFloor + 'F') + kv('挑戦回数', m.runs + '回') +
@@ -109,6 +166,7 @@ G.Screens = (function () {
       H.defaultName + '" value="' + H.defaultName + '">' +
       '<div class="sep"></div>' +
       '<button class="btn primary wide" data-act="storyBegin">旅に出る</button></div>';
+    h += diffRow(state);
     h += '<div class="panel"><h3>この世界のこと</h3>' +
       G.STORY.LORE.map(function (l) {
         return '<div class="kv"><span>' + l.t + '</span><span class="muted" style="text-align:right;max-width:70%">' + l.d + '</span></div>';
@@ -174,7 +232,8 @@ G.Screens = (function () {
     var st = state.story;
     G.Fx.applyBackground(c ? c.lv : 1);
     var h = '<h1>第' + c.id + '章 <span class="muted small">' + c.title + '</span>' +
-      (st.done ? ' <span class="r-mythic">― 旅の終わりのあとで ―</span>' : '') + '</h1>';
+      (st.done ? ' <span class="r-mythic">― 旅の終わりのあとで ―</span>' : '') +
+      ' ' + diffTag(state) + '</h1>';
     h += '<p class="muted">' + (G.Story.chapterDone(state)
       ? 'この章でやるべきことは終わった。先へ進める。'
       : '行き先を選べ。町では備え、ダンジョンでは戦う。') + '</p>';
@@ -263,6 +322,7 @@ G.Screens = (function () {
       });
       h += '</div>';
     }
+    h += diffRow(state);
     h += partyPanel(state);
     render(h);
   }
@@ -304,7 +364,8 @@ G.Screens = (function () {
     var run = state.run, hero = state.hero, S = G.Stats.compute(hero).S;
     G.Fx.applyBackground(run.floor);
     var h = '<h1>第 ' + run.floor + ' 階層 <span class="muted small">' + G.Fx.bandName(run.floor) + '</span>' +
-      (G.Run.isBossFloor(run.floor) ? ' <span class="r-mythic">― 主の間 ―</span>' : '') + '</h1>';
+      (G.Run.isBossFloor(run.floor) ? ' <span class="r-mythic">― 主の間 ―</span>' : '') +
+      ' ' + diffTag(state) + '</h1>';
     h += '<p class="muted">進む道を選べ。' + (G.Run.isBossFloor(run.floor) ? '逃げ道はない。' : '同じ階層で複数の道は選べない。') + '</p>';
     h += '<div class="grid g3">';
     run.nodes.forEach(function (n, i) {
@@ -672,7 +733,9 @@ G.Screens = (function () {
     h += '<div class="node" data-act="rest:heal">' + G.Gfx.nodeImg('rest', 3) + '<div class="nn">休む</div><div class="nd">HP/MPを最大値の60%回復する。</div></div>';
     h += '<div class="node" data-act="rest:train">' + G.Gfx.nodeImg('event', 3) + '<div class="nn">鍛錬する</div><div class="nd">次のレベルまでの経験値の70%を得る。</div></div>';
     h += '<div class="node" data-act="rest:forge">' + G.Gfx.iconImg('weapon', 'legend', 3) + '<div class="nn">装備を見直す</div><div class="nd">装備画面を開く（この後もう一度選べる）。</div></div>';
-    h += '</div><div class="panel center"><button class="btn" data-act="leaveNode">先へ進む</button></div>';
+    h += '</div>';
+    h += diffRow(state);
+    h += '<div class="panel center"><button class="btn" data-act="leaveNode">先へ進む</button></div>';
     render(h);
   }
 
@@ -1054,7 +1117,7 @@ G.Screens = (function () {
     modeSelect: modeSelect, storyIntro: storyIntro, scene: scene, world: world, town: town, dungeon: dungeon,
     shop: shop, rest: rest, altar: altar, event: event,
     buildModal: buildModal, accPicker: accPicker, gearPicker: gearPicker, codex: codex, help: help,
-    skillTree: skillTree,
+    skillTree: skillTree, diffCards: diffCards, diffRow: diffRow, diffTag: diffTag,
     render: render
   };
 })();

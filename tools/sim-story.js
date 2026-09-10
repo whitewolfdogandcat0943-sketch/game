@@ -10,9 +10,29 @@ function heroAI(G, b) {
   var sks = G.Stats.skillList(u.hero).map(function (id) { return G.SKILLS[id]; })
     .filter(function (s) { return (s.mp || 0) <= u.mp; });
   var hurt = mates.slice().sort(function (x, y) { return x.hp / x.S.maxHp - y.hp / y.S.maxHp; })[0];
-  if (u.hp / u.S.maxHp < 0.35 && b.state.hero.items.i_potion) {
-    return { type: 'item', id: 'i_potion', target: { ally: party.indexOf(u) } };
+  var down = party.filter(function (m) { return m.hp <= 0; })[0];
+
+  /* 1. 倒れた仲間を起こす */
+  if (down) {
+    var rev = sks.filter(function (s) { return s.eff && s.eff.revive; })[0];
+    if (rev) return { type: 'skill', id: rev.id, target: { ally: party.indexOf(down) } };
+    if (b.state.hero.items.r_revive) {
+      return { type: 'item', id: 'r_revive', target: { ally: party.indexOf(down) } };
+    }
   }
+  /* 2. 誰かが瀕死なら回復を優先する */
+  var heals = sks.filter(function (s) { return s.kind === 'heal'; });
+  if (heals.length && hurt && hurt.hp / hurt.S.maxHp < 0.45) {
+    var many = mates.filter(function (m) { return m.hp / m.S.maxHp < 0.6; }).length >= 2;
+    var pickH = heals.filter(function (s) { return many ? s.target === 'allies' : true; })[0] || heals[0];
+    return { type: 'skill', id: pickH.id, target: { ally: party.indexOf(hurt) } };
+  }
+  if (hurt && hurt.hp / hurt.S.maxHp < 0.4) {
+    var pot = b.state.hero.items.i_hipotion ? 'i_hipotion'
+            : (b.state.hero.items.i_potion ? 'i_potion' : null);
+    if (pot) return { type: 'item', id: pot, target: { ally: party.indexOf(hurt) } };
+  }
+  /* 3. 攻撃 */
   var atks = sks.filter(function (s) { return s.kind === 'phys' || s.kind === 'mag'; });
   if (foes.length >= 3) {
     var aoe = atks.filter(function (s) { return s.target === 'all'; });
@@ -23,6 +43,21 @@ function heroAI(G, b) {
   var use = atks[0] || G.SKILLS.attack;
   var foe = foes.slice().sort(function (x, y) { return x.hp - y.hp; })[0];
   return { type: 'skill', id: use.id, target: { foe: b.enemies.indexOf(foe) } };
+}
+
+/* 町での買い物。実際の遊びでは必ず補充してから潜るので、
+ * 補充しないままの数字で難度を測ると実態より厳しく出る。 */
+function restock(G, st) {
+  const want = { i_hipotion: 10, i_potion: 10, r_revive: 3, i_ether: 6 };
+  Object.keys(want).forEach(id => {
+    const def = (G.ITEM_BY_ID && G.ITEM_BY_ID[id]) ||
+                G.ITEMS.concat(G.RARE_ITEMS || []).filter(x => x.id === id)[0];
+    if (!def) return;
+    while ((st.hero.items[id] || 0) < want[id] && st.hero.gold >= def.price) {
+      st.hero.gold -= def.price;
+      G.addItem(st.hero, id, 1);
+    }
+  });
 }
 
 function fight(G, state, enc) {
@@ -44,6 +79,7 @@ function playthrough(G, log) {
     const c = G.Story.chapter(st);
     const dungeons = c.places.filter(p => p.kind === 'dungeon');
     for (const d of dungeons) {
+      restock(G, st);
       G.Story.enterDungeon(st, d.id);
       let steps = 0;
       while (st.story.dungeon && steps++ < 40) {
@@ -77,6 +113,11 @@ function playthrough(G, log) {
 
 function main() {
   const G = loadEngine();
+  /* 難易度を指定できる: node tools/sim-story.js --diff hard */
+  const di = process.argv.indexOf('--diff');
+  const diff = di >= 0 ? process.argv[di + 1] : 'normal';
+  G.Diff.set(diff);
+  console.log('難易度:', G.Diff.get().name);
   const n = process.argv.indexOf('-v') >= 0 ? 1 : 20;
   let done = 0, totalWipes = 0, lvs = [];
   for (let i = 0; i < n; i++) {

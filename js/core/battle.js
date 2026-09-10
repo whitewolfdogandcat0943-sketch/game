@@ -38,7 +38,9 @@ G.Battle = (function () {
         maxHp: Math.round(def.hp * s.hp), atk: Math.round(def.atk * s.pw), mag: Math.round(def.mag * s.pw),
         def: Math.round(def.def * s.df), res: Math.round(def.res * s.df), spd: def.spd + Math.floor(floor * 0.4)
       },
-      exp: Math.round(def.exp * s.rw), gold: Math.round(def.gold * s.rw)
+      exp: Math.round(def.exp * s.rw), gold: Math.round(def.gold * s.rw),
+      /* ボスが追撃を始める残HP割合。0 なら追撃しない。難易度で変わる。 */
+      follow: def.boss ? (G.Diff ? G.Diff.get().bossFollow : 0) : 0, raged: false
     };
     refresh(u);
     u.hp = u.S.maxHp; u.mp = 999;
@@ -49,17 +51,21 @@ G.Battle = (function () {
    * 上位ティアの敵が登場した瞬間に極端な数値にならない。 */
   var HOME_FLOOR = { mob: { 1: 1, 2: 6, 3: 13 }, boss: { 1: 5, 2: 10, 3: 15 } };
 
-  /** 階層に応じた敵スケーリング */
+  /** 階層に応じた敵スケーリング。最後に難易度の倍率を掛ける。 */
   function enemyScale(floor, def) {
     var home = (def && def.boss ? HOME_FLOOR.boss : HOME_FLOOR.mob)[(def && def.tier) || 1] || 1;
     var rel = Math.max(-1, floor - home);
     var abs = Math.max(0, floor - 1);
+    var dm = G.Diff ? G.Diff.scaleFor(def) : { hp: 1, pw: 1, df: 1 };
     return {
-      hp: Math.max(0.6, 1 + rel * 0.20 + Math.pow(Math.max(0, rel), 1.45) * 0.018),
-      /* 雑魚は数で攻めるため、1体あたりの火力は控えめにする */
-      pw: (def && def.boss ? 1 : 0.88) * Math.max(0.7, 1 + rel * 0.10 + Math.pow(Math.max(0, rel), 1.30) * 0.006),
-      df: Math.max(0.7, 1 + rel * 0.11),
-      rw: 1 + abs * 0.26
+      hp: (def && def.boss ? 1 : 1.30) *
+          Math.max(0.6, 1 + rel * 0.24 + Math.pow(Math.max(0, rel), 1.45) * 0.024) * dm.hp,
+      /* 雑魚は数で攻めるため、1体あたりの火力はボスより控えめにする */
+      pw: (def && def.boss ? 1.10 : 1.12) *
+          Math.max(0.7, 1 + rel * 0.115 + Math.pow(Math.max(0, rel), 1.30) * 0.007) * dm.pw,
+      df: Math.max(0.7, 1 + rel * 0.12) * dm.df,
+      /* 難しくするほど見返りも増やす */
+      rw: (1 + abs * 0.26) * (G.Diff ? G.Diff.get().rw : 1)
     };
   }
 
@@ -211,7 +217,17 @@ G.Battle = (function () {
     if (!cands.length) return null;
     var taunters = cands.filter(function (x) { return (x.tauntTurns || 0) > 0; });
     if (taunters.length) cands = taunters;
-    var t = U.pick(cands);
+    var t;
+    /* 難易度が上がるほど「落とせる相手」を正確に狙ってくる。
+     * 挑発は難易度に関わらず優先されるので、盾役の仕事は残る。 */
+    var aim = (G.Diff ? G.Diff.get().aim : 0);
+    if (cands.length > 1 && aim > 0 && U.chance(aim)) {
+      t = cands.slice().sort(function (x, y) {
+        var dx = x.hp + (x.barrier || 0) + x.S.def * 2 + x.S.maxHp * 0.15;
+        var dy = y.hp + (y.barrier || 0) + y.S.def * 2 + y.S.maxHp * 0.15;
+        return dx - dy;
+      })[0];
+    } else t = U.pick(cands);
     /* かばわれている相手なら、かばっている側が受ける */
     if (t.coveredBy && alive(t.coveredBy)) return t.coveredBy;
     return t;
@@ -224,6 +240,20 @@ G.Battle = (function () {
     b.queue = b.units.filter(alive).slice().sort(function (x, y) {
       var d = y.S.spd - x.S.spd;
       return d !== 0 ? d : (Math.random() - 0.5);
+    });
+    /* ボスの追加手番。列の最後に差し込むので、
+     * 「先手を取られ、締めにもう一度殴られる」形になる。
+     * 2度目は追撃あつかいで威力を落とす。等倍で2回動かれると
+     * 立て直す隙がなく、ビルドの差ではなく事故で決まる戦いになる。 */
+    b.units.forEach(function (u) { u._actNo = 0; });
+    aliveEnemies(b).forEach(function (u) {
+      if (!u.isBoss || !u.follow) return;
+      if (u.hp > u.S.maxHp * u.follow) return;
+      if (!u.raged) {
+        u.raged = true;
+        log(b, '💢 ' + u.name + ' が牙を剥いた！ ここからはラウンドの終わりにもう一撃来る。', 'bad');
+      }
+      b.queue.push(u);
     });
     b.qi = 0;
   }
@@ -266,10 +296,12 @@ G.Battle = (function () {
   /* 決着がつかない盤面を作らないための「激昂」。
    * 回復量が敵の火力を上回ると、勝てないが負けもしない膠着が起きる。
    * 一定ラウンドを過ぎたら敵の火力が増え続け、必ず決着がつくようにする。 */
-  var RAGE_FROM = 25, RAGE_STEP = 0.12;
+  var RAGE_STEP = 0.12;
+  /* ボスの2度目の手番（追撃）の威力 */
+  var FOLLOWUP_POWER = 0.5;
 
   function updateRage(b) {
-    var over = b.round - RAGE_FROM;
+    var over = b.round - (G.Diff ? G.Diff.get().rageFrom : 25);
     if (over <= 0) return;
     if (!b.rage) log(b, '🔥 敵が激昂した！ これ以上長引くほど、敵の攻撃は激しくなる。', 'bad');
     b.rage = over * RAGE_STEP;
@@ -399,6 +431,11 @@ G.Battle = (function () {
     dmg *= eMult;
     dmg *= (1 + (S.dmgUp || 0) + damageMods(src, tgt, b));
     if (src.side === 'enemy' && b.rage) dmg *= (1 + b.rage);
+    if (src.followUp) dmg *= FOLLOWUP_POWER;
+    /* やさしい難易度では、こちらへの被ダメージを一律で削る */
+    if (tgt.side === 'player' && G.Diff && G.Diff.get().playerDr) {
+      dmg *= (1 - G.Diff.get().playerDr);
+    }
     if (tgt.mark && tgt.mark.t > 0) dmg *= (1 + tgt.mark.v);
     if (hasStatus(src, 'blind') && !o.trueHit && U.chance(0.30)) {
       if (!o.silent) log(b, '🌑 ' + src.name + ' の攻撃は外れた。');
@@ -1159,7 +1196,8 @@ G.Battle = (function () {
     function avg(list) {
       return list.reduce(function (a, u) { return a + u.S.spd; }, 0) / list.length;
     }
-    return U.clamp(0.45 + (avg(mine) - avg(foes)) * 0.012, 0.15, 0.92);
+    var up = G.Diff ? G.Diff.get().fleeUp : 0;
+    return U.clamp(0.45 + up + (avg(mine) - avg(foes)) * 0.012, 0.10, 0.92);
   }
 
   /** 逃走を試みる。失敗すると手番を1つ失う。 */
@@ -1301,17 +1339,42 @@ G.Battle = (function () {
 
   function takeEnemyTurn(b, u) {
     u._b = b;
+    u._actNo = (u._actNo || 0) + 1;
+    u.followUp = u._actNo >= 2;
     b.currentFoeTarget = pickTarget(b, u);
-    if (stunned(b, u)) return;
+    if (stunned(b, u)) { u.followUp = false; return; }
     var sks = u.ref.skills.slice();
+    /* 追撃は「もう一撃入れてくる」だけにする。
+     * 全体技や状態異常まで2回撒かれると、盤面を立て直す手が無くなる。
+     * 回復も外す。削っても戻る戦いになるだけで、うまくやった感じがしない。 */
+    if (u.followUp) {
+      var atk = sks.filter(function (x) {
+        var sk = G.SKILLS[x];
+        return sk.kind !== 'heal' && sk.target !== 'all' && sk.target !== 'random';
+      });
+      if (atk.length) {
+        atk.sort(function (x, y) { return (G.SKILLS[x].power || 0) - (G.SKILLS[y].power || 0); });
+        sks = [atk[0]];
+      } else sks = ['attack'];
+    }
     var hpRatio = u.hp / u.S.maxHp;
     var pick;
+    var aim = G.Diff ? G.Diff.get().aim : 0;
     if (hpRatio < 0.4 && sks.indexOf('e_heal') >= 0 && U.chance(0.5)) pick = 'e_heal';
-    else if (u.isBoss && U.chance(0.35)) {
+    else if (u.isBoss && U.chance(0.38 + aim * 0.22)) {
       var aoes = sks.filter(function (s) { return G.SKILLS[s].target === 'all'; });
       pick = aoes.length ? U.pick(aoes) : U.pick(sks);
+    } else if (aim > 0 && U.chance(aim * 0.5)) {
+      /* 難易度が上がると、雑魚も手なりではなく強い技を選ぶ */
+      var strong = sks.slice().sort(function (x, y) {
+        var sx = G.SKILLS[x], sy = G.SKILLS[y];
+        return ((sy.power || 0) * (sy.hits || 1)) - ((sx.power || 0) * (sx.hits || 1));
+      });
+      pick = strong[0];
     } else pick = U.pick(sks);
     useSkill(b, u, pick, null);
+    /* 反撃やカウンターまで追撃あつかいにならないよう、手番の終わりで下ろす */
+    u.followUp = false;
     syncParty(b);
   }
 

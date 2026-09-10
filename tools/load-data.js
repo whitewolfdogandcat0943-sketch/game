@@ -16,6 +16,7 @@ const FILES = [
   'js/data/items.js',
   'js/data/allies.js',
   'js/data/enemies.js',
+  'js/data/difficulty.js',
   'js/data/skilltree.js',
   'js/data/classtree.js',
   'js/data/story.js'

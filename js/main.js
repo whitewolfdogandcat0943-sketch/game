@@ -5,10 +5,12 @@
   var state = {
     hero: null, run: null, party: null, meta: G.Save.loadMeta(), battle: null,
     screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill', buildIdx: 0,
-    mode: 'tower', story: null, scene: null,
+    mode: 'tower', story: null, scene: null, diff: 'normal',
     nodeKind: null, rewardData: null, currentEvent: null
   };
   G.state = state;
+  /* 前回選んだ難易度を初期値にする */
+  state.diff = G.Diff.set(state.meta.diff || 'normal').id;
 
   /* ===================== 画面遷移 ===================== */
   function go(screen) {
@@ -355,6 +357,25 @@
       /* --- タイトル --- */
       case 'newgame': go('classSelect'); break;
       case 'towerStart': state.mode = 'tower'; state.story = null; go('classSelect'); break;
+      case 'setDiff': {
+        var did = p[1];
+        if (!G.DIFF_BY_ID[did]) break;
+        state.diff = G.Diff.set(did).id;
+        state.meta.diff = state.diff; G.Save.saveMeta(state);
+        if (state.run && state.run.active) {
+          G.Save.saveRun(state);
+          UI.toast('難易度を <b>' + G.Diff.get().name + '</b> にした。次の戦闘から変わる。');
+        }
+        /* 名前を入力しかけている画面では、描き直しで消えないように持ち越す */
+        var nmEl = document.getElementById('heroName');
+        var keep = nmEl ? nmEl.value : null;
+        draw();
+        if (keep != null) {
+          var nm2 = document.getElementById('heroName');
+          if (nm2) nm2.value = keep;
+        }
+        break;
+      }
       case 'storyStart': go('storyIntro'); break;
       case 'storyBegin': {
         var snEl = document.getElementById('heroName');
@@ -397,6 +418,7 @@
         state.party = d.party || [state.hero];
         state.mode = d.mode || 'tower';
         state.story = d.story || null;
+        state.diff = G.Diff.set(d.diff || state.meta.diff || 'normal').id;
         if (!state.run.stats) state.run.stats = {};
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
          'statusApplied', 'evades']
