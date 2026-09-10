@@ -828,6 +828,8 @@ node tools/sim-story.js    # 物語モードを20周（完走率・全滅回数�
 node tools/sim-story.js -v # 1周ぶんの章ごとの推移を表示
 node tools/sim-story.js --diff hard   # 難易度を指定して測る（--diff は両方のシムで使える）
 node tools/check-classes.js     # 全37職に実際に就けるか検証（条件をそのまま読んで4枠を組む）
+node tools/pacing.js            # レベルデザインの点検（章ごとの手応えと、新しいことが起きる頻度）
+node tools/pacing.js --tower    # 同じものを試練の塔の5階ごとに
 node tools/check-classtrees.js  # 職業ツリー37本の中身を点検（空・重複・文字化け・軸のズレ・2択の偏り）
 node tools/check-classtrees.js -v  # 37職ぶんの中身を並べて表示
 node tools/check-ally-lines.js  # 仲間が系統の先端まで到達できるか検証

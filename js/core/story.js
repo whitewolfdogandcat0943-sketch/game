@@ -192,6 +192,9 @@ G.Story = (function () {
     state.story.phase = 'open';
     state.story.dungeon = null;
     state.story.place = null;
+    /* 道具屋の品を入れ替える。ここで捨てないと、
+     * 最初の町で並んだ4個を最終章まで売り続けることになる。 */
+    if (state.run) state.run.shop = null;
     return chapter(state);
   }
 
