@@ -534,6 +534,7 @@ mod（会心率、反射率、属性ダメージ…）と特殊効果フラグ�
 37職 × 8 = 296通りの「同じ職業だが別物」が作れます。
 
 - 解放は **習熟度**（その職業で戦った回数）。通常戦闘+1／精鋭+2／ボス+3。
+  実測では、塔なら**6階あたりで最終段（習熟9）が開きます**。
   第1段は習熟2、第2段は5、第3段は9で開きます。
 - **各段は片方しか選べません。** 選ばなかった側は「選ばなかった道」として残ります。
 - 第3段の多くは**スキルを1つ習得**します。同じ職業でも手札が変わります。
@@ -827,6 +828,8 @@ node tools/sim-story.js    # 物語モードを20周（完走率・全滅回数�
 node tools/sim-story.js -v # 1周ぶんの章ごとの推移を表示
 node tools/sim-story.js --diff hard   # 難易度を指定して測る（--diff は両方のシムで使える）
 node tools/check-classes.js     # 全37職に実際に就けるか検証（条件をそのまま読んで4枠を組む）
+node tools/check-classtrees.js  # 職業ツリー37本の中身を点検（空・重複・文字化け・軸のズレ・2択の偏り）
+node tools/check-classtrees.js -v  # 37職ぶんの中身を並べて表示
 node tools/check-ally-lines.js  # 仲間が系統の先端まで到達できるか検証
 node tools/portrait-prompts.js > docs/portrait-prompts.md  # 立ち絵の生成用プロンプト
 ```
