@@ -19,9 +19,8 @@ G.ALLIES = {};
     join: 1,
     desc: '灰都の施療院で育った治し手。誰かが倒れることを、理屈ではなく体で拒む。',
     weapon: 'w_mace', armor: 'a_robe', acc: ['n_wardearring'],
-    /* 守りと浄化の道。攻めには向かないが、支える形は何通りもある。 */
-    line: ['priest', 'exorcist', 'guardian', 'alchemist',
-           'finalArbiter', 'astralArchmage', 'mirrorEmperor', 'alchemySovereign'],
+    /* 守りと浄化の道。行き着く先は、この人にしかない2つ。 */
+    line: ['priest', 'exorcist', 'guardian', 'dawnMother', 'undyingAegis'],
     signature: ['aid_mend', 'aid_shelter']
   });
 
@@ -33,8 +32,7 @@ G.ALLIES = {};
           '守るべき城が無くなってからも、守り方しか知らない。',
     weapon: 'w_thornmace', armor: 'a_chain', acc: ['n_ironcharm'],
     /* 守るか、猛るか。どちらに転んでも前に立つことは変わらない。 */
-    line: ['swordsman', 'guardian', 'berserker',
-           'mirrorEmperor', 'bloodfiend', 'voidSovereign'],
+    line: ['swordsman', 'guardian', 'berserker', 'ironBastion', 'wrathBulwark'],
     signature: ['aid_cover', 'aid_rally']
   });
 
@@ -45,8 +43,7 @@ G.ALLIES = {};
     desc: '塔を追われた研究者。人の心には疎いが、世界の理屈には誰よりも近い。',
     weapon: 'w_oakstaff', armor: 'a_robe', acc: ['n_sagering'],
     /* 元素・嵐・呪。世界の理屈へ寄る道ばかりで、剣を持つ道は無い。 */
-    line: ['mage', 'elementalist', 'stormcaller', 'hexer',
-           'astralArchmage', 'calamityKing', 'plaguelord'],
+    line: ['mage', 'elementalist', 'stormcaller', 'hexer', 'worldTheorem', 'stillCalamity'],
     signature: ['aid_amplify', 'aid_siphon']
   });
 

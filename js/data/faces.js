@@ -64,7 +64,14 @@ G.FACES = (function () {
     voidSovereign:  { hue: 282, sat: 36, lum: 22, accent: 300, prop: 'staff',      hair: 'hood', robe: true, cape: true, capeHue: 285, circlet: true },
     skyrunner:      { hue: 168, sat: 40, lum: 48, accent: 55,  prop: 'sword',      cape: true, capeHue: 170, build: 'slim', hair: 'tail', circlet: true },
     plaguelord:     { hue: 290, sat: 36, lum: 24, accent: 120, prop: 'staff',      hair: 'hood', robe: true, cape: true, capeHue: 288, circlet: true },
-    poleEmperor:    { hue: 240, sat: 40, lum: 38, accent: 20,  prop: 'sword',      cape: true, capeHue: 245, pauldron: true, circlet: true }
+    poleEmperor:    { hue: 240, sat: 40, lum: 38, accent: 20,  prop: 'sword',      cape: true, capeHue: 245, pauldron: true, circlet: true },
+    /* 仲間だけの最上級職 */
+    dawnMother:     { hue: 44,  sat: 30, lum: 74, accent: 200, prop: 'mace',       robe: true, cape: true, capeHue: 48,  circlet: true },
+    undyingAegis:   { hue: 48,  sat: 24, lum: 68, accent: 205, prop: 'mace',       robe: true, pauldron: true, circlet: true },
+    ironBastion:    { hue: 18,  sat: 24, lum: 44, accent: 35,  prop: 'greatsword', pauldron: true, cape: true, capeHue: 20, circlet: true, metalHue: 30 },
+    wrathBulwark:   { hue: 6,   sat: 44, lum: 36, accent: 30,  prop: 'greatsword', pauldron: true, cape: true, capeHue: 8,  circlet: true },
+    worldTheorem:   { hue: 278, sat: 42, lum: 44, accent: 190, prop: 'staff',      robe: true, cape: true, capeHue: 282, circlet: true },
+    stillCalamity:  { hue: 286, sat: 36, lum: 32, accent: 130, prop: 'staff',      robe: true, cape: true, capeHue: 288, circlet: true }
   };
 
   /* ---------- 物語の脇役 ---------- */

@@ -432,6 +432,79 @@
     if (C[k]) { C[k].icon = META[k][0]; C[k].desc = META[k][1]; }
   });
 
+  /* =================== 仲間だけの最上級職 ===================
+   * ally を持つ職業はその人物専用。主人公は就けない。
+   * 「主人公は何にでもなれる／仲間は自分にしかなれないものになる」という対比。 */
+
+  def({
+    id: 'dawnMother', name: '暁光聖母', tier: 3, ally: 'mina',
+    from: ['exorcist', 'priest'],
+    desc: '倒れることを許さない者。光と癒しの極みに達し、断たれた命すら朝へ連れ戻す。',
+    req: [accStyle('life', 90, 0.30), accElemPair(50), lv(12)],
+    base: { hp: 190, mp: 110, str: 8, int: 23, vit: 20, agi: 10, luk: 14 },
+    grow: { hp: 15, mp: 7.2, str: 0.9, int: 3.2, vit: 2.6, agi: 1.2, luk: 1.8 },
+    mods: { magPct: 0.30, 'el_light': 0.45, lifesteal: 0.20, dr: 0.15, mp: 60, mpRegen: 8 },
+    flags: ['overheal', 'endure', 'wardAll'],
+    skills: ['ult_dawnbreak', 'resurrect', 'groupHeal', 'blessing', 'purify', 'guardianAngel', 'holyChain']
+  });
+  def({
+    id: 'undyingAegis', name: '不倒聖盾', tier: 3, ally: 'mina',
+    from: ['guardian', 'priest'],
+    desc: '祈りを盾の形に固めた者。前に出ることはないが、この人の後ろで誰も倒れない。',
+    req: [accStyle('guard', 100, 0.35), legendN(1), lv(12)],
+    base: { hp: 250, mp: 90, str: 9, int: 18, vit: 28, agi: 7, luk: 11 },
+    grow: { hp: 21, mp: 5.6, str: 1.0, int: 2.4, vit: 3.6, agi: 0.8, luk: 1.3 },
+    mods: { defPct: 0.40, res: 45, dr: 0.22, hpPct: 0.25, reflect: 0.20 },
+    flags: ['wardAll', 'lastStand', 'barrierOnHit', 'overheal'],
+    skills: ['ult_undying', 'bulwark', 'sanctuary', 'homunculus', 'guardianAngel', 'martyr', 'groupHeal']
+  });
+
+  def({
+    id: 'ironBastion', name: '不動城塞', tier: 3, ally: 'garo',
+    from: ['guardian'],
+    desc: '守るべき城を失って、自分が城になった男。動かないことが、そのまま攻撃になる。',
+    req: [accStyleDual('guard', 'reflect', 60), legendN(1), lv(12)],
+    base: { hp: 290, mp: 55, str: 18, int: 8, vit: 32, agi: 6, luk: 8 },
+    grow: { hp: 25, mp: 3.0, str: 2.2, int: 0.9, vit: 4.0, agi: 0.7, luk: 0.9 },
+    mods: { defPct: 0.45, dr: 0.24, reflect: 0.32, reflectPow: 0.45, hpPct: 0.30 },
+    flags: ['wallPower', 'thornAura', 'counterEvade', 'endure'],
+    skills: ['ult_bastion', 'counterWall', 'bulwark', 'tauntRoar', 'ironWall', 'retaliate', 'earthSplitter']
+  });
+  def({
+    id: 'wrathBulwark', name: '忿怒盾鬼', tier: 3, ally: 'garo',
+    from: ['berserker'],
+    desc: '守り切れなかった記憶を燃やして立つ者。傷が深いほど、その一撃は重くなる。',
+    req: [accStyleDual('life', 'guard', 55), legendN(1), lv(12)],
+    base: { hp: 260, mp: 55, str: 24, int: 8, vit: 24, agi: 10, luk: 9 },
+    grow: { hp: 22, mp: 3.0, str: 3.2, int: 0.9, vit: 3.0, agi: 1.3, luk: 1.0 },
+    mods: { atkPct: 0.35, lifesteal: 0.32, hpPct: 0.28, dr: 0.10, critDmg: 0.40 },
+    flags: ['lowHpRage', 'lastStand', 'killHeal', 'wallPower'],
+    skills: ['ult_wrathgate', 'carnage', 'bloodRage', 'bloodOffering', 'avengeStance', 'crushArmor', 'tauntRoar']
+  });
+
+  def({
+    id: 'worldTheorem', name: '万理術理', tier: 3, ally: 'sera',
+    from: ['elementalist'],
+    desc: '相刻の式をすべて解いた者。世界が何でできているかを知っているので、何にでも効く。',
+    req: [accStyle('elem', 140, 0.42), allElem(0.14), lv(12)],
+    base: { hp: 150, mp: 130, str: 8, int: 26, vit: 12, agi: 15, luk: 13 },
+    grow: { hp: 12, mp: 8.0, str: 0.9, int: 3.6, vit: 1.5, agi: 2.0, luk: 1.5 },
+    mods: { magPct: 0.35, pierce: 0.45, mp: 70, mpRegen: 9, spd: 12 },
+    flags: ['allElemStrike', 'elementCycle', 'weakHunter', 'doubleCast'],
+    skills: ['ult_theorem', 'ult_astralBurst', 'elementalBurst', 'meteor', 'blizzard', 'chainBolt', 'overload']
+  });
+  def({
+    id: 'stillCalamity', name: '静謐災禍', tier: 3, ally: 'sera',
+    from: ['stormcaller', 'hexer'],
+    desc: '声を荒らげずに土地を枯らす者。理屈が分かっているぶん、手際がいい。',
+    req: [accStyleDual('aoe', 'status', 55), legendN(1), lv(12)],
+    base: { hp: 155, mp: 120, str: 9, int: 25, vit: 13, agi: 17, luk: 12 },
+    grow: { hp: 12, mp: 7.4, str: 1.0, int: 3.4, vit: 1.6, agi: 2.2, luk: 1.4 },
+    mods: { aoePower: 0.50, aoeRatio: 0.35, 'el_dark': 0.35, magPct: 0.22, mp: 50 },
+    flags: ['spreadStatus', 'lingering', 'statusDamage', 'overkillChain'],
+    skills: ['ult_stillness', 'plagueMark', 'gravityWell', 'cycloneCage', 'hexMist', 'soulSeal', 'dispelWave']
+  });
+
   G.CLASSES = C;
   G.CLASS_LIST = Object.keys(C).map(function (k) { return C[k]; });
   G.STARTER_CLASSES = ['swordsman', 'mage', 'rogue', 'priest'];

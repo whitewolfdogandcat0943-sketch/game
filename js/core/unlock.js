@@ -37,12 +37,14 @@ G.Unlock = (function () {
   }
 
   /** その人が進める職業の一覧。
-   * 仲間は line（系統）で限られる。主人公は全職が対象。 */
+   * 仲間は line（系統）で限られ、その先端はその人にしかない固有の最上級職。
+   * 逆に主人公は、誰かの固有職には就けない。 */
   function classLine(member) {
     if (member && member.allyId && G.ALLIES[member.allyId]) {
       return G.ALLIES[member.allyId].line || [member.classId];
     }
-    return G.CLASS_LIST.map(function (c) { return c.id; });
+    return G.CLASS_LIST.filter(function (c) { return !c.ally; })
+      .map(function (c) { return c.id; });
   }
 
   /** 転職可能な職業一覧 */

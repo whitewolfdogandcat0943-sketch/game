@@ -282,6 +282,13 @@ G.Gfx = (function () {
     hexer:          { arch: 'robed',   hue: 278, sat: 45, lum: 44, accent: 120, eye: '#a6ff7a' },
     spellblade:     { arch: 'warrior', hue: 258, sat: 40, lum: 50, accent: 25 },
     phantomSaint:   { arch: 'hooded',  hue: 265, sat: 40, lum: 38, accent: 50, crown: true, eye: '#ff5fd2' },
+    /* 仲間だけの最上級職 */
+    dawnMother:     { arch: 'angel',   hue: 44,  sat: 34, lum: 70, accent: 200, crown: true, eye: '#8fe6ff' },
+    undyingAegis:   { arch: 'robed',   hue: 48,  sat: 26, lum: 66, accent: 205, crown: true, eye: '#ffffff' },
+    ironBastion:    { arch: 'golem',   hue: 18,  sat: 26, lum: 44, accent: 35,  crown: true, eye: '#ffd27a' },
+    wrathBulwark:   { arch: 'brute',   hue: 6,   sat: 44, lum: 36, accent: 30,  crown: true, eye: '#ff7a4a' },
+    worldTheorem:   { arch: 'robed',   hue: 278, sat: 44, lum: 44, accent: 190, crown: true, eye: '#c8b4ff' },
+    stillCalamity:  { arch: 'ghost',   hue: 286, sat: 38, lum: 32, accent: 130, crown: true, eye: '#9dffb0' },
     mirrorEmperor:  { arch: 'knight',  hue: 195, sat: 30, lum: 62, accent: 190, accentSat: 25, crown: true },
     calamityKing:   { arch: 'robed',   hue: 155, sat: 55, lum: 55, accent: 50, crown: true },
     astralArchmage: { arch: 'robed',   hue: 250, sat: 55, lum: 55, accent: 55, crown: true, eye: '#fff3c4' },

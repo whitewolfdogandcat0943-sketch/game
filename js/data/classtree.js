@@ -236,6 +236,56 @@
      n('覇断', '強敵と瀕死に極端に強い', { critDmg: 0.30 }, ['bossSlayer', 'executeLow'], 't_condemn')]
   ]);
 
+  /* ==================== 仲間だけの最上級職 ==================== */
+  tree('dawnMother', [
+    [n('灯し続ける', '光をさらに強くする', { 'el_light': 0.25 }),
+     n('絶やさない', '回復の器を広げる', { mp: 50, mpRegen: 6 })],
+    [n('溢れる分も', '過剰な癒しを盾に変える', null, ['overheal']),
+     n('一人も', '倒れない体を全員に配る', { hpPct: 0.15 }, ['endure'])],
+    [n('朝を呼ぶ', '光の一撃で味方を癒す', { 'el_light': 0.25, lifesteal: 0.15 }, ['weakHunter'], 'holyNova'),
+     n('看取らない', '倒れた者を戻す術を極める', { magPct: 0.20 }, ['overheal'], 'resurrect')]
+  ]);
+  tree('undyingAegis', [
+    [n('祈盾', '物理を弾く', { defPct: 0.25 }),
+     n('祈衣', '魔を弾く', { res: 40 })],
+    [n('身代わり', '被弾でバリアを張る', null, ['barrierOnHit']),
+     n('万象の守り', '全属性を薄く軽減する', null, ['wardAll'])],
+    [n('動かぬ誓い', '庇う力を極める', { dr: 0.12, hpPct: 0.12 }, ['lastStand'], 'bulwark'),
+     n('癒しの壁', 'バリアと癒しを兼ねる', { magPct: 0.20 }, ['overheal'], 'homunculus')]
+  ]);
+  tree('ironBastion', [
+    [n('据える', '防御を攻撃に変える', { defPct: 0.25 }, ['wallPower']),
+     n('返す', '反射の威力を増す', { reflectPow: 0.40 })],
+    [n('棘の霧', '立っているだけで削る', null, ['thornAura']),
+     n('避けて斬る', '回避に反撃を乗せる', { evade: 0.12 }, ['counterEvade'])],
+    [n('城になる', '動かないことを極める', { dr: 0.15, hpPct: 0.18 }, ['endure'], 'counterWall'),
+     n('壁で殴る', '防御そのもので殴る', { defPct: 0.30 }, ['wallPower', 'guardBreak'], 'retaliate')]
+  ]);
+  tree('wrathBulwark', [
+    [n('燃やす', '削れるほど強くなる', null, ['lowHpRage']),
+     n('喰らう', '奪って立て直す', { lifesteal: 0.20 })],
+    [n('背水', '半分を切ってから本気を出す', { hpPct: 0.15 }, ['lastStand']),
+     n('屠る', '撃破で体力を取り戻す', null, ['killHeal'])],
+    [n('忿怒', '怒りを火力に変え切る', { atkPct: 0.25, critDmg: 0.35 }, ['lowHpRage'], 'carnage'),
+     n('盾鬼', '守りながら猛る', { defPct: 0.28 }, ['wallPower', 'endure'], 'tauntRoar')]
+  ]);
+  tree('worldTheorem', [
+    [n('解式', '全属性を底上げする', elems(0.12)),
+     n('貫式', '耐性を抜く', { pierce: 0.30 })],
+    [n('二重詠唱', '同じ呪文が二度走る', null, ['doubleCast']),
+     n('属性転変', '通常攻撃の属性が巡る', null, ['elementCycle'])],
+    [n('万理', '弱点をさらに深く突く', elems(0.14), ['weakHunter'], 'ult_astralBurst'),
+     n('全打', '通常攻撃を全属性にする', { magPct: 0.22 }, ['allElemStrike'], 'elementalBurst')]
+  ]);
+  tree('stillCalamity', [
+    [n('広げる', '範囲の威力を上げる', { aoePower: 0.35 }),
+     n('遺す', '状態異常を長く残す', null, ['lingering'])],
+    [n('伝播', '呪いが周囲へ移る', null, ['spreadStatus']),
+     n('蝕む', '状態異常の敵に強く出る', null, ['statusDamage'])],
+    [n('静かな災い', '撒く力を極める', { aoeRatio: 0.30, 'el_dark': 0.20 }, ['overkillChain'], 'plagueMark'),
+     n('枯らす', '毒と刻印で削り切る', { magPct: 0.22 }, ['spreadStatus', 'statusDamage'], 'soulSeal')]
+  ]);
+
   G.CLASSTREE = T;
 
   /* ===================== 習熟の判定 ===================== */

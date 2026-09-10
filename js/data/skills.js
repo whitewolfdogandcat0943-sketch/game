@@ -365,6 +365,30 @@ G.SKILLS = {};
       special: 'hybrid', desc: '【奥義】物魔一体の三連撃（偶数撃は闇）。味方全員が追撃する。',
       eff: { altElement: 'dark', linkStrike: 0.45 } });
 
+  /* ---------- 仲間だけが辿り着く奥義 ---------- */
+  S({ id: 'ult_dawnbreak', name: '暁を告げる', mp: 34, kind: 'heal', target: 'allies', power: 260,
+      desc: '【奥義】倒れた仲間を全員復帰させ、味方全体を大回復し、状態異常を解除する。',
+      eff: { revive: 0.70, reviveAll: true, cleanse: true,
+             buffs: [{ k: 'dr', v: 0.20, t: 3 }] } });
+  S({ id: 'ult_undying', name: '不倒の誓い', mp: 30, kind: 'buff', target: 'allies',
+      desc: '【奥義】味方全体にバリアを張り、4ターン致死ダメージを1度耐える加護と被ダメ35%減を与える。',
+      eff: { barrier: 1.6, flagBuff: { f: 'endure', t: 4 },
+             buffs: [{ k: 'dr', v: 0.35, t: 4 }, { k: 'reflect', v: 0.25, t: 4 }] } });
+  S({ id: 'ult_bastion', name: '城塞たれ', mp: 30, kind: 'util', target: 'self',
+      desc: '【奥義】5ターン、味方全員をかばい、受けた攻撃に威力240%で反撃する。防御+80%。',
+      eff: { cover: 5, taunt: 5, counter: { t: 5, n: 9, p: 240 },
+             buffs: [{ k: 'defPct', v: 0.80, t: 5 }, { k: 'reflect', v: 0.40, t: 5 }] } });
+  S({ id: 'ult_wrathgate', name: '忿怒開門', mp: 26, kind: 'phys', el: 'phys', power: 150, target: 'all',
+      special: 'reflectScale', desc: '【奥義】最大HPの15%を支払い、失った体力ぶん重くなる一撃を敵全体へ。60%吸収。',
+      eff: { hpCost: 0.15, drain: 0.60, aoeBonus: 0.35 } });
+  S({ id: 'ult_theorem', name: '万理を解く', mp: 36, kind: 'mag', el: 'phys', power: 145, target: 'all',
+      special: 'allElem', desc: '【奥義】6属性で敵全体を撃ち、耐性を完全に無視する。',
+      eff: { fullPierce: true, defIgnore: 0.50 } });
+  S({ id: 'ult_stillness', name: '静かな災い', mp: 34, kind: 'mag', el: 'dark', power: 175, target: 'all',
+      desc: '【奥義】敵全体の強化を打ち消し、封印・毒・刻印を同時に刻む。',
+      eff: { dispel: true, seal: { t: 3, c: 0.75 }, poison: { t: 4, v: 0.09 },
+             mark: { v: 0.40, t: 4 }, aoeBonus: 0.30 } });
+
   /* ---------- 仲間の固有技 ---------- */
   S({ id: 'aid_mend', name: '手当て', mp: 7, kind: 'heal', target: 'ally', power: 135,
       desc: '味方1人を回復し、状態異常を解除する。', eff: { cleanse: true } });
