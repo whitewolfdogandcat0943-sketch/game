@@ -130,6 +130,14 @@ G.Style = (function () {
     return s;
   }
 
+  /** そのアクセサリが一番効く軸。報酬の3択を軸で散らすのに使う。 */
+  function topAxis(acc) {
+    var s = scoreOf(acc);
+    var best = null, bv = 0;
+    AXIS_IDS.forEach(function (k) { if (s[k] > bv) { bv = s[k]; best = k; } });
+    return best;
+  }
+
   /** 装備中のアクセサリ4枠だけを見たスタイル */
   function fromAccessories(hero) {
     var s = empty();
@@ -166,7 +174,8 @@ G.Style = (function () {
     AXES: AXES, AXIS_IDS: AXIS_IDS, MOD_AXES: MOD_AXES, FLAG_AXES: FLAG_AXES,
     empty: empty, newRecord: newRecord,
     addTo: addTo, behaviourOf: behaviourOf, behaviourOfParty: behaviourOfParty,
-    shares: shares, scoreOf: scoreOf, fromAccessories: fromAccessories, accShares: accShares,
+    shares: shares, scoreOf: scoreOf, topAxis: topAxis,
+    fromAccessories: fromAccessories, accShares: accShares,
     axisName: axisName, axisClass: axisClass
   };
 })();

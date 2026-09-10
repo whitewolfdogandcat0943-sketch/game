@@ -273,15 +273,77 @@ G.Run = (function () {
   }
 
   /** 3択の報酬（ビルドを狙って伸ばすための選択肢） */
+  /* 報酬の3択。
+   *
+   * ただ抽選すると、母数の多い軸（属性）ばかりが並び、
+   * 支援や弱体のアクセはほとんど見ないまま冒険が終わる。
+   * 実測では自分の軸が3択に入る確率が、属性70%に対してアイテム12%だった。
+   * 「良いものが出る」ことと「ビルドが偏らない」ことを両立させるため、
+   * 3つの軸を意図的に散らす:
+   *   1つ目 … 今のビルドの主軸（深める選択肢。必ず使えるものが出る）
+   *   2つ目 … まだ薄い軸（乗り換える選択肢。ここが無いと一本道になる）
+   *   3つ目 … 残りからランダム（意外性）
+   * 主軸がまだ無い序盤は、3つとも別の軸からランダムに選ぶ。 */
   function makeChoices(state, kind) {
     var f = state.run.floor, S = G.Stats.compute(state.hero).S;
-    var out = [], used = {};
-    function push(o) { if (o && !used[o.id]) { used[o.id] = true; out.push({ type: 'acc', ref: o }); } }
-    var legends = kind === 'boss' ? 2 : (kind === 'elite' ? 1 : (U.chance(0.35 + (S.dropUp || 0) * 0.4) ? 1 : 0));
+    var out = [], used = {}, usedAxis = {};
+    function push(o) {
+      if (!o || used[o.id]) return false;
+      used[o.id] = true;
+      var ax = G.Style.topAxis(o);
+      if (ax) usedAxis[ax] = true;
+      out.push({ type: 'acc', ref: o });
+      return true;
+    }
+    var legendsLeft = kind === 'boss' ? 2
+      : (kind === 'elite' ? 1 : (U.chance(0.35 + (S.dropUp || 0) * 0.4) ? 1 : 0));
+    var tier = f <= 6 ? 1 : (f <= 12 ? 2 : 3);
+
+    /* その軸で、今の階層に見合うアクセを1つ引く */
+    function drawFor(axis) {
+      var wantLegend = legendsLeft > 0;
+      var pool = (wantLegend ? G.LEGENDS : G.NORMALS).filter(function (a) {
+        return !used[a.id] && G.Style.topAxis(a) === axis && (wantLegend || a.tier <= tier);
+      });
+      /* レジェンドに該当が無ければ通常から、通常に無ければレジェンドから */
+      if (!pool.length) {
+        pool = (wantLegend ? G.NORMALS.filter(function (a) { return a.tier <= tier; }) : G.LEGENDS)
+          .filter(function (a) { return !used[a.id] && G.Style.topAxis(a) === axis; });
+        wantLegend = !wantLegend;
+      }
+      if (!pool.length) return false;
+      var got = U.pick(pool);
+      if (got.rarity === 'legend') legendsLeft--;
+      return push(got);
+    }
+
+    /* 今の軸の順位。装備しているものと、実際の戦い方の両方を見る。 */
+    var acc = G.Style.accShares(state.hero);
+    var rec = G.Style.behaviourOf(state.hero);
+    var rank = G.Style.AXIS_IDS.map(function (a) {
+      return { a: a, v: (acc.score[a] || 0) + (rec[a] || 0) * 4 };
+    }).sort(function (x, y) { return y.v - x.v; });
+    /* 初期装備の幸運のコイン（会心率+5%）だけで「会心ビルド」と見なされると、
+     * 最初の報酬から会心へ誘導してしまう。はっきり寄せていると言える量に達するまでは
+     * 主軸なしとして扱い、3つとも別々の軸から選ぶ。 */
+    var hot = rank[0].v >= 30 ? rank[0].a : null;
+    var cold = rank.filter(function (x) { return x.v <= rank[0].v * 0.25; }).map(function (x) { return x.a; });
+    if (!cold.length) cold = rank.slice(-4).map(function (x) { return x.a; });
+
+    if (hot) drawFor(hot);
+    var coldPick = cold.filter(function (a) { return !usedAxis[a]; });
+    if (coldPick.length) drawFor(U.pick(coldPick));
+
+    /* 残りは、まだ出ていない軸からランダムに */
     var guard = 0;
-    while (out.length < legends && guard++ < 40) push(U.pick(G.LEGENDS));
+    while (out.length < 3 && guard++ < 40) {
+      var rest = G.Style.AXIS_IDS.filter(function (a) { return !usedAxis[a]; });
+      if (!rest.length) break;
+      drawFor(U.pick(rest));
+    }
+    /* それでも埋まらなければ従来どおり抽選で埋める */
     guard = 0;
-    while (out.length < 3 && guard++ < 60) push(rollAcc(f, S.dropUp || 0, false));
+    while (out.length < 3 && guard++ < 60) push(rollAcc(f, S.dropUp || 0, legendsLeft-- > 0));
     return out;
   }
 
