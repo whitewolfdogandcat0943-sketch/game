@@ -333,6 +333,93 @@
   "kind": "acc"
  },
  {
+  "id": "n_bardcharm",
+  "name": "詩人の護符",
+  "tier": 1,
+  "price": 115,
+  "mods": {
+   "buffPower": 0.22,
+   "mp": 18
+  },
+  "desc": "支援ビルドの基礎。強化の効果量が上がる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_hexneedle",
+  "name": "呪縛の針",
+  "tier": 1,
+  "price": 115,
+  "mods": {
+   "debuffPower": 0.22,
+   "mag": 8
+  },
+  "desc": "弱体ビルドの基礎。弱体の効果量が上がる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_bannerpin",
+  "name": "軍旗の徽章",
+  "tier": 2,
+  "price": 170,
+  "mods": {
+   "buffPower": 0.26,
+   "buffTurns": 1,
+   "spd": 6
+  },
+  "desc": "強化が長く、強く残る。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_ruinseal",
+  "name": "零落の封印",
+  "tier": 2,
+  "price": 170,
+  "mods": {
+   "debuffPower": 0.26,
+   "debuffTurns": 1,
+   "el_dark": 0.1
+  },
+  "desc": "弱体が長く、深く効く。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_venomvial",
+  "name": "毒の小瓶",
+  "tier": 1,
+  "price": 115,
+  "mods": {
+   "dotPower": 0.22,
+   "mag": 8
+  },
+  "desc": "持続ダメージビルドの基礎。毒と火傷が重くなる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_rotband",
+  "name": "腐蝕の腕輪",
+  "tier": 2,
+  "price": 170,
+  "mods": {
+   "dotPower": 0.26,
+   "dotTurns": 1,
+   "el_dark": 0.1
+  },
+  "desc": "蝕みが長く、深く残る。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
   "id": "l_judgeoath",
   "name": "断罪者の血盟",
   "tier": 3,
@@ -1856,6 +1943,172 @@
   "kind": "acc"
  },
  {
+  "id": "l_anthemharp",
+  "name": "凱歌の竪琴",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "buffPower": 0.58,
+   "buffTurns": 2,
+   "mp": 40
+  },
+  "flags": [
+   "encore"
+  ],
+  "desc": "弦が切れても鳴り続ける竪琴。かけた加護がもう一度重なる。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_auroramantle",
+  "name": "暁光の外套",
+  "tier": 3,
+  "price": 650,
+  "mods": {
+   "buffPower": 0.4,
+   "dr": 0.1,
+   "mpRegen": 5
+  },
+  "flags": [
+   "boonShare",
+   "boonGuard"
+  ],
+  "desc": "羽織った者の加護が、隣に立つ者へも滲み出す。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_marchbanner",
+  "name": "進軍の軍旗",
+  "tier": 3,
+  "price": 640,
+  "mods": {
+   "buffPower": 0.34,
+   "buffTurns": 1,
+   "spd": 16,
+   "atkPct": 0.08
+  },
+  "flags": [
+   "openingRally"
+  ],
+  "desc": "掲げるだけで隊が前に出る。戦の始まりを一手ぶん早める。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_witherstaff",
+  "name": "衰えの杖",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "debuffPower": 0.58,
+   "debuffTurns": 2,
+   "el_dark": 0.2
+  },
+  "flags": [
+   "hexBrand"
+  ],
+  "desc": "触れたものから順に弱っていく杖。折れないのは、まだ削るものがあるから。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_doomchain",
+  "name": "万縛の鎖",
+  "tier": 3,
+  "price": 650,
+  "mods": {
+   "debuffPower": 0.4,
+   "pierce": 0.15
+  },
+  "flags": [
+   "spreadHex",
+   "doomToll"
+  ],
+  "desc": "一人を縛れば、繋がった全員が動けなくなる鎖。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_sappinggauntlet",
+  "name": "削骨の篭手",
+  "tier": 3,
+  "price": 630,
+  "mods": {
+   "debuffPower": 0.3,
+   "atkPct": 0.14,
+   "atk": 18
+  },
+  "flags": [
+   "sapStrike"
+  ],
+  "desc": "殴るたびに相手の力そのものを削り落とす篭手。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_blightcrown",
+  "name": "蝕みの王冠",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "dotPower": 0.58,
+   "dotTurns": 2,
+   "el_dark": 0.15
+  },
+  "flags": [
+   "festering"
+  ],
+  "desc": "被った者の周りから緑が消えていく冠。毒と炎が同時に灯ると、深く食い込む。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_carrionmaw",
+  "name": "屍喰らいの顎",
+  "tier": 3,
+  "price": 650,
+  "mods": {
+   "dotPower": 0.4,
+   "lifesteal": 0.1,
+   "hp": 50
+  },
+  "flags": [
+   "rotFeast",
+   "plagueBurst"
+  ],
+  "desc": "朽ちたものを喰らって伸びる顎。倒れた敵から次の敵へ、疫が飛ぶ。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_venomfangs",
+  "name": "万毒の牙",
+  "tier": 3,
+  "price": 640,
+  "mods": {
+   "dotPower": 0.34,
+   "atk": 18,
+   "spd": 10
+  },
+  "flags": [
+   "venomEdge",
+   "deepRot"
+  ],
+  "desc": "触れた端から腐らせる牙。時間をかけるほど深くなる。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
   "id": "l_galeheart",
   "name": "暴風の心臓",
   "tier": 3,
@@ -1967,6 +2220,93 @@
   ],
   "desc": "焚くほどに病が広がる香炉。",
   "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "y_worldchoir",
+  "name": "万象の合唱",
+  "tier": 4,
+  "price": 0,
+  "mods": {
+   "buffPower": 1.1,
+   "buffTurns": 3,
+   "mp": 60,
+   "mpRegen": 8
+  },
+  "flags": [
+   "boonShare",
+   "encore",
+   "boonGuard",
+   "openingRally"
+  ],
+  "desc": "歌い手が一人でも、聞こえるのは大合唱。",
+  "cond": {
+   "when": "battleEnd",
+   "code": "boons_cast",
+   "v": 16,
+   "label": "1回の戦闘で味方に強化を16回かけて勝利する",
+   "hint": "全体強化を毎ターン重ね、アンコールで回数を稼げ"
+  },
+  "rarity": "mythic",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "y_eternalrot",
+  "name": "不朽の腐核",
+  "tier": 4,
+  "price": 0,
+  "mods": {
+   "dotPower": 1.1,
+   "dotTurns": 3,
+   "el_dark": 0.25,
+   "magPct": 0.15
+  },
+  "flags": [
+   "festering",
+   "deepRot",
+   "rotFeast",
+   "plagueBurst"
+  ],
+  "desc": "何百年も腐り続けて、まだ腐りきらない核。",
+  "cond": {
+   "when": "battleEnd",
+   "code": "rot_kills",
+   "v": 4,
+   "label": "1回の戦闘で持続ダメージだけで敵を4体倒す",
+   "hint": "毒と火傷を全体に撒き、削り切るまで待て"
+  },
+  "rarity": "mythic",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "y_ruinledger",
+  "name": "零落の帳簿",
+  "tier": 4,
+  "price": 0,
+  "mods": {
+   "debuffPower": 1.1,
+   "debuffTurns": 3,
+   "el_dark": 0.3,
+   "pierce": 0.25
+  },
+  "flags": [
+   "hexBrand",
+   "doomToll",
+   "spreadHex",
+   "frailtyAura"
+  ],
+  "desc": "削り取ったものが、一行ずつ書き足されていく帳簿。",
+  "cond": {
+   "when": "battleEnd",
+   "code": "hex_stack",
+   "v": 5,
+   "label": "1体の敵に弱体を5つ同時に乗せて勝利する",
+   "hint": "攻撃・魔法・防御・魔防・素早さを別々に削れ"
+  },
+  "rarity": "mythic",
   "slot": "acc",
   "kind": "acc"
  },

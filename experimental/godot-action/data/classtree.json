@@ -818,6 +818,187 @@
    }
   }
  ],
+ "bard": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "大声",
+    "desc": "届く声で歌う",
+    "mods": {
+     "buffPower": 0.18
+    }
+   },
+   "b": {
+    "name": "長歌",
+    "desc": "歌い終わらない",
+    "mods": {
+     "buffTurns": 1
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "唱和",
+    "desc": "自分の加護を皆で分ける",
+    "flags": [
+     "boonShare"
+    ]
+   },
+   "b": {
+    "name": "緩衝",
+    "desc": "加護が守りにもなる",
+    "flags": [
+     "boonGuard"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "凱歌",
+    "desc": "攻めの歌に振り切る",
+    "mods": {
+     "buffPower": 0.2
+    },
+    "skill": "valorMarch"
+   },
+   "b": {
+    "name": "再演",
+    "desc": "もう一度鳴ることがある",
+    "flags": [
+     "encore"
+    ],
+    "skill": "wardSong"
+   }
+  }
+ ],
+ "plaguedoctor": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "濃毒",
+    "desc": "一度に入る量を増やす",
+    "mods": {
+     "dotPower": 0.18
+    }
+   },
+   "b": {
+    "name": "遅効",
+    "desc": "効き続ける時間を延ばす",
+    "mods": {
+     "dotTurns": 1
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "併発",
+    "desc": "毒と炎を同時に灯す",
+    "flags": [
+     "festering"
+    ]
+   },
+   "b": {
+    "name": "毒刃",
+    "desc": "殴るだけで毒が乗る",
+    "flags": [
+     "venomEdge"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "培養",
+    "desc": "撒いたものを腐らせ続ける",
+    "mods": {
+     "dotPower": 0.2
+    },
+    "flags": [
+     "deepRot"
+    ],
+    "skill": "miasma"
+   },
+   "b": {
+    "name": "屍利用",
+    "desc": "腐り落ちた者から次へ移す",
+    "flags": [
+     "plagueBurst",
+     "rotFeast"
+    ],
+    "skill": "incubate"
+   }
+  }
+ ],
+ "binder": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "深呪",
+    "desc": "弱体を深くする",
+    "mods": {
+     "debuffPower": 0.18
+    }
+   },
+   "b": {
+    "name": "長呪",
+    "desc": "弱体を長引かせる",
+    "mods": {
+     "debuffTurns": 1
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "伝播",
+    "desc": "呪いが隣へ移る",
+    "flags": [
+     "spreadHex"
+    ]
+   },
+   "b": {
+    "name": "打擲",
+    "desc": "殴るだけで削れる",
+    "flags": [
+     "sapStrike"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "烙印",
+    "desc": "弱った敵ほど深く斬れる",
+    "mods": {
+     "magPct": 0.12
+    },
+    "flags": [
+     "hexBrand"
+    ],
+    "skill": "witherAll"
+   },
+   "b": {
+    "name": "積弊",
+    "desc": "重ねるほど脆くなる",
+    "flags": [
+     "doomToll"
+    ],
+    "skill": "bindingWord"
+   }
+  }
+ ],
  "spellblade": [
   {
    "tier": 1,
@@ -1550,6 +1731,207 @@
    }
   }
  ],
+ "graceEmperor": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "天音",
+    "desc": "加護そのものを強くする",
+    "mods": {
+     "buffPower": 0.25
+    }
+   },
+   "b": {
+    "name": "永唱",
+    "desc": "加護が切れない",
+    "mods": {
+     "buffTurns": 2
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "斉唱",
+    "desc": "自分の加護がそのまま隊の加護になる",
+    "flags": [
+     "boonShare",
+     "openingRally"
+    ]
+   },
+   "b": {
+    "name": "護歌",
+    "desc": "加護を着た者は倒れない",
+    "mods": {
+     "dr": 0.1
+    },
+    "flags": [
+     "boonGuard"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "凱旋",
+    "desc": "攻めきる歌に振り切る",
+    "mods": {
+     "buffPower": 0.2,
+     "magPct": 0.15
+    },
+    "skill": "ult_paean"
+   },
+   "b": {
+    "name": "鎮魂",
+    "desc": "倒れた者を歌で戻す",
+    "mods": {
+     "mp": 40
+    },
+    "flags": [
+     "overheal"
+    ],
+    "skill": "resurrect"
+   }
+  }
+ ],
+ "rotKing": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "劇毒",
+    "desc": "毒そのものを極める",
+    "mods": {
+     "dotPower": 0.25
+    }
+   },
+   "b": {
+    "name": "不朽",
+    "desc": "効き目が切れない",
+    "mods": {
+     "dotTurns": 2
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "腐爛",
+    "desc": "腐るほど深くなる",
+    "flags": [
+     "deepRot",
+     "festering"
+    ]
+   },
+   "b": {
+    "name": "疫散",
+    "desc": "死んだ端から次へ移る",
+    "mods": {
+     "lifesteal": 0.1
+    },
+    "flags": [
+     "plagueBurst",
+     "rotFeast"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "万蝕",
+    "desc": "戦場ごと腐らせる",
+    "mods": {
+     "dotPower": 0.2,
+     "el_dark": 0.15
+    },
+    "skill": "ult_rotworld"
+   },
+   "b": {
+    "name": "収穫",
+    "desc": "腐らせたぶんだけ満ちる",
+    "mods": {
+     "magPct": 0.15
+    },
+    "flags": [
+     "soulHarvest",
+     "killHeal"
+    ],
+    "skill": "pyreCurse"
+   }
+  }
+ ],
+ "ruinEmperor": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "極呪",
+    "desc": "弱体を極める",
+    "mods": {
+     "debuffPower": 0.25
+    }
+   },
+   "b": {
+    "name": "久呪",
+    "desc": "弱体を切らさない",
+    "mods": {
+     "debuffTurns": 2
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "万縛",
+    "desc": "呪いが戦場に広がる",
+    "flags": [
+     "spreadHex",
+     "frailtyAura"
+    ]
+   },
+   "b": {
+    "name": "刻印",
+    "desc": "呪われた敵に致命を与える",
+    "mods": {
+     "magPct": 0.12
+    },
+    "flags": [
+     "hexBrand",
+     "doomToll"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "零落",
+    "desc": "数字を根こそぎ削る",
+    "mods": {
+     "debuffPower": 0.2
+    },
+    "skill": "ult_ruin"
+   },
+   "b": {
+    "name": "侵蝕",
+    "desc": "弱体と毒を同時に撒く",
+    "mods": {
+     "el_dark": 0.2
+    },
+    "flags": [
+     "statusOnHit",
+     "lingering"
+    ],
+    "skill": "plagueMark"
+   }
+  }
+ ],
  "poleEmperor": [
   {
    "tier": 1,
@@ -1619,6 +2001,421 @@
      "executeLow"
     ],
     "skill": "t_condemn"
+   }
+  }
+ ],
+ "dawnMother": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "灯し続ける",
+    "desc": "光をさらに強くする",
+    "mods": {
+     "el_light": 0.25
+    }
+   },
+   "b": {
+    "name": "絶やさない",
+    "desc": "回復の器を広げる",
+    "mods": {
+     "mp": 50,
+     "mpRegen": 6
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "溢れる分も",
+    "desc": "過剰な癒しを盾に変える",
+    "flags": [
+     "overheal"
+    ]
+   },
+   "b": {
+    "name": "一人も",
+    "desc": "倒れない体を全員に配る",
+    "mods": {
+     "hpPct": 0.15
+    },
+    "flags": [
+     "endure"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "朝を呼ぶ",
+    "desc": "光の一撃で味方を癒す",
+    "mods": {
+     "el_light": 0.25,
+     "lifesteal": 0.15
+    },
+    "flags": [
+     "weakHunter"
+    ],
+    "skill": "holyNova"
+   },
+   "b": {
+    "name": "看取らない",
+    "desc": "倒れた者を戻す術を極める",
+    "mods": {
+     "magPct": 0.2
+    },
+    "flags": [
+     "overheal"
+    ],
+    "skill": "resurrect"
+   }
+  }
+ ],
+ "undyingAegis": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "祈盾",
+    "desc": "物理を弾く",
+    "mods": {
+     "defPct": 0.25
+    }
+   },
+   "b": {
+    "name": "祈衣",
+    "desc": "魔を弾く",
+    "mods": {
+     "res": 40
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "身代わり",
+    "desc": "被弾でバリアを張る",
+    "flags": [
+     "barrierOnHit"
+    ]
+   },
+   "b": {
+    "name": "万象の守り",
+    "desc": "全属性を薄く軽減する",
+    "flags": [
+     "wardAll"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "動かぬ誓い",
+    "desc": "庇う力を極める",
+    "mods": {
+     "dr": 0.12,
+     "hpPct": 0.12
+    },
+    "flags": [
+     "lastStand"
+    ],
+    "skill": "bulwark"
+   },
+   "b": {
+    "name": "癒しの壁",
+    "desc": "バリアと癒しを兼ねる",
+    "mods": {
+     "magPct": 0.2
+    },
+    "flags": [
+     "overheal"
+    ],
+    "skill": "homunculus"
+   }
+  }
+ ],
+ "ironBastion": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "据える",
+    "desc": "防御を攻撃に変える",
+    "mods": {
+     "defPct": 0.25
+    },
+    "flags": [
+     "wallPower"
+    ]
+   },
+   "b": {
+    "name": "返す",
+    "desc": "反射の威力を増す",
+    "mods": {
+     "reflectPow": 0.4
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "棘の霧",
+    "desc": "立っているだけで削る",
+    "flags": [
+     "thornAura"
+    ]
+   },
+   "b": {
+    "name": "避けて斬る",
+    "desc": "回避に反撃を乗せる",
+    "mods": {
+     "evade": 0.12
+    },
+    "flags": [
+     "counterEvade"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "城になる",
+    "desc": "動かないことを極める",
+    "mods": {
+     "dr": 0.15,
+     "hpPct": 0.18
+    },
+    "flags": [
+     "endure"
+    ],
+    "skill": "counterWall"
+   },
+   "b": {
+    "name": "壁で殴る",
+    "desc": "防御そのもので殴る",
+    "mods": {
+     "defPct": 0.3
+    },
+    "flags": [
+     "wallPower",
+     "guardBreak"
+    ],
+    "skill": "retaliate"
+   }
+  }
+ ],
+ "wrathBulwark": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "燃やす",
+    "desc": "削れるほど強くなる",
+    "flags": [
+     "lowHpRage"
+    ]
+   },
+   "b": {
+    "name": "喰らう",
+    "desc": "奪って立て直す",
+    "mods": {
+     "lifesteal": 0.2
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "背水",
+    "desc": "半分を切ってから本気を出す",
+    "mods": {
+     "hpPct": 0.15
+    },
+    "flags": [
+     "lastStand"
+    ]
+   },
+   "b": {
+    "name": "屠る",
+    "desc": "撃破で体力を取り戻す",
+    "flags": [
+     "killHeal"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "忿怒",
+    "desc": "怒りを火力に変え切る",
+    "mods": {
+     "atkPct": 0.25,
+     "critDmg": 0.35
+    },
+    "flags": [
+     "lowHpRage"
+    ],
+    "skill": "carnage"
+   },
+   "b": {
+    "name": "盾鬼",
+    "desc": "守りながら猛る",
+    "mods": {
+     "defPct": 0.28
+    },
+    "flags": [
+     "wallPower",
+     "endure"
+    ],
+    "skill": "tauntRoar"
+   }
+  }
+ ],
+ "worldTheorem": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "解式",
+    "desc": "全属性を底上げする",
+    "mods": {
+     "el_fire": 0.12,
+     "el_ice": 0.12,
+     "el_thunder": 0.12,
+     "el_wind": 0.12,
+     "el_light": 0.12,
+     "el_dark": 0.12
+    }
+   },
+   "b": {
+    "name": "貫式",
+    "desc": "耐性を抜く",
+    "mods": {
+     "pierce": 0.3
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "二重詠唱",
+    "desc": "同じ呪文が二度走る",
+    "flags": [
+     "doubleCast"
+    ]
+   },
+   "b": {
+    "name": "属性転変",
+    "desc": "通常攻撃の属性が巡る",
+    "flags": [
+     "elementCycle"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "万理",
+    "desc": "弱点をさらに深く突く",
+    "mods": {
+     "el_fire": 0.14,
+     "el_ice": 0.14,
+     "el_thunder": 0.14,
+     "el_wind": 0.14,
+     "el_light": 0.14,
+     "el_dark": 0.14
+    },
+    "flags": [
+     "weakHunter"
+    ],
+    "skill": "ult_astralBurst"
+   },
+   "b": {
+    "name": "全打",
+    "desc": "通常攻撃を全属性にする",
+    "mods": {
+     "magPct": 0.22
+    },
+    "flags": [
+     "allElemStrike"
+    ],
+    "skill": "elementalBurst"
+   }
+  }
+ ],
+ "stillCalamity": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "広げる",
+    "desc": "範囲の威力を上げる",
+    "mods": {
+     "aoePower": 0.35
+    }
+   },
+   "b": {
+    "name": "遺す",
+    "desc": "状態異常を長く残す",
+    "flags": [
+     "lingering"
+    ]
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "伝播",
+    "desc": "呪いが周囲へ移る",
+    "flags": [
+     "spreadStatus"
+    ]
+   },
+   "b": {
+    "name": "蝕む",
+    "desc": "状態異常の敵に強く出る",
+    "flags": [
+     "statusDamage"
+    ]
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "静かな災い",
+    "desc": "撒く力を極める",
+    "mods": {
+     "aoeRatio": 0.3,
+     "el_dark": 0.2
+    },
+    "flags": [
+     "overkillChain"
+    ],
+    "skill": "plagueMark"
+   },
+   "b": {
+    "name": "枯らす",
+    "desc": "毒と刻印で削り切る",
+    "mods": {
+     "magPct": 0.22
+    },
+    "flags": [
+     "spreadStatus",
+     "statusDamage"
+    ],
+    "skill": "soulSeal"
    }
   }
  ]

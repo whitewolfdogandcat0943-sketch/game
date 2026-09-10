@@ -302,5 +302,226 @@
   },
   "desc": "6属性すべてで全体を攻撃する。",
   "kind": "item"
+ },
+ {
+  "id": "r_revive",
+  "name": "復活の霊薬",
+  "tier": 2,
+  "price": 520,
+  "use": {
+   "revive": 0.55
+  },
+  "desc": "【レア】倒れた仲間を1人、最大HPの55%で復帰させる。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_goddesstear",
+  "name": "女神の涙",
+  "tier": 3,
+  "price": 1400,
+  "use": {
+   "revive": 0.6,
+   "reviveAll": true,
+   "target": "allies",
+   "type": "heal",
+   "power": 220
+  },
+  "desc": "【レア】倒れた仲間を全員復帰させ、パーティ全体を回復する。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_grandelixir",
+  "name": "賢者の霊薬",
+  "tier": 3,
+  "price": 1100,
+  "use": {
+   "type": "full",
+   "target": "allies"
+  },
+  "desc": "【レア】パーティ全員のHP/MPを全回復し、状態異常を解除する。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_dawnwater",
+  "name": "暁の霊水",
+  "tier": 2,
+  "price": 460,
+  "use": {
+   "type": "cleanse",
+   "power": 260,
+   "target": "allies"
+  },
+  "desc": "【レア】パーティ全員の状態異常を解除し、HPを回復する。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_aegisdust",
+  "name": "金剛の砂",
+  "tier": 2,
+  "price": 500,
+  "use": {
+   "type": "buff",
+   "target": "allies",
+   "endure": true,
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.3,
+     "t": 4
+    }
+   ]
+  },
+  "desc": "【レア】パーティ全員が4ターン被ダメ30%減、致死ダメージを1度耐える。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_warhymn",
+  "name": "戦の讃歌",
+  "tier": 2,
+  "price": 480,
+  "use": {
+   "type": "buff",
+   "target": "allies",
+   "buffs": [
+    {
+     "k": "dmgUp",
+     "v": 0.5,
+     "t": 4
+    },
+    {
+     "k": "critRate",
+     "v": 0.2,
+     "t": 4
+    }
+   ]
+  },
+  "desc": "【レア】パーティ全員が4ターン与ダメ+50%／会心率+20%。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_windclock",
+  "name": "疾風の砂時計",
+  "tier": 2,
+  "price": 470,
+  "use": {
+   "type": "buff",
+   "target": "allies",
+   "buffs": [
+    {
+     "k": "spd",
+     "v": 40,
+     "t": 4
+    },
+    {
+     "k": "evade",
+     "v": 0.2,
+     "t": 4
+    }
+   ]
+  },
+  "desc": "【レア】パーティ全員が4ターン素早さ+40／回避+20%。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_purgeincense",
+  "name": "破魔の香",
+  "tier": 2,
+  "price": 430,
+  "use": {
+   "type": "util",
+   "target": "all",
+   "dispel": true,
+   "power": 0
+  },
+  "desc": "【レア】敵全体の強化とバリアをすべて打ち消す。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_sealtalisman",
+  "name": "封魔の札",
+  "tier": 3,
+  "price": 620,
+  "use": {
+   "type": "util",
+   "target": "all",
+   "seal": {
+    "t": 3,
+    "c": 0.85
+   },
+   "power": 0
+  },
+  "desc": "【レア】敵全体を85%の確率で3ターン封印し、技を封じる。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_dragonbolt",
+  "name": "竜殺しの矢",
+  "tier": 3,
+  "price": 700,
+  "use": {
+   "type": "dmg",
+   "el": "phys",
+   "power": 520,
+   "target": "one",
+   "defIgnore": 0.7
+  },
+  "desc": "【レア】単体に防御を70%無視する特大の一撃。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_stardust",
+  "name": "星屑の砂",
+  "tier": 3,
+  "price": 900,
+  "use": {
+   "type": "dmgMulti",
+   "els": [
+    "fire",
+    "ice",
+    "thunder",
+    "wind",
+    "light",
+    "dark"
+   ],
+   "power": 120,
+   "target": "all"
+  },
+  "desc": "【レア】6属性すべてで敵全体を撃つ。虹の小瓶の上位。",
+  "rarity": "rare",
+  "kind": "item"
+ },
+ {
+  "id": "r_shadownail",
+  "name": "影縫いの釘",
+  "tier": 3,
+  "price": 660,
+  "use": {
+   "type": "dmg",
+   "el": "dark",
+   "power": 150,
+   "target": "all",
+   "mark": {
+    "v": 0.45,
+    "t": 4
+   },
+   "debuff": {
+    "k": "spd",
+    "v": -35,
+    "t": 4
+   }
+  },
+  "desc": "【レア】敵全体に刻印（被ダメ+45%）と鈍足を刻む。",
+  "rarity": "rare",
+  "kind": "item"
  }
 ]

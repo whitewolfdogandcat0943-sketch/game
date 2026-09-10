@@ -349,9 +349,9 @@
   "name": "治癒",
   "mp": 8,
   "kind": "heal",
-  "target": "self",
+  "target": "ally",
   "power": 150,
-  "desc": "魔法攻撃力に応じてHPを回復。"
+  "desc": "味方1人のHPを魔法攻撃力に応じて回復。"
  },
  "smite": {
   "id": "smite",
@@ -595,7 +595,7 @@
   "name": "万能薬",
   "mp": 8,
   "kind": "heal",
-  "target": "self",
+  "target": "ally",
   "power": 120,
   "special": "itemScale",
   "desc": "アイテム威力に比例してHPを回復し、状態異常を解除。",
@@ -759,6 +759,94 @@
    "fullPierce": true
   }
  },
+ "ult_paean": {
+  "id": "ult_paean",
+  "name": "天佑の凱歌",
+  "mp": 34,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "【奥義】味方全体の物理・魔法攻撃+55%／被ダメ軽減+25%／素早さ+25（5ターン）。全員のMPを30回復。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.55,
+     "t": 5
+    },
+    {
+     "k": "magPct",
+     "v": 0.55,
+     "t": 5
+    },
+    {
+     "k": "dr",
+     "v": 0.25,
+     "t": 5
+    },
+    {
+     "k": "spd",
+     "v": 25,
+     "t": 5
+    }
+   ],
+   "mpGive": 30
+  }
+ },
+ "ult_ruin": {
+  "id": "ult_ruin",
+  "name": "零落の宣告",
+  "mp": 32,
+  "kind": "mag",
+  "el": "dark",
+  "power": 150,
+  "target": "all",
+  "desc": "【奥義】敵全体の物理・魔法攻撃-45%／物理防御-40%／素早さ-30（4ターン）。強化も打ち消す。",
+  "eff": {
+   "dispel": true,
+   "debuffs": [
+    {
+     "k": "atkPct",
+     "v": -0.45,
+     "t": 4
+    },
+    {
+     "k": "magPct",
+     "v": -0.45,
+     "t": 4
+    },
+    {
+     "k": "defPct",
+     "v": -0.4,
+     "t": 4
+    },
+    {
+     "k": "spd",
+     "v": -30,
+     "t": 4
+    }
+   ]
+  }
+ },
+ "ult_rotworld": {
+  "id": "ult_rotworld",
+  "name": "万象腐蝕",
+  "mp": 32,
+  "kind": "mag",
+  "el": "dark",
+  "power": 165,
+  "target": "all",
+  "desc": "【奥義】敵全体に猛毒と業火（各9%×5ターン）を同時に植え付ける。",
+  "eff": {
+   "poison": {
+    "t": 5,
+    "v": 0.09
+   },
+   "burn": {
+    "t": 5,
+    "v": 0.09
+   }
+  }
+ },
  "hexMist": {
   "id": "hexMist",
   "name": "呪縛の霧",
@@ -816,6 +904,299 @@
     "v": -0.35,
     "t": 3
    }
+  }
+ },
+ "warSong": {
+  "id": "warSong",
+  "name": "進軍歌",
+  "mp": 10,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体の物理攻撃+35%／素早さ+14（3ターン）。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.35,
+     "t": 3
+    },
+    {
+     "k": "spd",
+     "v": 14,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "wardSong": {
+  "id": "wardSong",
+  "name": "守りの詩",
+  "mp": 11,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体の被ダメ軽減+22%／物理防御+30%（3ターン）。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.22,
+     "t": 3
+    },
+    {
+     "k": "defPct",
+     "v": 0.3,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "resonance": {
+  "id": "resonance",
+  "name": "共鳴詠唱",
+  "mp": 12,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体の魔法攻撃+35%。全員のMPを14回復する。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "magPct",
+     "v": 0.35,
+     "t": 3
+    }
+   ],
+   "mpGive": 14
+  }
+ },
+ "valorMarch": {
+  "id": "valorMarch",
+  "name": "凱旋行進",
+  "mp": 14,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体の会心率+18%／与ダメージ+20%（3ターン）。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "critRate",
+     "v": 0.18,
+     "t": 3
+    },
+    {
+     "k": "dmgUp",
+     "v": 0.2,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "encoreCall": {
+  "id": "encoreCall",
+  "name": "アンコール",
+  "mp": 8,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体にかかっている強化の残りターンを2延長する。",
+  "eff": {
+   "extendBuffs": 2
+  }
+ },
+ "lullaby": {
+  "id": "lullaby",
+  "name": "子守唄",
+  "mp": 12,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体を最大HPの22%回復し、状態異常を解除する。",
+  "eff": {
+   "healMaxPct": 0.22,
+   "cleanseAllies": true
+  }
+ },
+ "dullEdge": {
+  "id": "dullEdge",
+  "name": "刃鈍らせ",
+  "mp": 9,
+  "kind": "mag",
+  "el": "dark",
+  "power": 95,
+  "target": "all",
+  "desc": "敵全体の物理攻撃を3ターン30%低下させる。",
+  "eff": {
+   "debuff": {
+    "k": "atkPct",
+    "v": -0.3,
+    "t": 3
+   }
+  }
+ },
+ "sapWill": {
+  "id": "sapWill",
+  "name": "気力削ぎ",
+  "mp": 9,
+  "kind": "mag",
+  "el": "dark",
+  "power": 95,
+  "target": "all",
+  "desc": "敵全体の魔法攻撃を3ターン30%低下させる。",
+  "eff": {
+   "debuff": {
+    "k": "magPct",
+    "v": -0.3,
+    "t": 3
+   }
+  }
+ },
+ "leadenChant": {
+  "id": "leadenChant",
+  "name": "鈍化の呪",
+  "mp": 10,
+  "kind": "mag",
+  "el": "dark",
+  "power": 90,
+  "target": "all",
+  "desc": "敵全体の素早さを3ターン28低下させる。手番の順番を奪う。",
+  "eff": {
+   "debuff": {
+    "k": "spd",
+    "v": -28,
+    "t": 3
+   }
+  }
+ },
+ "frailty": {
+  "id": "frailty",
+  "name": "脆弱化",
+  "mp": 12,
+  "kind": "mag",
+  "el": "dark",
+  "power": 120,
+  "target": "one",
+  "desc": "対象の魔法防御を3ターン35%下げ、被ダメージ+30%の刻印を刻む。",
+  "eff": {
+   "debuff": {
+    "k": "resPct",
+    "v": -0.35,
+    "t": 3
+   },
+   "mark": {
+    "v": 0.3,
+    "t": 3
+   }
+  }
+ },
+ "witherAll": {
+  "id": "witherAll",
+  "name": "万象衰え",
+  "mp": 18,
+  "kind": "mag",
+  "el": "dark",
+  "power": 130,
+  "target": "all",
+  "desc": "敵全体の物理防御を3ターン32%低下させる。弱体の重ねがけの起点。",
+  "eff": {
+   "debuff": {
+    "k": "defPct",
+    "v": -0.32,
+    "t": 3
+   }
+  }
+ },
+ "bindingWord": {
+  "id": "bindingWord",
+  "name": "縛りの言葉",
+  "mp": 15,
+  "kind": "util",
+  "target": "all",
+  "desc": "敵全体の強化を打ち消し、素早さを3ターン20低下させる。",
+  "eff": {
+   "dispel": true,
+   "debuff": {
+    "k": "spd",
+    "v": -20,
+    "t": 3
+   }
+  }
+ },
+ "rotTouch": {
+  "id": "rotTouch",
+  "name": "腐蝕の手",
+  "mp": 8,
+  "kind": "mag",
+  "el": "dark",
+  "power": 105,
+  "target": "one",
+  "desc": "深い毒を植え付ける（最大HPの10%×4ターン）。",
+  "eff": {
+   "poison": {
+    "t": 4,
+    "v": 0.1
+   }
+  }
+ },
+ "miasma": {
+  "id": "miasma",
+  "name": "瘴気",
+  "mp": 15,
+  "kind": "mag",
+  "el": "dark",
+  "power": 100,
+  "target": "all",
+  "desc": "敵全体に毒（8%×4ターン）。40%で火傷も重なる。",
+  "eff": {
+   "poison": {
+    "t": 4,
+    "v": 0.08
+   },
+   "burn": {
+    "t": 3,
+    "v": 0.06,
+    "c": 0.4
+   }
+  }
+ },
+ "pyreCurse": {
+  "id": "pyreCurse",
+  "name": "火葬の呪",
+  "mp": 14,
+  "kind": "mag",
+  "el": "fire",
+  "power": 120,
+  "target": "all",
+  "desc": "敵全体に重い火傷（9%×4ターン）。",
+  "eff": {
+   "burn": {
+    "t": 4,
+    "v": 0.09
+   }
+  }
+ },
+ "incubate": {
+  "id": "incubate",
+  "name": "潜伏",
+  "mp": 10,
+  "kind": "util",
+  "target": "all",
+  "desc": "敵全体の毒・火傷の残りを2ターン延ばす。撒き直す手番を減らす技。",
+  "eff": {
+   "extendRot": 2
+  }
+ },
+ "sporeBurst": {
+  "id": "sporeBurst",
+  "name": "胞子散布",
+  "mp": 12,
+  "kind": "mag",
+  "el": "dark",
+  "power": 85,
+  "target": "all",
+  "desc": "敵全体に毒を撒き、すでに毒か火傷を受けている敵には追加ダメージ。",
+  "eff": {
+   "poison": {
+    "t": 3,
+    "v": 0.07
+   },
+   "rotBonus": 0.6
   }
  },
  "shukuchi": {
@@ -1130,6 +1511,1114 @@
    ]
   }
  },
+ "t_anthem": {
+  "id": "t_anthem",
+  "name": "鼓舞の讃歌",
+  "mp": 15,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全体の物理・魔法攻撃+28%／被ダメ軽減+15%（3ターン）。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.28,
+     "t": 3
+    },
+    {
+     "k": "magPct",
+     "v": 0.28,
+     "t": 3
+    },
+    {
+     "k": "dr",
+     "v": 0.15,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "t_unmake": {
+  "id": "t_unmake",
+  "name": "解体の呪",
+  "mp": 15,
+  "kind": "mag",
+  "el": "dark",
+  "power": 125,
+  "target": "all",
+  "desc": "敵全体の物理攻撃と物理防御を3ターン25%ずつ低下させる。",
+  "eff": {
+   "debuffs": [
+    {
+     "k": "atkPct",
+     "v": -0.25,
+     "t": 3
+    },
+    {
+     "k": "defPct",
+     "v": -0.25,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "focus": {
+  "id": "focus",
+  "name": "集中",
+  "mp": 3,
+  "kind": "util",
+  "target": "self",
+  "desc": "力を溜める。次の攻撃の威力が+80%される。MPを8回復。",
+  "eff": {
+   "charge": 0.8,
+   "mpGain": 8
+  }
+ },
+ "coverStance": {
+  "id": "coverStance",
+  "name": "庇護の構え",
+  "mp": 5,
+  "kind": "util",
+  "target": "ally",
+  "desc": "味方1人を3ターンかばう。その間、被ダメージ25%減。",
+  "eff": {
+   "cover": 3,
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.25,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "bladeDance": {
+  "id": "bladeDance",
+  "name": "剣舞",
+  "mp": 10,
+  "kind": "phys",
+  "el": "phys",
+  "power": 78,
+  "target": "one",
+  "hits": 3,
+  "desc": "三連の斬撃。手数で会心を狙う。"
+ },
+ "crossSlash": {
+  "id": "crossSlash",
+  "name": "十字斬",
+  "mp": 9,
+  "kind": "phys",
+  "el": "phys",
+  "power": 108,
+  "target": "one",
+  "hits": 2,
+  "desc": "交差する二撃。会心率+12%。",
+  "eff": {
+   "critBonus": 0.12
+  }
+ },
+ "avengeStance": {
+  "id": "avengeStance",
+  "name": "迎撃の構え",
+  "mp": 8,
+  "kind": "util",
+  "target": "self",
+  "desc": "3ターン、攻撃を受けるたび威力170%で反撃する（最大3回）。",
+  "eff": {
+   "counter": {
+    "t": 3,
+    "n": 3,
+    "p": 170
+   }
+  }
+ },
+ "shieldBash": {
+  "id": "shieldBash",
+  "name": "盾打ち",
+  "mp": 7,
+  "kind": "phys",
+  "el": "phys",
+  "power": 125,
+  "target": "one",
+  "desc": "60%で敵を2ターン封印し、技を使えなくする。",
+  "eff": {
+   "seal": {
+    "t": 2,
+    "c": 0.6
+   }
+  }
+ },
+ "earthSplitter": {
+  "id": "earthSplitter",
+  "name": "大地割り",
+  "mp": 14,
+  "kind": "phys",
+  "el": "phys",
+  "power": 160,
+  "target": "all",
+  "desc": "地を裂き敵全体を打ち、3ターン素早さを下げる。",
+  "eff": {
+   "debuff": {
+    "k": "spd",
+    "v": -20,
+    "t": 3
+   }
+  }
+ },
+ "unisonEdge": {
+  "id": "unisonEdge",
+  "name": "共鳴斬",
+  "mp": 15,
+  "kind": "phys",
+  "el": "phys",
+  "power": 150,
+  "target": "one",
+  "desc": "【連携】味方全員が呼応し、それぞれ威力60%で追撃する。",
+  "eff": {
+   "linkStrike": 0.6
+  }
+ },
+ "berserkRush": {
+  "id": "berserkRush",
+  "name": "狂乱突撃",
+  "mp": 12,
+  "kind": "phys",
+  "el": "phys",
+  "power": 72,
+  "target": "one",
+  "hits": 4,
+  "desc": "最大HPの8%を支払う四連撃。",
+  "eff": {
+   "hpCost": 0.08
+  }
+ },
+ "bloodOffering": {
+  "id": "bloodOffering",
+  "name": "血の供物",
+  "mp": 4,
+  "kind": "util",
+  "target": "self",
+  "desc": "最大HPの18%を捧げ、次の攻撃の威力を+130%する。",
+  "eff": {
+   "hpCost": 0.18,
+   "charge": 1.3
+  }
+ },
+ "carnage": {
+  "id": "carnage",
+  "name": "殲滅の咆哮",
+  "mp": 20,
+  "kind": "phys",
+  "el": "phys",
+  "power": 185,
+  "target": "all",
+  "desc": "最大HPの10%を支払い、敵全体を薙ぎ払って35%吸収する。",
+  "eff": {
+   "hpCost": 0.1,
+   "drain": 0.35
+  }
+ },
+ "smokeBomb": {
+  "id": "smokeBomb",
+  "name": "煙玉",
+  "mp": 8,
+  "kind": "util",
+  "target": "all",
+  "desc": "敵全体を3ターン暗闇にし、攻撃を外れやすくする。",
+  "eff": {
+   "blind": {
+    "t": 3,
+    "c": 0.75
+   }
+  }
+ },
+ "markTarget": {
+  "id": "markTarget",
+  "name": "弱点看破",
+  "mp": 6,
+  "kind": "util",
+  "target": "one",
+  "desc": "敵1体に刻印を刻み、3ターン被ダメージを+35%する。",
+  "eff": {
+   "mark": {
+    "v": 0.35,
+    "t": 3
+   }
+  }
+ },
+ "phantomBlades": {
+  "id": "phantomBlades",
+  "name": "幻影刃",
+  "mp": 15,
+  "kind": "phys",
+  "el": "dark",
+  "power": 62,
+  "target": "random",
+  "hits": 5,
+  "desc": "ランダムな敵に5回、影の刃が走る。"
+ },
+ "pickpocket": {
+  "id": "pickpocket",
+  "name": "掠め取り",
+  "mp": 4,
+  "kind": "phys",
+  "el": "phys",
+  "power": 95,
+  "target": "one",
+  "desc": "敵から魔力を掠め取る（MP+18）。",
+  "eff": {
+   "mpSteal": 18
+  }
+ },
+ "arcaneSeal": {
+  "id": "arcaneSeal",
+  "name": "魔封じ",
+  "mp": 11,
+  "kind": "mag",
+  "el": "dark",
+  "power": 115,
+  "target": "one",
+  "desc": "70%で敵を3ターン封印する。",
+  "eff": {
+   "seal": {
+    "t": 3,
+    "c": 0.7
+   }
+  }
+ },
+ "manaBurn": {
+  "id": "manaBurn",
+  "name": "魔力喰らい",
+  "mp": 0,
+  "kind": "mag",
+  "el": "dark",
+  "power": 140,
+  "target": "one",
+  "desc": "MPを消費せず、敵から22の魔力を吸い上げる。",
+  "eff": {
+   "mpSteal": 22
+  }
+ },
+ "dispelWave": {
+  "id": "dispelWave",
+  "name": "解呪波",
+  "mp": 12,
+  "kind": "util",
+  "target": "all",
+  "desc": "敵全体の強化とバリアをすべて打ち消す。",
+  "eff": {
+   "dispel": true
+  }
+ },
+ "frostNova": {
+  "id": "frostNova",
+  "name": "氷結新星",
+  "mp": 16,
+  "kind": "mag",
+  "el": "ice",
+  "power": 165,
+  "target": "all",
+  "desc": "敵全体を凍てつかせる。35%で凍結。",
+  "eff": {
+   "freeze": {
+    "t": 2,
+    "c": 0.35
+   }
+  }
+ },
+ "flameWhirl": {
+  "id": "flameWhirl",
+  "name": "火炎旋風",
+  "mp": 16,
+  "kind": "mag",
+  "el": "fire",
+  "power": 170,
+  "target": "all",
+  "desc": "渦巻く炎。50%で火傷。",
+  "eff": {
+   "burn": {
+    "t": 3,
+    "v": 0.06,
+    "c": 0.5
+   }
+  }
+ },
+ "overload": {
+  "id": "overload",
+  "name": "魔力過装",
+  "mp": 6,
+  "kind": "util",
+  "target": "self",
+  "desc": "次の攻撃の威力+100%。3ターン魔法攻撃+25%。",
+  "eff": {
+   "charge": 1,
+   "buffs": [
+    {
+     "k": "magPct",
+     "v": 0.25,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "resurrect": {
+  "id": "resurrect",
+  "name": "蘇生",
+  "mp": 22,
+  "kind": "util",
+  "target": "downed",
+  "desc": "倒れた味方1人を最大HPの45%で復帰させる。",
+  "eff": {
+   "revive": 0.45
+  }
+ },
+ "groupHeal": {
+  "id": "groupHeal",
+  "name": "大治癒",
+  "mp": 16,
+  "kind": "heal",
+  "target": "allies",
+  "power": 115,
+  "desc": "味方全員のHPを回復する。"
+ },
+ "blessing": {
+  "id": "blessing",
+  "name": "祝福",
+  "mp": 12,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全員の攻撃+25%／被ダメ軽減+15%（3ターン）。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.25,
+     "t": 3
+    },
+    {
+     "k": "magPct",
+     "v": 0.25,
+     "t": 3
+    },
+    {
+     "k": "dr",
+     "v": 0.15,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "purify": {
+  "id": "purify",
+  "name": "浄化",
+  "mp": 10,
+  "kind": "heal",
+  "target": "allies",
+  "power": 70,
+  "desc": "味方全員の状態異常を解除し、少しHPを回復する。",
+  "eff": {
+   "cleanse": true
+  }
+ },
+ "holyChain": {
+  "id": "holyChain",
+  "name": "聖鎖",
+  "mp": 18,
+  "kind": "mag",
+  "el": "light",
+  "power": 140,
+  "target": "all",
+  "desc": "光の鎖が敵全体を縛る。45%で2ターン封印。",
+  "eff": {
+   "seal": {
+    "t": 2,
+    "c": 0.45
+   }
+  }
+ },
+ "martyr": {
+  "id": "martyr",
+  "name": "献身",
+  "mp": 6,
+  "kind": "util",
+  "target": "ally",
+  "desc": "自分のHPの30%を味方1人に分け与える。",
+  "eff": {
+   "transferHp": 0.3
+  }
+ },
+ "guardianAngel": {
+  "id": "guardianAngel",
+  "name": "守護天使",
+  "mp": 14,
+  "kind": "buff",
+  "target": "ally",
+  "desc": "味方1人に3ターン、致死ダメージを1度耐える加護を与える。",
+  "eff": {
+   "flagBuff": {
+    "f": "endure",
+    "t": 3
+   },
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.1,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "bulwark": {
+  "id": "bulwark",
+  "name": "守護陣",
+  "mp": 12,
+  "kind": "util",
+  "target": "ally",
+  "desc": "味方1人を4ターンかばい、自身の防御+50%／反射+20%。",
+  "eff": {
+   "cover": 4,
+   "buffs": [
+    {
+     "k": "defPct",
+     "v": 0.5,
+     "t": 4
+    },
+    {
+     "k": "reflect",
+     "v": 0.2,
+     "t": 4
+    }
+   ]
+  }
+ },
+ "counterWall": {
+  "id": "counterWall",
+  "name": "鉄壁反撃",
+  "mp": 13,
+  "kind": "util",
+  "target": "self",
+  "desc": "4ターン、受けた攻撃に威力200%で反撃する（最大4回）。防御+40%。",
+  "eff": {
+   "counter": {
+    "t": 4,
+    "n": 4,
+    "p": 200
+   },
+   "buffs": [
+    {
+     "k": "defPct",
+     "v": 0.4,
+     "t": 4
+    }
+   ]
+  }
+ },
+ "tauntRoar": {
+  "id": "tauntRoar",
+  "name": "威圧咆哮",
+  "mp": 9,
+  "kind": "util",
+  "target": "all",
+  "desc": "敵全体の狙いを引きつけ、攻撃力を3ターン25%下げる。",
+  "eff": {
+   "taunt": 3,
+   "debuff": {
+    "k": "atkPct",
+    "v": -0.25,
+    "t": 3
+   }
+  }
+ },
+ "thunderJudge": {
+  "id": "thunderJudge",
+  "name": "雷神の裁き",
+  "mp": 20,
+  "kind": "mag",
+  "el": "thunder",
+  "power": 195,
+  "target": "all",
+  "desc": "敵全体に落雷。35%で麻痺。",
+  "eff": {
+   "shock": {
+    "t": 2,
+    "c": 0.35
+   }
+  }
+ },
+ "cycloneCage": {
+  "id": "cycloneCage",
+  "name": "旋風檻",
+  "mp": 17,
+  "kind": "mag",
+  "el": "wind",
+  "power": 135,
+  "target": "all",
+  "desc": "敵全体を風の檻に閉じ込め、3ターン被ダメージ+25%。",
+  "eff": {
+   "mark": {
+    "v": 0.25,
+    "t": 3
+   }
+  }
+ },
+ "elixirRain": {
+  "id": "elixirRain",
+  "name": "霊薬の雨",
+  "mp": 18,
+  "kind": "heal",
+  "target": "allies",
+  "power": 105,
+  "special": "itemScale",
+  "desc": "アイテム威力に比例して味方全員を回復する。"
+ },
+ "bombArray": {
+  "id": "bombArray",
+  "name": "爆弾陣",
+  "mp": 16,
+  "kind": "mag",
+  "el": "fire",
+  "power": 88,
+  "target": "all",
+  "hits": 2,
+  "special": "itemScale",
+  "desc": "アイテム威力に比例する爆弾を2波、敵全体へ。"
+ },
+ "homunculus": {
+  "id": "homunculus",
+  "name": "人造の盾",
+  "mp": 14,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全員にバリアを張る。",
+  "eff": {
+   "barrier": 0.9
+  }
+ },
+ "soulSeal": {
+  "id": "soulSeal",
+  "name": "魂縛",
+  "mp": 14,
+  "kind": "mag",
+  "el": "dark",
+  "power": 130,
+  "target": "one",
+  "desc": "80%で3ターン封印し、毒を付与する。",
+  "eff": {
+   "seal": {
+    "t": 3,
+    "c": 0.8
+   },
+   "poison": {
+    "t": 3,
+    "v": 0.06
+   }
+  }
+ },
+ "plagueMark": {
+  "id": "plagueMark",
+  "name": "疫の刻印",
+  "mp": 16,
+  "kind": "mag",
+  "el": "dark",
+  "power": 120,
+  "target": "all",
+  "desc": "敵全体に刻印と毒を刻む（被ダメージ+30%）。",
+  "eff": {
+   "mark": {
+    "v": 0.3,
+    "t": 3
+   },
+   "poison": {
+    "t": 4,
+    "v": 0.07
+   }
+  }
+ },
+ "bladeStorm": {
+  "id": "bladeStorm",
+  "name": "剣戟の嵐",
+  "mp": 16,
+  "kind": "phys",
+  "el": "wind",
+  "power": 58,
+  "target": "one",
+  "hits": 4,
+  "special": "speedScale",
+  "desc": "素早さが乗る四連撃。"
+ },
+ "afterimage": {
+  "id": "afterimage",
+  "name": "残像",
+  "mp": 10,
+  "kind": "util",
+  "target": "self",
+  "desc": "3ターン、回避+30%。攻撃を受けるたび威力160%で反撃する。",
+  "eff": {
+   "counter": {
+    "t": 3,
+    "n": 3,
+    "p": 160
+   },
+   "buffs": [
+    {
+     "k": "evade",
+     "v": 0.3,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "runeBlade": {
+  "id": "runeBlade",
+  "name": "魔紋剣",
+  "mp": 13,
+  "kind": "phys",
+  "el": "phys",
+  "power": 165,
+  "target": "one",
+  "special": "hybrid",
+  "desc": "物魔一体の斬撃。敵に3ターンの刻印を刻む。",
+  "eff": {
+   "mark": {
+    "v": 0.3,
+    "t": 3
+   }
+  }
+ },
+ "spellChain": {
+  "id": "spellChain",
+  "name": "呪剣連撃",
+  "mp": 17,
+  "kind": "phys",
+  "el": "fire",
+  "power": 82,
+  "target": "one",
+  "hits": 3,
+  "special": "hybrid",
+  "desc": "物魔一体の三連撃（2撃目は氷）。",
+  "eff": {
+   "altElement": "ice"
+  }
+ },
+ "ult_shadowRequiem": {
+  "id": "ult_shadowRequiem",
+  "name": "影送り・鎮魂",
+  "mp": 30,
+  "kind": "phys",
+  "el": "dark",
+  "power": 96,
+  "target": "one",
+  "hits": 4,
+  "desc": "【奥義】必ず会心する四連撃。防御を40%無視。",
+  "eff": {
+   "alwaysCrit": true,
+   "defIgnore": 0.4
+  }
+ },
+ "ult_mirrorPrison": {
+  "id": "ult_mirrorPrison",
+  "name": "鏡獄封陣",
+  "mp": 30,
+  "kind": "util",
+  "target": "all",
+  "desc": "【奥義】敵全体の強化を打ち消し封印。4ターン反射が全体に波及する。",
+  "eff": {
+   "dispel": true,
+   "seal": {
+    "t": 2,
+    "c": 0.6
+   },
+   "flagBuff": {
+    "f": "reflectAll",
+    "t": 4
+   },
+   "buffs": [
+    {
+     "k": "reflect",
+     "v": 0.35,
+     "t": 4
+    }
+   ]
+  }
+ },
+ "ult_stormThrone": {
+  "id": "ult_stormThrone",
+  "name": "暴風王座",
+  "mp": 34,
+  "kind": "mag",
+  "el": "thunder",
+  "power": 215,
+  "target": "all",
+  "desc": "【奥義】雷の嵐。範囲威力+45%、50%で麻痺。",
+  "eff": {
+   "aoeBonus": 0.45,
+   "shock": {
+    "t": 2,
+    "c": 0.5
+   }
+  }
+ },
+ "ult_starfall": {
+  "id": "ult_starfall",
+  "name": "星降ろし",
+  "mp": 34,
+  "kind": "mag",
+  "el": "light",
+  "power": 175,
+  "target": "all",
+  "hits": 2,
+  "desc": "【奥義】星々が二度降り注ぐ。敵全体に刻印を刻む。",
+  "eff": {
+   "mark": {
+    "v": 0.35,
+    "t": 3
+   }
+  }
+ },
+ "ult_philosopher": {
+  "id": "ult_philosopher",
+  "name": "賢者の霊薬",
+  "mp": 28,
+  "kind": "heal",
+  "target": "allies",
+  "power": 190,
+  "special": "itemScale",
+  "desc": "【奥義】味方全員を大回復し、状態異常を解除。アイテムを2個錬成する。",
+  "eff": {
+   "cleanse": true,
+   "makeItem": 2
+  }
+ },
+ "ult_bloodFeast": {
+  "id": "ult_bloodFeast",
+  "name": "血宴",
+  "mp": 30,
+  "kind": "phys",
+  "el": "dark",
+  "power": 205,
+  "target": "all",
+  "desc": "【奥義】最大HPの12%を支払い、敵全体から60%吸収する。",
+  "eff": {
+   "hpCost": 0.12,
+   "drain": 0.6
+  }
+ },
+ "ult_finalVerdict": {
+  "id": "ult_finalVerdict",
+  "name": "最終評決",
+  "mp": 36,
+  "kind": "mag",
+  "el": "light",
+  "power": 240,
+  "target": "one",
+  "desc": "【奥義】HPが50%以下の敵には威力2.2倍。倒れた味方を1人蘇生する。",
+  "eff": {
+   "execute": 0.5,
+   "revive": 0.35
+  }
+ },
+ "ult_nullify": {
+  "id": "ult_nullify",
+  "name": "虚無帰結",
+  "mp": 34,
+  "kind": "mag",
+  "el": "dark",
+  "power": 195,
+  "target": "all",
+  "desc": "【奥義】敵全体の強化を消し去り、防御を70%無視して撃つ。",
+  "eff": {
+   "dispel": true,
+   "defIgnore": 0.7
+  }
+ },
+ "ult_godspeed": {
+  "id": "ult_godspeed",
+  "name": "神速・千手",
+  "mp": 32,
+  "kind": "phys",
+  "el": "wind",
+  "power": 52,
+  "target": "random",
+  "hits": 8,
+  "special": "speedScale",
+  "desc": "【奥義】素早さが乗る八連撃をランダムな敵へ。"
+ },
+ "ult_blackMiasma": {
+  "id": "ult_blackMiasma",
+  "name": "黒瘴",
+  "mp": 32,
+  "kind": "mag",
+  "el": "dark",
+  "power": 160,
+  "target": "all",
+  "desc": "【奥義】敵全体を毒・封印・刻印で塗り潰す。",
+  "eff": {
+   "poison": {
+    "t": 4,
+    "v": 0.08
+   },
+   "seal": {
+    "t": 2,
+    "c": 0.6
+   },
+   "mark": {
+    "v": 0.35,
+    "t": 3
+   }
+  }
+ },
+ "ult_twinPole": {
+  "id": "ult_twinPole",
+  "name": "双極・終焉",
+  "mp": 34,
+  "kind": "phys",
+  "el": "light",
+  "power": 130,
+  "target": "one",
+  "hits": 3,
+  "special": "hybrid",
+  "desc": "【奥義】物魔一体の三連撃（偶数撃は闇）。味方全員が追撃する。",
+  "eff": {
+   "altElement": "dark",
+   "linkStrike": 0.45
+  }
+ },
+ "ult_dawnbreak": {
+  "id": "ult_dawnbreak",
+  "name": "暁を告げる",
+  "mp": 34,
+  "kind": "heal",
+  "target": "allies",
+  "power": 260,
+  "desc": "【奥義】倒れた仲間を全員復帰させ、味方全体を大回復し、状態異常を解除する。",
+  "eff": {
+   "revive": 0.7,
+   "reviveAll": true,
+   "cleanse": true,
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.2,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "ult_undying": {
+  "id": "ult_undying",
+  "name": "不倒の誓い",
+  "mp": 30,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "【奥義】味方全体にバリアを張り、4ターン致死ダメージを1度耐える加護と被ダメ35%減を与える。",
+  "eff": {
+   "barrier": 1.6,
+   "flagBuff": {
+    "f": "endure",
+    "t": 4
+   },
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.35,
+     "t": 4
+    },
+    {
+     "k": "reflect",
+     "v": 0.25,
+     "t": 4
+    }
+   ]
+  }
+ },
+ "ult_bastion": {
+  "id": "ult_bastion",
+  "name": "城塞たれ",
+  "mp": 30,
+  "kind": "util",
+  "target": "self",
+  "desc": "【奥義】5ターン、味方全員をかばい、受けた攻撃に威力240%で反撃する。防御+80%。",
+  "eff": {
+   "cover": 5,
+   "taunt": 5,
+   "counter": {
+    "t": 5,
+    "n": 9,
+    "p": 240
+   },
+   "buffs": [
+    {
+     "k": "defPct",
+     "v": 0.8,
+     "t": 5
+    },
+    {
+     "k": "reflect",
+     "v": 0.4,
+     "t": 5
+    }
+   ]
+  }
+ },
+ "ult_wrathgate": {
+  "id": "ult_wrathgate",
+  "name": "忿怒開門",
+  "mp": 26,
+  "kind": "phys",
+  "el": "phys",
+  "power": 150,
+  "target": "all",
+  "special": "reflectScale",
+  "desc": "【奥義】最大HPの15%を支払い、失った体力ぶん重くなる一撃を敵全体へ。60%吸収。",
+  "eff": {
+   "hpCost": 0.15,
+   "drain": 0.6,
+   "aoeBonus": 0.35
+  }
+ },
+ "ult_theorem": {
+  "id": "ult_theorem",
+  "name": "万理を解く",
+  "mp": 36,
+  "kind": "mag",
+  "el": "phys",
+  "power": 145,
+  "target": "all",
+  "special": "allElem",
+  "desc": "【奥義】6属性で敵全体を撃ち、耐性を完全に無視する。",
+  "eff": {
+   "fullPierce": true,
+   "defIgnore": 0.5
+  }
+ },
+ "ult_stillness": {
+  "id": "ult_stillness",
+  "name": "静かな災い",
+  "mp": 34,
+  "kind": "mag",
+  "el": "dark",
+  "power": 175,
+  "target": "all",
+  "desc": "【奥義】敵全体の強化を打ち消し、封印・毒・刻印を同時に刻む。",
+  "eff": {
+   "dispel": true,
+   "seal": {
+    "t": 3,
+    "c": 0.75
+   },
+   "poison": {
+    "t": 4,
+    "v": 0.09
+   },
+   "mark": {
+    "v": 0.4,
+    "t": 4
+   },
+   "aoeBonus": 0.3
+  }
+ },
+ "aid_mend": {
+  "id": "aid_mend",
+  "name": "手当て",
+  "mp": 7,
+  "kind": "heal",
+  "target": "ally",
+  "power": 135,
+  "desc": "味方1人を回復し、状態異常を解除する。",
+  "eff": {
+   "cleanse": true
+  }
+ },
+ "aid_shelter": {
+  "id": "aid_shelter",
+  "name": "守りの祈り",
+  "mp": 13,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "味方全員にバリアを張り、3ターン被ダメ20%減。",
+  "eff": {
+   "barrier": 0.8,
+   "buffs": [
+    {
+     "k": "dr",
+     "v": 0.2,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "aid_cover": {
+  "id": "aid_cover",
+  "name": "盾となる",
+  "mp": 6,
+  "kind": "util",
+  "target": "ally",
+  "desc": "味方1人を3ターンかばい、自身の防御+45%。",
+  "eff": {
+   "cover": 3,
+   "buffs": [
+    {
+     "k": "defPct",
+     "v": 0.45,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "aid_rally": {
+  "id": "aid_rally",
+  "name": "鼓舞",
+  "mp": 10,
+  "kind": "buff",
+  "target": "allies",
+  "desc": "敵の注意を引きつけつつ、味方全員の攻撃を20%上げる。",
+  "eff": {
+   "taunt": 2,
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.2,
+     "t": 3
+    },
+    {
+     "k": "magPct",
+     "v": 0.2,
+     "t": 3
+    }
+   ]
+  }
+ },
+ "aid_amplify": {
+  "id": "aid_amplify",
+  "name": "増幅の術式",
+  "mp": 11,
+  "kind": "buff",
+  "target": "ally",
+  "desc": "味方1人の与ダメージを3ターン+40%、MPを12回復する。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "dmgUp",
+     "v": 0.4,
+     "t": 3
+    }
+   ],
+   "mpGive": 12
+  }
+ },
+ "aid_siphon": {
+  "id": "aid_siphon",
+  "name": "魔力吸引",
+  "mp": 0,
+  "kind": "mag",
+  "el": "dark",
+  "power": 115,
+  "target": "one",
+  "desc": "MPを使わず敵を撃ち、魔力を16奪う。",
+  "eff": {
+   "mpSteal": 16
+  }
+ },
  "e_bite": {
   "id": "e_bite",
   "name": "噛みつき",
@@ -1260,8 +2749,24 @@
   "mp": 0,
   "kind": "heal",
   "target": "self",
-  "power": 130,
+  "power": 95,
   "desc": ""
+ },
+ "e_blizzard": {
+  "id": "e_blizzard",
+  "name": "氷嵐",
+  "mp": 0,
+  "kind": "mag",
+  "el": "ice",
+  "power": 155,
+  "target": "all",
+  "desc": "",
+  "eff": {
+   "freeze": {
+    "t": 2,
+    "c": 0.35
+   }
+  }
  },
  "e_roar": {
   "id": "e_roar",

@@ -760,7 +760,8 @@
     "row": 1,
     "cost": 1,
     "mods": {
-     "el_dark": 0.1
+     "dotPower": 0.12,
+     "el_dark": 0.06
     },
     "branch": "hex"
    },
@@ -770,7 +771,7 @@
     "row": 1,
     "cost": 1,
     "mods": {
-     "pierce": 0.08,
+     "dotTurns": 1,
      "mag": 10
     },
     "branch": "hex"
@@ -808,8 +809,8 @@
     "cost": 3,
     "branchSpent": 3,
     "mods": {
-     "el_dark": 0.15,
-     "pierce": 0.1
+     "dotPower": 0.2,
+     "el_dark": 0.12
     },
     "flags": [
      "statusDamage"
@@ -828,19 +829,205 @@
     "classes": [
      "hexer",
      "plaguelord",
+     "plaguedoctor",
+     "rotKing",
      "exorcist",
      "finalArbiter"
     ],
     "mods": {
-     "el_dark": 0.25,
-     "magPct": 0.15,
-     "pierce": 0.15
+     "dotPower": 0.25,
+     "dotTurns": 1,
+     "magPct": 0.15
     },
     "flags": [
-     "statusOnHit",
-     "soulHarvest"
+     "festering",
+     "statusOnHit"
     ],
     "branch": "hex"
+   }
+  ]
+ },
+ {
+  "id": "boon",
+  "name": "支援の道",
+  "hue": 50,
+  "icon": "acc",
+  "desc": "自分は強くならない。かわりに、味方4人ぶんの数字を動かす。",
+  "nodes": [
+   {
+    "id": "bn_voice",
+    "name": "通る声",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "buffPower": 0.12
+    },
+    "branch": "boon"
+   },
+   {
+    "id": "bn_long",
+    "name": "長い息",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "buffTurns": 1
+    },
+    "branch": "boon"
+   },
+   {
+    "id": "bn_share",
+    "name": "唱和",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "bn_voice"
+    ],
+    "flags": [
+     "boonShare"
+    ],
+    "branch": "boon"
+   },
+   {
+    "id": "bn_guard",
+    "name": "守りの旋律",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "bn_long"
+    ],
+    "flags": [
+     "boonGuard"
+    ],
+    "branch": "boon"
+   },
+   {
+    "id": "bn_anthem",
+    "name": "鼓舞の讃歌",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "buffPower": 0.2,
+     "mp": 25
+    },
+    "skill": "t_anthem",
+    "branch": "boon"
+   },
+   {
+    "id": "bn_ult",
+    "name": "天佑の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "bn_anthem"
+    ],
+    "classes": [
+     "bard",
+     "graceEmperor",
+     "priest",
+     "dawnMother"
+    ],
+    "mods": {
+     "buffPower": 0.25,
+     "buffTurns": 1
+    },
+    "flags": [
+     "encore",
+     "openingRally"
+    ],
+    "branch": "boon"
+   }
+  ]
+ },
+ {
+  "id": "debuff",
+  "name": "弱体の道",
+  "hue": 265,
+  "icon": "weapon",
+  "desc": "倒すのではなく、勝てなくする。数字そのものを削り取る。",
+  "nodes": [
+   {
+    "id": "db_dull",
+    "name": "鈍らせ",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "debuffPower": 0.12
+    },
+    "branch": "debuff"
+   },
+   {
+    "id": "db_hold",
+    "name": "長い呪",
+    "row": 1,
+    "cost": 1,
+    "mods": {
+     "debuffTurns": 1
+    },
+    "branch": "debuff"
+   },
+   {
+    "id": "db_spread",
+    "name": "伝播",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "db_dull"
+    ],
+    "flags": [
+     "spreadHex"
+    ],
+    "branch": "debuff"
+   },
+   {
+    "id": "db_sap",
+    "name": "削る拳",
+    "row": 2,
+    "cost": 2,
+    "req": [
+     "db_hold"
+    ],
+    "flags": [
+     "sapStrike"
+    ],
+    "branch": "debuff"
+   },
+   {
+    "id": "db_unmake",
+    "name": "解体の呪",
+    "row": 3,
+    "cost": 3,
+    "branchSpent": 3,
+    "mods": {
+     "debuffPower": 0.2,
+     "el_dark": 0.1
+    },
+    "skill": "t_unmake",
+    "branch": "debuff"
+   },
+   {
+    "id": "db_ult",
+    "name": "零落の理",
+    "row": 4,
+    "cost": 3,
+    "req": [
+     "db_unmake"
+    ],
+    "classes": [
+     "binder",
+     "ruinEmperor",
+     "hexer",
+     "plaguelord"
+    ],
+    "mods": {
+     "debuffPower": 0.25,
+     "debuffTurns": 1
+    },
+    "flags": [
+     "hexBrand",
+     "doomToll"
+    ],
+    "branch": "debuff"
    }
   ]
  }

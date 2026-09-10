@@ -31,7 +31,12 @@
   "skills": [
    "slash",
    "warcry",
-   "heavyBlow"
+   "heavyBlow",
+   "crossSlash",
+   "bladeDance",
+   "focus",
+   "coverStance",
+   "shieldBash"
   ]
  },
  "mage": {
@@ -67,7 +72,9 @@
    "fireball",
    "iceLance",
    "boltStrike",
-   "manaSurge"
+   "manaSurge",
+   "manaBurn",
+   "arcaneSeal"
   ]
  },
  "rogue": {
@@ -104,7 +111,10 @@
   "skills": [
    "backstab",
    "venomFang",
-   "shadowStep"
+   "shadowStep",
+   "pickpocket",
+   "markTarget",
+   "smokeBomb"
   ]
  },
  "priest": {
@@ -139,7 +149,10 @@
   "skills": [
    "heal",
    "smite",
-   "sanctuary"
+   "sanctuary",
+   "purify",
+   "martyr",
+   "groupHeal"
   ]
  },
  "berserker": {
@@ -201,7 +214,11 @@
    "slash",
    "heavyBlow",
    "bloodRage",
-   "crushArmor"
+   "crushArmor",
+   "berserkRush",
+   "bloodOffering",
+   "carnage",
+   "avengeStance"
   ]
  },
  "assassin": {
@@ -262,7 +279,10 @@
    "backstab",
    "thousandCuts",
    "shadowStep",
-   "executioner"
+   "executioner",
+   "phantomBlades",
+   "markTarget",
+   "smokeBomb"
   ]
  },
  "elementalist": {
@@ -327,7 +347,11 @@
    "iceLance",
    "boltStrike",
    "galeEdge",
-   "elementalBurst"
+   "elementalBurst",
+   "frostNova",
+   "flameWhirl",
+   "overload",
+   "dispelWave"
   ]
  },
  "guardian": {
@@ -393,7 +417,11 @@
    "thornGuard",
    "ironWall",
    "retaliate",
-   "provoke"
+   "provoke",
+   "bulwark",
+   "counterWall",
+   "tauntRoar",
+   "earthSplitter"
   ]
  },
  "stormcaller": {
@@ -455,7 +483,9 @@
    "tempest",
    "shockwave",
    "stormCall",
-   "gravityWell"
+   "gravityWell",
+   "thunderJudge",
+   "cycloneCage"
   ]
  },
  "alchemist": {
@@ -518,7 +548,10 @@
    "panacea",
    "transmute",
    "catalyst",
-   "acidFlask"
+   "acidFlask",
+   "elixirRain",
+   "bombArray",
+   "homunculus"
   ]
  },
  "exorcist": {
@@ -581,7 +614,11 @@
    "darkPact",
    "judgement",
    "sanctuary",
-   "holyNova"
+   "holyNova",
+   "resurrect",
+   "holyChain",
+   "blessing",
+   "guardianAngel"
   ]
  },
  "windrunner": {
@@ -643,7 +680,9 @@
    "shukuchi",
    "galeFlurry",
    "backstab",
-   "whirlwind"
+   "whirlwind",
+   "bladeStorm",
+   "afterimage"
   ]
  },
  "hexer": {
@@ -695,7 +734,8 @@
   },
   "mods": {
    "el_dark": 0.22,
-   "magPct": 0.1
+   "magPct": 0.1,
+   "dotPower": 0.15
   },
   "flags": [
    "statusDamage",
@@ -705,7 +745,204 @@
    "plague",
    "hexMist",
    "venomFang",
-   "curseBurst"
+   "curseBurst",
+   "soulSeal",
+   "plagueMark"
+  ]
+ },
+ "plaguedoctor": {
+  "id": "plaguedoctor",
+  "name": "疫医",
+  "tier": 2,
+  "icon": "🐦",
+  "desc": "殺し方が遅いだけで、確実ではある。撒いたぶんだけ、時間が働く。",
+  "from": [
+   "mage",
+   "priest",
+   "rogue"
+  ],
+  "req": [
+   {
+    "label": "戦い方が「呪詛」に寄っている（実績 22 以上／全体の 18% 以上）",
+    "d": {
+     "t": "style",
+     "k": "status",
+     "v": 22,
+     "share": 0.18
+    }
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 112,
+   "mp": 64,
+   "str": 7,
+   "int": 16,
+   "vit": 10,
+   "agi": 11,
+   "luk": 10
+  },
+  "grow": {
+   "hp": 10,
+   "mp": 5,
+   "str": 0.8,
+   "int": 2.4,
+   "vit": 1.3,
+   "agi": 1.3,
+   "luk": 1.2
+  },
+  "mods": {
+   "dotPower": 0.35,
+   "dotTurns": 1,
+   "el_dark": 0.15,
+   "magPct": 0.08
+  },
+  "flags": [
+   "venomEdge"
+  ],
+  "skills": [
+   "rotTouch",
+   "miasma",
+   "pyreCurse",
+   "incubate",
+   "sporeBurst",
+   "venomFang"
+  ]
+ },
+ "bard": {
+  "id": "bard",
+  "name": "吟遊詩人",
+  "tier": 2,
+  "icon": "🎼",
+  "desc": "自分では大して殴らない。そのかわり、4人ぶんの数字を動かす。",
+  "from": [
+   "priest",
+   "rogue",
+   "mage"
+  ],
+  "req": [
+   {
+    "label": "戦い方が「支援」に寄っている（実績 18 以上／全体の 15% 以上）",
+    "d": {
+     "t": "style",
+     "k": "buff",
+     "v": 18,
+     "share": 0.15
+    }
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 116,
+   "mp": 62,
+   "str": 9,
+   "int": 14,
+   "vit": 10,
+   "agi": 13,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 10,
+   "mp": 4.8,
+   "str": 1.1,
+   "int": 2.1,
+   "vit": 1.3,
+   "agi": 1.7,
+   "luk": 1.5
+  },
+  "mods": {
+   "buffPower": 0.3,
+   "buffTurns": 1,
+   "mp": 20,
+   "spd": 6
+  },
+  "flags": [
+   "openingRally"
+  ],
+  "skills": [
+   "warSong",
+   "wardSong",
+   "resonance",
+   "encoreCall",
+   "lullaby",
+   "heal"
+  ]
+ },
+ "binder": {
+  "id": "binder",
+  "name": "呪縛士",
+  "tier": 2,
+  "icon": "⛓",
+  "desc": "毒でも刃でもなく、相手の数字そのものを削る。効かない相手がいない。",
+  "from": [
+   "mage",
+   "rogue",
+   "priest"
+  ],
+  "req": [
+   {
+    "label": "戦い方が「弱体」に寄っている（実績 18 以上／全体の 15% 以上）",
+    "d": {
+     "t": "style",
+     "k": "debuff",
+     "v": 18,
+     "share": 0.15
+    }
+   },
+   {
+    "label": "レベル 6 以上",
+    "d": {
+     "t": "level",
+     "v": 6
+    }
+   }
+  ],
+  "base": {
+   "hp": 112,
+   "mp": 64,
+   "str": 8,
+   "int": 15,
+   "vit": 10,
+   "agi": 12,
+   "luk": 10
+  },
+  "grow": {
+   "hp": 10,
+   "mp": 5,
+   "str": 0.9,
+   "int": 2.3,
+   "vit": 1.3,
+   "agi": 1.5,
+   "luk": 1.2
+  },
+  "mods": {
+   "debuffPower": 0.3,
+   "debuffTurns": 1,
+   "el_dark": 0.16,
+   "magPct": 0.08
+  },
+  "flags": [
+   "hexBrand"
+  ],
+  "skills": [
+   "dullEdge",
+   "sapWill",
+   "leadenChant",
+   "frailty",
+   "witherAll",
+   "bindingWord"
   ]
  },
  "spellblade": {
@@ -765,7 +1002,10 @@
    "spellEdge",
    "dualPole",
    "slash",
-   "fireball"
+   "fireball",
+   "runeBlade",
+   "spellChain",
+   "unisonEdge"
   ]
  },
  "phantomSaint": {
@@ -832,10 +1072,12 @@
   ],
   "skills": [
    "ult_phantomEdge",
+   "ult_shadowRequiem",
    "thousandCuts",
    "executioner",
    "shadowStep",
-   "backstab"
+   "phantomBlades",
+   "markTarget"
   ],
   "icon": "🌑",
   "desc": "会心を極めた者だけが至る剣の頂。全ての一撃が必殺となる。"
@@ -905,10 +1147,12 @@
   ],
   "skills": [
    "ult_mirrorEnd",
+   "ult_mirrorPrison",
    "thornGuard",
    "mirrorField",
    "retaliate",
-   "ironWall"
+   "counterWall",
+   "bulwark"
   ],
   "icon": "🪞",
   "desc": "受けた痛みをそのまま返す不壊の王。反射が敵全体に及ぶ。"
@@ -977,10 +1221,12 @@
   ],
   "skills": [
    "ult_calamity",
+   "ult_stormThrone",
    "tempest",
    "meteor",
    "blizzard",
-   "stormCall"
+   "stormCall",
+   "cycloneCage"
   ],
   "icon": "🌀",
   "desc": "一振りで戦場を消し飛ばす天災の化身。範囲の極致。"
@@ -1055,11 +1301,12 @@
   ],
   "skills": [
    "ult_astralBurst",
+   "ult_starfall",
    "elementalBurst",
    "meteor",
    "blizzard",
    "chainBolt",
-   "holyNova"
+   "overload"
   ],
   "icon": "✴",
   "desc": "六属性すべてを従える星の術皇。あらゆる耐性は意味を成さない。"
@@ -1128,11 +1375,12 @@
   ],
   "skills": [
    "ult_grandElixir",
+   "ult_philosopher",
    "throwBomb",
    "acidFlask",
-   "panacea",
+   "elixirRain",
    "catalyst",
-   "transmute"
+   "homunculus"
   ],
   "icon": "🏺",
   "desc": "万物を薬と爆薬に変える錬成の王。アイテムは尽きない。"
@@ -1202,10 +1450,11 @@
   ],
   "skills": [
    "ult_devourFang",
+   "ult_bloodFeast",
    "bloodRage",
    "crushArmor",
-   "heavyBlow",
-   "venomFang"
+   "carnage",
+   "bloodOffering"
   ],
   "icon": "🩸",
   "desc": "喰らうほどに強くなる鬼神。奪った生命がそのまま力となる。"
@@ -1274,10 +1523,12 @@
   ],
   "skills": [
    "ult_lastJudgement",
+   "ult_finalVerdict",
    "judgement",
    "holyNova",
-   "darkPact",
-   "sanctuary"
+   "resurrect",
+   "blessing",
+   "holyChain"
   ],
   "icon": "⚖",
   "desc": "光と闇を同時に振るう最終審判者。相反する二極が一つになる。"
@@ -1357,10 +1608,11 @@
   ],
   "skills": [
    "ult_voidCollapse",
+   "ult_nullify",
    "ult_astralBurst",
-   "elementalBurst",
    "gravityWell",
-   "executioner"
+   "dispelWave",
+   "arcaneSeal"
   ],
   "icon": "🕳",
   "desc": "ミシックの力を束ねた者のみが到達する空位の玉座。"
@@ -1431,10 +1683,11 @@
   ],
   "skills": [
    "ult_thousandShadow",
+   "ult_godspeed",
    "shukuchi",
    "galeFlurry",
-   "thousandCuts",
-   "whirlwind"
+   "bladeStorm",
+   "afterimage"
   ],
   "icon": "💨",
   "desc": "誰にも捉えられない領域。避け、先んじ、斬り刻む。"
@@ -1449,12 +1702,12 @@
   ],
   "req": [
    {
-    "label": "アクセサリ4枠が「呪詛」構成（得点 70 以上／全体の 30% 以上）",
+    "label": "アクセサリ4枠が「呪詛」構成（得点 110 以上／全体の 35% 以上）",
     "d": {
      "t": "accStyle",
      "k": "status",
-     "v": 70,
-     "share": 0.3
+     "v": 110,
+     "share": 0.35
     }
    },
    {
@@ -1495,7 +1748,8 @@
    "el_dark": 0.4,
    "magPct": 0.25,
    "pierce": 0.2,
-   "lifesteal": 0.12
+   "lifesteal": 0.12,
+   "dotPower": 0.45
   },
   "flags": [
    "statusDamage",
@@ -1505,13 +1759,243 @@
   ],
   "skills": [
    "ult_pandemic",
+   "ult_blackMiasma",
    "hexMist",
    "curseBurst",
-   "plague",
-   "darkPact"
+   "plagueMark",
+   "soulSeal"
   ],
   "icon": "☣",
   "desc": "あらゆる呪いを従える災厄の王。蝕まれた敵ほど深く斬れる。"
+ },
+ "graceEmperor": {
+  "id": "graceEmperor",
+  "name": "天佑楽帝",
+  "tier": 3,
+  "from": [
+   "bard",
+   "priest"
+  ],
+  "desc": "この人が歌い出すと、同じ4人が別の隊になる。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「支援」構成（得点 130 以上／全体の 40% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "buff",
+     "v": 130,
+     "share": 0.4
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 168,
+   "mp": 104,
+   "str": 10,
+   "int": 21,
+   "vit": 14,
+   "agi": 16,
+   "luk": 15
+  },
+  "grow": {
+   "hp": 14,
+   "mp": 7,
+   "str": 1.1,
+   "int": 2.9,
+   "vit": 1.8,
+   "agi": 2.2,
+   "luk": 1.9
+  },
+  "mods": {
+   "buffPower": 0.6,
+   "buffTurns": 2,
+   "magPct": 0.18,
+   "mp": 60,
+   "mpRegen": 7,
+   "spd": 10
+  },
+  "flags": [
+   "boonShare",
+   "encore",
+   "boonGuard",
+   "openingRally"
+  ],
+  "skills": [
+   "ult_paean",
+   "valorMarch",
+   "warSong",
+   "wardSong",
+   "resonance",
+   "encoreCall",
+   "groupHeal"
+  ]
+ },
+ "ruinEmperor": {
+  "id": "ruinEmperor",
+  "name": "零落呪帝",
+  "tier": 3,
+  "from": [
+   "binder",
+   "hexer"
+  ],
+  "desc": "殺さずに、勝てなくする。強かったはずのものが、ただの的になる。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「弱体」構成（得点 130 以上／全体の 40% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "debuff",
+     "v": 130,
+     "share": 0.4
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 164,
+   "mp": 100,
+   "str": 10,
+   "int": 23,
+   "vit": 13,
+   "agi": 14,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 13,
+   "mp": 6.8,
+   "str": 1,
+   "int": 3.1,
+   "vit": 1.7,
+   "agi": 1.8,
+   "luk": 1.4
+  },
+  "mods": {
+   "debuffPower": 0.6,
+   "debuffTurns": 2,
+   "el_dark": 0.35,
+   "magPct": 0.22,
+   "pierce": 0.18
+  },
+  "flags": [
+   "hexBrand",
+   "doomToll",
+   "spreadHex",
+   "frailtyAura"
+  ],
+  "skills": [
+   "ult_ruin",
+   "witherAll",
+   "dullEdge",
+   "sapWill",
+   "leadenChant",
+   "frailty",
+   "bindingWord"
+  ]
+ },
+ "rotKing": {
+  "id": "rotKing",
+  "name": "万蝕王",
+  "tier": 3,
+  "from": [
+   "plaguedoctor",
+   "hexer"
+  ],
+  "desc": "倒すのではなく、腐らせる。触れたものが、触れた順に還っていく。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「呪詛」構成（得点 130 以上／全体の 40% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "status",
+     "v": 130,
+     "share": 0.4
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 172,
+   "mp": 98,
+   "str": 10,
+   "int": 23,
+   "vit": 15,
+   "agi": 13,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 14,
+   "mp": 6.8,
+   "str": 1,
+   "int": 3.1,
+   "vit": 1.9,
+   "agi": 1.5,
+   "luk": 1.4
+  },
+  "mods": {
+   "dotPower": 0.65,
+   "dotTurns": 2,
+   "el_dark": 0.35,
+   "magPct": 0.2,
+   "lifesteal": 0.12
+  },
+  "flags": [
+   "festering",
+   "deepRot",
+   "rotFeast",
+   "venomEdge"
+  ],
+  "skills": [
+   "ult_rotworld",
+   "miasma",
+   "pyreCurse",
+   "incubate",
+   "sporeBurst",
+   "rotTouch",
+   "plagueMark"
+  ]
  },
  "poleEmperor": {
   "id": "poleEmperor",
@@ -1581,12 +2065,471 @@
   ],
   "skills": [
    "ult_duality",
+   "ult_twinPole",
    "spellEdge",
    "dualPole",
-   "elementalBurst",
-   "heavyBlow"
+   "runeBlade",
+   "spellChain",
+   "unisonEdge"
   ],
   "icon": "⚔",
   "desc": "剣と魔、二つの極を一振りに束ねた皇。どちらの数値も捨てない。"
+ },
+ "dawnMother": {
+  "id": "dawnMother",
+  "name": "暁光聖母",
+  "tier": 3,
+  "ally": "mina",
+  "from": [
+   "exorcist",
+   "priest"
+  ],
+  "desc": "倒れることを許さない者。光と癒しの極みに達し、断たれた命すら朝へ連れ戻す。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「吸収」構成（得点 90 以上／全体の 30% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "life",
+     "v": 90,
+     "share": 0.3
+    }
+   },
+   {
+    "label": "アクセサリ4枠の光＋闇の強化が 50 以上",
+    "d": {
+     "t": "accElemPair",
+     "v": 50
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 190,
+   "mp": 110,
+   "str": 8,
+   "int": 23,
+   "vit": 20,
+   "agi": 10,
+   "luk": 14
+  },
+  "grow": {
+   "hp": 15,
+   "mp": 7.2,
+   "str": 0.9,
+   "int": 3.2,
+   "vit": 2.6,
+   "agi": 1.2,
+   "luk": 1.8
+  },
+  "mods": {
+   "magPct": 0.3,
+   "el_light": 0.45,
+   "lifesteal": 0.2,
+   "dr": 0.15,
+   "mp": 60,
+   "mpRegen": 8
+  },
+  "flags": [
+   "overheal",
+   "endure",
+   "wardAll"
+  ],
+  "skills": [
+   "ult_dawnbreak",
+   "resurrect",
+   "groupHeal",
+   "blessing",
+   "purify",
+   "guardianAngel",
+   "holyChain"
+  ]
+ },
+ "undyingAegis": {
+  "id": "undyingAegis",
+  "name": "不倒聖盾",
+  "tier": 3,
+  "ally": "mina",
+  "from": [
+   "guardian",
+   "priest"
+  ],
+  "desc": "祈りを盾の形に固めた者。前に出ることはないが、この人の後ろで誰も倒れない。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「堅守」構成（得点 100 以上／全体の 35% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "guard",
+     "v": 100,
+     "share": 0.35
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 250,
+   "mp": 90,
+   "str": 9,
+   "int": 18,
+   "vit": 28,
+   "agi": 7,
+   "luk": 11
+  },
+  "grow": {
+   "hp": 21,
+   "mp": 5.6,
+   "str": 1,
+   "int": 2.4,
+   "vit": 3.6,
+   "agi": 0.8,
+   "luk": 1.3
+  },
+  "mods": {
+   "defPct": 0.4,
+   "res": 45,
+   "dr": 0.22,
+   "hpPct": 0.25,
+   "reflect": 0.2
+  },
+  "flags": [
+   "wardAll",
+   "lastStand",
+   "barrierOnHit",
+   "overheal"
+  ],
+  "skills": [
+   "ult_undying",
+   "bulwark",
+   "sanctuary",
+   "homunculus",
+   "guardianAngel",
+   "martyr",
+   "groupHeal"
+  ]
+ },
+ "ironBastion": {
+  "id": "ironBastion",
+  "name": "不動城塞",
+  "tier": 3,
+  "ally": "garo",
+  "from": [
+   "guardian"
+  ],
+  "desc": "守るべき城を失って、自分が城になった男。動かないことが、そのまま攻撃になる。",
+  "req": [
+   {
+    "label": "アクセサリ4枠で「堅守」と「反射」を両立（各 60 以上）",
+    "d": {
+     "t": "accStyleDual",
+     "a": "guard",
+     "b": "reflect",
+     "v": 60
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 290,
+   "mp": 55,
+   "str": 18,
+   "int": 8,
+   "vit": 32,
+   "agi": 6,
+   "luk": 8
+  },
+  "grow": {
+   "hp": 25,
+   "mp": 3,
+   "str": 2.2,
+   "int": 0.9,
+   "vit": 4,
+   "agi": 0.7,
+   "luk": 0.9
+  },
+  "mods": {
+   "defPct": 0.45,
+   "dr": 0.24,
+   "reflect": 0.32,
+   "reflectPow": 0.45,
+   "hpPct": 0.3
+  },
+  "flags": [
+   "wallPower",
+   "thornAura",
+   "counterEvade",
+   "endure"
+  ],
+  "skills": [
+   "ult_bastion",
+   "counterWall",
+   "bulwark",
+   "tauntRoar",
+   "ironWall",
+   "retaliate",
+   "earthSplitter"
+  ]
+ },
+ "wrathBulwark": {
+  "id": "wrathBulwark",
+  "name": "忿怒盾鬼",
+  "tier": 3,
+  "ally": "garo",
+  "from": [
+   "berserker"
+  ],
+  "desc": "守り切れなかった記憶を燃やして立つ者。傷が深いほど、その一撃は重くなる。",
+  "req": [
+   {
+    "label": "アクセサリ4枠で「吸収」と「堅守」を両立（各 55 以上）",
+    "d": {
+     "t": "accStyleDual",
+     "a": "life",
+     "b": "guard",
+     "v": 55
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 260,
+   "mp": 55,
+   "str": 24,
+   "int": 8,
+   "vit": 24,
+   "agi": 10,
+   "luk": 9
+  },
+  "grow": {
+   "hp": 22,
+   "mp": 3,
+   "str": 3.2,
+   "int": 0.9,
+   "vit": 3,
+   "agi": 1.3,
+   "luk": 1
+  },
+  "mods": {
+   "atkPct": 0.35,
+   "lifesteal": 0.32,
+   "hpPct": 0.28,
+   "dr": 0.1,
+   "critDmg": 0.4
+  },
+  "flags": [
+   "lowHpRage",
+   "lastStand",
+   "killHeal",
+   "wallPower"
+  ],
+  "skills": [
+   "ult_wrathgate",
+   "carnage",
+   "bloodRage",
+   "bloodOffering",
+   "avengeStance",
+   "crushArmor",
+   "tauntRoar"
+  ]
+ },
+ "worldTheorem": {
+  "id": "worldTheorem",
+  "name": "万理術理",
+  "tier": 3,
+  "ally": "sera",
+  "from": [
+   "elementalist"
+  ],
+  "desc": "相刻の式をすべて解いた者。世界が何でできているかを知っているので、何にでも効く。",
+  "req": [
+   {
+    "label": "アクセサリ4枠が「属性」構成（得点 140 以上／全体の 42% 以上）",
+    "d": {
+     "t": "accStyle",
+     "k": "elem",
+     "v": 140,
+     "share": 0.42
+    }
+   },
+   {
+    "label": "6属性すべてのダメージ強化が 14% 以上",
+    "d": {
+     "t": "allElem",
+     "v": 0.14
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 150,
+   "mp": 130,
+   "str": 8,
+   "int": 26,
+   "vit": 12,
+   "agi": 15,
+   "luk": 13
+  },
+  "grow": {
+   "hp": 12,
+   "mp": 8,
+   "str": 0.9,
+   "int": 3.6,
+   "vit": 1.5,
+   "agi": 2,
+   "luk": 1.5
+  },
+  "mods": {
+   "magPct": 0.35,
+   "pierce": 0.45,
+   "mp": 70,
+   "mpRegen": 9,
+   "spd": 12
+  },
+  "flags": [
+   "allElemStrike",
+   "elementCycle",
+   "weakHunter",
+   "doubleCast"
+  ],
+  "skills": [
+   "ult_theorem",
+   "ult_astralBurst",
+   "elementalBurst",
+   "meteor",
+   "blizzard",
+   "chainBolt",
+   "overload"
+  ]
+ },
+ "stillCalamity": {
+  "id": "stillCalamity",
+  "name": "静謐災禍",
+  "tier": 3,
+  "ally": "sera",
+  "from": [
+   "stormcaller",
+   "hexer"
+  ],
+  "desc": "声を荒らげずに土地を枯らす者。理屈が分かっているぶん、手際がいい。",
+  "req": [
+   {
+    "label": "アクセサリ4枠で「範囲」と「呪詛」を両立（各 55 以上）",
+    "d": {
+     "t": "accStyleDual",
+     "a": "aoe",
+     "b": "status",
+     "v": 55
+    }
+   },
+   {
+    "label": "レジェンドアクセサリを 1個 装備している",
+    "d": {
+     "t": "rarityCount",
+     "r": "legend",
+     "v": 1
+    }
+   },
+   {
+    "label": "レベル 12 以上",
+    "d": {
+     "t": "level",
+     "v": 12
+    }
+   }
+  ],
+  "base": {
+   "hp": 155,
+   "mp": 120,
+   "str": 9,
+   "int": 25,
+   "vit": 13,
+   "agi": 17,
+   "luk": 12
+  },
+  "grow": {
+   "hp": 12,
+   "mp": 7.4,
+   "str": 1,
+   "int": 3.4,
+   "vit": 1.6,
+   "agi": 2.2,
+   "luk": 1.4
+  },
+  "mods": {
+   "aoePower": 0.5,
+   "aoeRatio": 0.35,
+   "el_dark": 0.35,
+   "magPct": 0.22,
+   "mp": 50
+  },
+  "flags": [
+   "spreadStatus",
+   "lingering",
+   "statusDamage",
+   "overkillChain"
+  ],
+  "skills": [
+   "ult_stillness",
+   "plagueMark",
+   "gravityWell",
+   "cycloneCage",
+   "hexMist",
+   "soulSeal",
+   "dispelWave"
+  ]
  }
 }

@@ -441,11 +441,11 @@
   "icon": "👹",
   "tier": 1,
   "boss": true,
-  "hp": 265,
-  "atk": 29,
-  "mag": 10,
-  "def": 24,
-  "res": 12,
+  "hp": 318,
+  "atk": 33,
+  "mag": 11,
+  "def": 26,
+  "res": 13,
   "spd": 12,
   "exp": 90,
   "gold": 160,
@@ -467,11 +467,11 @@
   "icon": "❄",
   "tier": 2,
   "boss": true,
-  "hp": 560,
-  "atk": 28,
-  "mag": 48,
-  "def": 30,
-  "res": 44,
+  "hp": 672,
+  "atk": 32,
+  "mag": 55,
+  "def": 33,
+  "res": 48,
   "spd": 22,
   "exp": 190,
   "gold": 320,
@@ -485,7 +485,7 @@
   "skills": [
    "e_frost",
    "e_curse",
-   "e_heal"
+   "e_blizzard"
   ]
  },
  {
@@ -494,11 +494,11 @@
   "icon": "🦂",
   "tier": 2,
   "boss": true,
-  "hp": 760,
-  "atk": 52,
-  "mag": 20,
-  "def": 56,
-  "res": 30,
+  "hp": 912,
+  "atk": 59,
+  "mag": 23,
+  "def": 62,
+  "res": 33,
   "spd": 14,
   "exp": 220,
   "gold": 360,
@@ -520,11 +520,11 @@
   "icon": "🐉",
   "tier": 3,
   "boss": true,
-  "hp": 1150,
-  "atk": 68,
-  "mag": 72,
-  "def": 52,
-  "res": 50,
+  "hp": 1380,
+  "atk": 78,
+  "mag": 82,
+  "def": 57,
+  "res": 55,
   "spd": 28,
   "exp": 340,
   "gold": 520,
@@ -548,11 +548,11 @@
   "icon": "🕳",
   "tier": 3,
   "boss": true,
-  "hp": 1600,
-  "atk": 82,
-  "mag": 86,
-  "def": 62,
-  "res": 62,
+  "hp": 1920,
+  "atk": 93,
+  "mag": 98,
+  "def": 68,
+  "res": 68,
   "spd": 30,
   "exp": 500,
   "gold": 760,
@@ -569,30 +569,94 @@
   ]
  },
  {
+  "id": "b_mirrorself",
+  "name": "鏡写しの衛士",
+  "icon": "🛡",
+  "tier": 3,
+  "boss": true,
+  "hp": 1210,
+  "atk": 98,
+  "mag": 58,
+  "def": 72,
+  "res": 56,
+  "spd": 34,
+  "exp": 560,
+  "gold": 820,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "phys"
+  ],
+  "skills": [
+   "e_claw",
+   "e_slam",
+   "e_thorn",
+   "e_roar"
+  ]
+ },
+ {
   "id": "b_worldmirror",
   "name": "世界の鏡像",
   "icon": "🪟",
   "tier": 3,
   "boss": true,
-  "hp": 2100,
-  "atk": 92,
-  "mag": 92,
-  "def": 70,
-  "res": 70,
+  "hp": 1650,
+  "atk": 122,
+  "mag": 122,
+  "def": 77,
+  "res": 77,
   "spd": 32,
   "exp": 700,
   "gold": 1000,
   "weak": [],
   "resist": [
    "light",
-   "dark",
-   "phys"
+   "dark"
   ],
   "skills": [
    "e_thorn",
    "e_voidbeam",
    "e_meteorfall",
-   "e_heal"
+   "e_curse"
+  ],
+  "phases": [
+   {
+    "at": 0.72,
+    "name": "焔氷の相",
+    "weak": [
+     "thunder"
+    ],
+    "resist": [
+     "fire",
+     "ice",
+     "phys"
+    ],
+    "say": "——お前たちの刃を、写した。"
+   },
+   {
+    "at": 0.45,
+    "name": "雷風の相",
+    "weak": [
+     "fire",
+     "ice"
+    ],
+    "resist": [
+     "thunder",
+     "wind"
+    ],
+    "say": "——お前たちの速さを、写した。"
+   },
+   {
+    "at": 0.2,
+    "name": "相剋の相",
+    "weak": [
+     "light",
+     "dark"
+    ],
+    "resist": [],
+    "say": "——もう、写すものがない。"
+   }
   ]
  }
 ]
