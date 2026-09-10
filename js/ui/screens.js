@@ -241,10 +241,18 @@ G.Screens = (function () {
     h += '<div class="grid g3">';
     G.Story.places(state).forEach(function (p) {
       var r = p.ref;
+      var echo = p.cleared && r.kind === 'dungeon' ? G.Story.echoCount(state, r.id) : 0;
+      var isEcho = p.cleared && r.kind === 'dungeon';
       h += '<div class="node' + (p.cleared ? ' done' : '') + '" data-act="place:' + r.id + '">' +
         '<div class="node-ico big-ico">' + r.icon + '</div>' +
-        '<div class="nn">' + r.name + (p.cleared ? ' <span class="tag">踏破</span>' : '') + '</div>' +
-        '<div class="nd">' + r.desc + '</div></div>';
+        '<div class="nn">' + r.name +
+        (isEcho ? ' <span class="tag r-mythic">残響' + (echo ? ' ×' + echo : '') + '</span>'
+                : (p.cleared ? ' <span class="tag">踏破</span>' : '')) + '</div>' +
+        '<div class="nd">' + (isEcho
+          ? '踏破した場所に、別の主が現れている。道中は無く、いきなり主と戦う。' +
+            '挑むほど相手は強くなり、経験値と金は減る（今 ' +
+            Math.round(G.Story.echoReward(state, r.id) * 100) + '%）。報酬の3択はそのまま。'
+          : r.desc) + '</div></div>';
     });
     h += '</div>';
 
@@ -334,8 +342,13 @@ G.Screens = (function () {
     G.Fx.applyBackground(d.lv);
     var last = dg.at >= dg.depth - 1;
     var h = '<h1>' + d.icon + ' ' + d.name +
-      ' <span class="muted small">― ' + Math.min(dg.at + 1, dg.depth) + ' / ' + dg.depth + ' ―</span></h1>';
-    h += '<p class="muted">' + d.desc + '</p>';
+      (dg.echo
+        ? ' <span class="r-mythic small">― 残響 ' + dg.echo + '回目 ―</span>'
+        : ' <span class="muted small">― ' + Math.min(dg.at + 1, dg.depth) + ' / ' + dg.depth + ' ―</span>') +
+      '</h1>';
+    h += '<p class="muted">' + (dg.echo
+      ? '踏破したはずの場所に、別の主が立っている。何が出るかは踏み込むまで分からない。'
+      : d.desc) + '</p>';
     h += '<div class="panel"><div class="depth">';
     for (var i = 0; i < dg.depth; i++) {
       var cls = i < dg.at ? 'done' : (i === dg.at ? 'now' : '');
@@ -344,7 +357,7 @@ G.Screens = (function () {
     h += '</div>';
     h += '<div class="center" style="margin-top:12px">' +
       '<button class="btn primary" data-act="dungeonGo">' +
-      (last ? '⚔ 主に挑む' : '⚔ 奥へ進む') + '</button> ' +
+      (dg.echo ? '⚔ 残響の主に挑む' : (last ? '⚔ 主に挑む' : '⚔ 奥へ進む')) + '</button> ' +
       '<button class="btn" data-act="dungeonLeave">引き返す</button></div></div>';
     if (dg.stash) {
       h += '<div class="panel"><h3>🎁 ' + dg.stash.place + '</h3>' +

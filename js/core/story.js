@@ -54,14 +54,52 @@ G.Story = (function () {
   /* ===================== ダンジョン ===================== */
 
   /** ダンジョンに入る。depth 段の戦闘があり、最後がボス。 */
-  function enterDungeon(state, id) {
+  /* ===================== 残響（踏破済みへの再挑戦） =====================
+   * 踏破したダンジョンには、別の主が現れることがある。
+   *
+   * もともと再入場は素通しで、同じ主が満額の報酬を落とし続けていた。
+   * 周回できること自体は残したいので、次の形に作り直した:
+   *   ・道中は無し。主に直行する（周回のだるさを消す）
+   *   ・主は毎回ランダム。挑むたびに格が上がる
+   *   ・経験値と金は回数ごとに減る（レベルで殴り倒せなくする）
+   *   ・報酬の3択だけは毎回そのまま（ビルドを進める場所として残す）
+   */
+  function echoCount(state, id) {
+    return (state.story.echo && state.story.echo[id]) || 0;
+  }
+  /** 残響で出る主を決める。挑む格に見合ったボスから選ぶ。 */
+  function echoBoss(state, d, n) {
+    var lv = Math.max(d.bossLv, effLv(state, d.bossLv)) + n * 2;
+    var pool = G.BOSSES.filter(function (b) {
+      var home = { 1: 5, 2: 10, 3: 15 }[b.tier] || 5;
+      return home <= lv + 4;
+    });
+    if (!pool.length) pool = G.BOSSES;
+    return U.pick(pool);
+  }
+  /** 残響の報酬倍率。挑むほど実入りが減る。
+   * 一定にすると、レベルと金だけを稼いで本編を殴り倒せてしまう。
+   * 3択の報酬（ビルドの前進）は減らさない。周回する理由をそこに残すため。 */
+  function echoReward(state, id) {
+    return Math.max(0.20, Math.pow(0.55, echoCount(state, id)));
+  }
+
+  function enterDungeon(state, id, echo) {
     var d = place(id);
     if (!d || d.kind !== 'dungeon') return null;
-    state.story.dungeon = {
-      id: id, at: 0, depth: d.depth, cleared: false,
-      /* 一度入ったら道中の会話は繰り返さない */
-      introSeen: !!state.story.flags['intro_' + id]
-    };
+    if (echo) {
+      var n = echoCount(state, id);
+      state.story.dungeon = {
+        id: id, at: 0, depth: 1, cleared: false, introSeen: true,
+        echo: n + 1, echoBoss: echoBoss(state, d, n).id
+      };
+    } else {
+      state.story.dungeon = {
+        id: id, at: 0, depth: d.depth, cleared: false,
+        /* 一度入ったら道中の会話は繰り返さない */
+        introSeen: !!state.story.flags['intro_' + id]
+      };
+    }
     state.story.place = id;
     return state.story.dungeon;
   }
@@ -88,10 +126,17 @@ G.Story = (function () {
     /* 道中だけを育ちに合わせて引き上げる。章の主は設計どおりの相手のままにして、
      * 強さの上乗せは難易度モードに任せる。ボスまで追随させると最終章だけが崖になる。 */
     var lvN = effLv(state, d.lv), bossN = d.bossLv;
+    /* 残響の主は、育ち具合に追いついたうえで、挑むたびに格が上がる。
+     * 章の設計値だけを基準にすると、レベル40で第1章の残響に行っても
+     * 相手が弱すぎて腕試しにならない。 */
+    if (dg.echo) {
+      var base = Math.max(d.bossLv, effLv(state, d.bossLv));
+      bossN = Math.min(base + 14, base + (dg.echo - 1) * 2);
+    }
     state.run.floor = isBoss ? bossN : lvN;
     var units = [], i;
     if (isBoss) {
-      var boss = G.ENEMY_BY_ID[d.boss];
+      var boss = G.ENEMY_BY_ID[dg.echo ? dg.echoBoss : d.boss] || G.ENEMY_BY_ID[d.boss];
       units.push(G.Battle.makeEnemyUnit(boss, bossN, 0));
       var addN = (bossN >= 9 ? 2 : 1) + G.Diff.get().adds;
       for (i = 0; i < addN; i++) {
@@ -124,6 +169,10 @@ G.Story = (function () {
     if (dg.at >= dg.depth) {
       dg.cleared = true;
       state.story.cleared[dg.id] = true;
+      if (dg.echo) {
+        if (!state.story.echo) state.story.echo = {};
+        state.story.echo[dg.id] = dg.echo;
+      }
       return true;
     }
     return false;
@@ -239,6 +288,7 @@ G.Story = (function () {
     fill: fill, fillLines: fillLines,
     enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
     nextEncounter: nextEncounter, advanceDungeon: advanceDungeon,
+    echoCount: echoCount, echoReward: echoReward,
     chapterDone: chapterDone, nextChapter: nextChapter, joinForChapter: joinForChapter,
     partyTalks: partyTalks,
     inn: inn

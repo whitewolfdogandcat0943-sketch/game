@@ -98,7 +98,8 @@
     var p = G.Story.place(id);
     if (!p) return;
     if (p.kind === 'town') { state.story.place = id; state.story.dungeon = null; go('town'); return; }
-    G.Story.enterDungeon(state, id);
+    /* 踏破済みなら「残響」。道中は無く、別の主に直行する。 */
+    G.Story.enterDungeon(state, id, !!state.story.cleared[id]);
     G.Save.saveRun(state);
     go('dungeon');
   }
@@ -146,6 +147,14 @@
       go('dungeon'); return;
     }
     G.Save.saveRun(state);
+    /* 残響は章の進行に関わらない。踏破の演出も章クリアの流れも通さない。 */
+    if (dg.echo) {
+      UI.toast('🌀 残響を鎮めた。（' + d.name + ' 残響 ' + dg.echo + '回目）', 'legend');
+      G.Story.leaveDungeon(state);
+      G.Save.saveRun(state);
+      go('world');
+      return;
+    }
     UI.toast('👑 ' + d.name + ' を踏破した！', 'legend');
     G.Story.leaveDungeon(state);
     var isGoal = (G.Story.chapter(state) || {}).goal === d.id;

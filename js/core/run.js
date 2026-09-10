@@ -357,6 +357,14 @@ G.Run = (function () {
     gold = Math.round(gold * (1 + (S.goldUp || 0)));
     if (kind === 'elite') { exp = Math.round(exp * 1.3); gold = Math.round(gold * 1.4); }
     if (kind === 'boss') { exp = Math.round(exp * 1.6); gold = Math.round(gold * 1.8); }
+    /* 残響（踏破済みへの再挑戦）は、挑むほど実入りが減る。
+     * ここを一定にすると、周回でレベルと金を稼いで本編を殴り倒せてしまう。
+     * 報酬の3択は減らさない。周回する理由をそこに残すため。 */
+    var dgE = state.mode === 'story' && state.story && state.story.dungeon;
+    if (dgE && dgE.echo) {
+      var mult = G.Story.echoReward(state, dgE.id);
+      exp = Math.round(exp * mult); gold = Math.round(gold * mult);
+    }
 
     hero.exp += exp; hero.gold += gold;
     /* 勝利の余韻: 最大HPの8%を回復 */
