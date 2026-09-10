@@ -93,19 +93,24 @@ G.Battle = (function () {
         if (/Pct$/.test(b.k)) { pctAcc[b.k] = (pctAcc[b.k] || 0) + b.v; }
         else { S[b.k] = (S[b.k] || 0) + b.v; }
       });
-      S.atk = Math.round(S.atk * (1 + (pctAcc.atkPct || 0)));
-      S.mag = Math.round(S.mag * (1 + (pctAcc.magPct || 0)));
-      S.def = Math.max(0, Math.round(S.def * (1 + (pctAcc.defPct || 0))));
-      S.res = Math.max(0, Math.round(S.res * (1 + (pctAcc.resPct || 0))));
-      S.maxHp = Math.round(S.maxHp * (1 + (pctAcc.hpPct || 0)));
+      /* 弱体は重ねがけできるので、下限を切らないと攻撃力が負になる。
+       * 7割減までは通し、そこから先は何を重ねても効かない。 */
+      S.atk = Math.max(1, Math.round(S.atk * (1 + G.PCT_FLOOR(pctAcc.atkPct))));
+      S.mag = Math.max(1, Math.round(S.mag * (1 + G.PCT_FLOOR(pctAcc.magPct))));
+      S.def = Math.max(0, Math.round(S.def * (1 + G.PCT_FLOOR(pctAcc.defPct))));
+      S.res = Math.max(0, Math.round(S.res * (1 + G.PCT_FLOOR(pctAcc.resPct))));
+      S.maxHp = Math.max(1, Math.round(S.maxHp * (1 + G.PCT_FLOOR(pctAcc.hpPct))));
       /* 状態異常の影響 */
       if (hasStatus(u, 'freeze')) S.spd = Math.round(S.spd * 0.4);
+      /* 素早さ低下も重ねがけできる。0以下になると手番の並びが壊れる */
+      S.spd = Math.max(1, S.spd);
       S.dr = U.clamp(S.dr, -1, 0.85);
       u.S = S;
       u.flags = {};
       u.flagBuffs.forEach(function (f) { u.flags[f.f] = true; });
     }
     if (u.side === 'player' && hasStatus(u, 'freeze')) u.S.spd = Math.round(u.S.spd * 0.5);
+    u.S.spd = Math.max(1, u.S.spd);
     return u.S;
   }
 
@@ -128,6 +133,7 @@ G.Battle = (function () {
         damageDealt: 0, turns: 0,
         /* ミシック条件の判定に使う記録 */
         mpSpent: 0, skillsUsed: {}, skillKinds: 0, onlyBasic: true, statusPeak: 0,
+        boonsCast: 0, hexesCast: 0, hexPeak: 0,
         barrierAbsorbed: 0, evadeStreak: 0, evadeStreakMax: 0, healed: 0,
         weakKills: 0, maxHitDamage: 0, firstHitDone: false
       }
@@ -143,6 +149,13 @@ G.Battle = (function () {
         var got = U.pick(pool);
         G.addItem(state.hero, got.id, 1);
         log(b, '🧪 ' + m.name + ' の錬成術が働き〈' + got.name + '〉を1個 補充した。', 'good');
+      }
+      if (m.flags.openingRally) {
+        party.filter(alive).forEach(function (t) {
+          addBuff(b, t, 'atkPct', 0.18, 3, true, m);
+          addBuff(b, t, 'magPct', 0.18, 3, true, m);
+        });
+        log(b, '🎺 ' + m.name + ' の号令が響き、味方全体の攻撃が高まった。', 'good');
       }
       if (m.flags.alchemyShield) {
         m.barrier += Math.round(m.S.maxHp * 0.12 * (1 + (m.S.itemPower || 0)));
@@ -310,6 +323,14 @@ G.Battle = (function () {
   function endRound(b) {
     updateRage(b);
     aliveParty(b).forEach(function (m) {
+      if (!m.flags.frailtyAura) return;
+      aliveEnemies(b).forEach(function (x) {
+        if (!(x.buffs || []).some(function (y) { return y.v < 0; })) return;
+        addBuff(b, x, 'defPct', -0.08, 2, true, m);
+        addBuff(b, x, 'resPct', -0.08, 2, true, m);
+      });
+    });
+    aliveParty(b).forEach(function (m) {
       if (!m.flags.thornAura) return;
       var td = Math.max(1, Math.round(m.S.maxHp * 0.012 * (1 + (m.S.reflect || 0) * 2)));
       aliveEnemies(b).forEach(function (x) {
@@ -365,6 +386,12 @@ G.Battle = (function () {
       if (f.executeLow && tgt.hp / tgt.S.maxHp <= 0.25) extra += 0.60;
       if (f.bossSlayer && tgt.isBoss) extra += 0.25;
       if (f.statusDamage && tgt.statuses.length) extra += 0.35;
+      /* 弱体ビルドの見返り。敵に乗せた「マイナスの強化」の数を見る */
+      if (f.hexBrand || f.doomToll) {
+        var hex = (tgt.buffs || []).filter(function (x) { return x.v < 0; }).length;
+        if (f.hexBrand && hex) extra += 0.30;
+        if (f.doomToll) extra += 0.08 * hex;
+      }
     }
     if (b && u.side === 'player') {
       var n = aliveEnemies(b).length;
@@ -496,6 +523,10 @@ G.Battle = (function () {
     if (dealt > 0 && src.flags && src.flags.statusOnHit && alive(tgt) && U.chance(0.20)) {
       addStatus(b, tgt, U.pick(['burn', 'poison', 'freeze', 'shock']), 2, null, src);
     }
+    /* 攻撃時の弱体付与。殴りながら削っていくビルドが成立する */
+    if (dealt > 0 && src.flags && src.flags.sapStrike && alive(tgt) && U.chance(0.25)) {
+      addBuff(b, tgt, 'atkPct', -0.20, 3, false, src);
+    }
 
     /* 属性付随効果 */
     if (src.flags) {
@@ -513,6 +544,10 @@ G.Battle = (function () {
     if (tgt.flags) {
       if (tgt.flags.wardAll) dmg = Math.round(dmg * 0.85);
       if (tgt.flags.lastStand && tgt.hp / tgt.S.maxHp <= 0.50) dmg = Math.round(dmg * 0.75);
+      /* boonGuard: 強化が乗っている味方は硬くなる。支援を「守り」に変える */
+      if (tgt.flags.boonGuard && (tgt.buffs || []).some(function (x) { return x.v > 0; })) {
+        dmg = Math.round(dmg * 0.86);
+      }
     }
     dmg = Math.max(1, dmg);
     if (tgt.barrier > 0) {
@@ -672,13 +707,20 @@ G.Battle = (function () {
   }
 
   /** 敵から強化効果を剥がす */
-  function dispel(b, t) {
+  function dispel(b, t, by) {
     var before = t.buffs.length + t.flagBuffs.length;
+    var taken = t.buffs.filter(function (x) { return x.v > 0; });
     t.buffs = t.buffs.filter(function (x) { return x.v < 0; });
     t.flagBuffs = [];
     t.barrier = 0;
     refresh(t);
     if (before > t.buffs.length) log(b, '🌀 ' + t.name + ' の強化を打ち消した。', 'good');
+    /* boonSteal: 剥がした強化をそのまま自分が着る */
+    if (by && alive(by) && by.flags && by.flags.boonSteal && taken.length) {
+      taken.forEach(function (x) { by.buffs.push({ k: x.k, v: x.v, t: x.t }); });
+      refresh(by);
+      log(b, '🎭 ' + by.name + ' は奪った加護を身にまとった。', 'good');
+    }
   }
 
   function addStatus(b, u, kind, turns, val, by) {
@@ -698,9 +740,36 @@ G.Battle = (function () {
     refresh(u);
   }
 
-  function addBuff(b, u, k, v, t, quiet) {
+  /** 強化・弱体を付ける。src を渡すと、その人の強化倍率・継続延長が乗る。
+   * 「かける側の性能」なので、受け手ではなく必ず術者の値を見る。 */
+  function addBuff(b, u, k, v, t, quiet, src) {
+    if (src && src.S) {
+      /* 味方に掛けたものは「強化」、敵に掛けたものは「弱体」。
+       * 鬨の声の被ダメ-10%のように、強化技に混じる自分への不利は
+       * どちらの倍率でも伸ばさない。伸ばすと支援ビルドが自分の首を絞める。 */
+      var boon = (u.side === src.side);
+      var pw = boon ? (src.S.buffPower || 0) : (src.S.debuffPower || 0);
+      var ex = boon ? (src.S.buffTurns || 0) : (src.S.debuffTurns || 0);
+      /* 1ターンだけの構え（防御など）は伸ばさない。
+       * その場しのぎの一手まで支援ビルドの倍率で伸びると、
+       * 「防御を押すだけで硬くなる」という別のゲームになってしまう。 */
+      var counts = (boon ? (v > 0) : (v < 0)) && t >= 2;
+      if (pw && counts) v = v * (1 + pw);
+      if (ex && counts) t += ex;
+      if (src.side === 'player' && counts && b && b.rec) {
+        if (boon) { b.rec.boonsCast++; sty(b, src, 'buff', 1); }
+        else { b.rec.hexesCast++; sty(b, src, 'debuff', 1); }
+      }
+    }
+    if (Math.abs(v) > 0.0001 && G.MODKEYS[k] && G.MODKEYS[k].kind === 'pct') {
+      v = Math.round(v * 1000) / 1000;
+    } else v = Math.round(v * 10) / 10;
     u.buffs.push({ k: k, v: v, t: t + 1 });
     refresh(u);
+    if (b && b.rec && u.side === 'enemy') {
+      var hexN = u.buffs.filter(function (x) { return x.v < 0; }).length;
+      b.rec.hexPeak = Math.max(b.rec.hexPeak, hexN);
+    }
     if (!quiet) {
       var mk = G.MODKEYS[k];
       var txt = mk ? (mk.label + ' ' + (mk.kind === 'pct' ? U.sgnp(v) : U.sgn(v))) : (k + ' ' + v);
@@ -897,18 +966,47 @@ G.Battle = (function () {
     var boons = toAlly ? targets.filter(alive) : [src];
     if (!boons.length) boons = [src];
 
-    if (eff.buffs) boons.forEach(function (t) {
-      eff.buffs.forEach(function (x) {
-        var v = x.v;
-        if (sk.id === 'guard' && x.k === 'reflect' && t.flags && t.flags.guardCounter) v += 0.60;
-        addBuff(b, t, x.k, v, x.t);
+    if (eff.buffs) {
+      /* boonShare: 自分だけに掛けた強化を、味方全体へ半分の強さで配る */
+      var share = (src.flags && src.flags.boonShare && boons.length === 1 && boons[0] === src)
+        ? alliesOf(b, src).filter(alive).filter(function (x) { return x !== src; }) : [];
+      boons.forEach(function (t) {
+        eff.buffs.forEach(function (x) {
+          var v = x.v;
+          if (sk.id === 'guard' && x.k === 'reflect' && t.flags && t.flags.guardCounter) v += 0.60;
+          addBuff(b, t, x.k, v, x.t, false, src);
+        });
       });
-    });
+      if (share.length) {
+        share.forEach(function (t) {
+          eff.buffs.forEach(function (x) { addBuff(b, t, x.k, x.v * 0.5, x.t, true, src); });
+        });
+        log(b, '🎼 ' + src.name + ' の加護が味方全体へ広がった。', 'good');
+      }
+    }
     if (eff.flagBuff) boons.forEach(function (t) {
       t.flagBuffs.push({ f: eff.flagBuff.f, t: eff.flagBuff.t + 1 }); refresh(t);
       log(b, '✨ ' + t.name + ': ' + (G.FLAGS[eff.flagBuff.f] || eff.flagBuff.f), 'good');
     });
     if (eff.healMaxPct) boons.forEach(function (t) { heal(b, t, Math.round(t.S.maxHp * eff.healMaxPct), sk.name); });
+    if (eff.cleanseAllies) boons.forEach(function (t) {
+      if (!t.statuses.length) return;
+      t.statuses = []; refresh(t);
+      log(b, '✨ ' + t.name + ' の状態異常が解除された。', 'good');
+    });
+    /* 強化の延長。支援ビルドは「掛け直す手番」が一番の負担なので、そこを減らす技。 */
+    if (eff.extendBuffs) {
+      var ext = eff.extendBuffs + (src.S.buffTurns || 0);
+      var moved = 0;
+      boons.forEach(function (t) {
+        t.buffs.forEach(function (x) { if (x.v > 0) { x.t += ext; moved++; } });
+        t.flagBuffs.forEach(function (x) { x.t += ext; moved++; });
+      });
+      if (moved) {
+        sty(b, src, 'buff', 1);
+        log(b, '🎵 味方の加護が ' + ext + 'ターン 延びた。', 'good');
+      }
+    }
     if (eff.barrier) boons.forEach(function (t) {
       t.barrier += Math.round(src.S.mag * eff.barrier + t.S.maxHp * 0.05);
       log(b, '🛡 ' + t.name + ' にバリアを展開した（' + t.barrier + '）。', 'good');
@@ -970,7 +1068,7 @@ G.Battle = (function () {
       t.mark = { t: eff.mark.t + 1, v: eff.mark.v };
       log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(eff.mark.v * 100) + '%）。', 'good');
     });
-    if (eff.dispel) foeTargets.forEach(function (t) { dispel(b, t); });
+    if (eff.dispel) foeTargets.forEach(function (t) { dispel(b, t, src); });
     if (eff.seal) foeTargets.forEach(function (t) {
       if (U.chance(eff.seal.c != null ? eff.seal.c : 1)) addStatus(b, t, 'seal', eff.seal.t, null, src);
     });
@@ -999,7 +1097,20 @@ G.Battle = (function () {
       }
     }
     if (sk.kind === 'buff' || sk.kind === 'util') {
-      if (eff.debuff) applySkillSideEffects(b, src, targets, eff);
+      if (eff.debuff || eff.debuffs) applySkillSideEffects(b, src, targets, eff);
+    }
+    /* encore: 支援がもう一度鳴る。アイテムの itemEcho と対になる仕組み。
+     * 攻撃技には乗らないので、支援に寄せたビルドだけが得をする。 */
+    /* MPを払う支援だけが再演の対象。防御のような基本行動は対象外 */
+    var supportive = (sk.mp || 0) > 0 &&
+                     ((sk.kind === 'heal' || sk.kind === 'buff') ||
+                      !!(eff.buffs || eff.flagBuff || eff.barrier));
+    if (supportive && !b._encore && src.flags && src.flags.encore &&
+        src.side === 'player' && U.chance(0.30)) {
+      b._encore = true;
+      log(b, '🎵 アンコール！ ' + sk.name + ' がもう一度響いた。', 'good');
+      useSkill(b, src, skillId, targetIdx);
+      b._encore = false;
     }
     return true;
   }
@@ -1039,6 +1150,8 @@ G.Battle = (function () {
   }
 
   function applySkillSideEffects(b, src, targets, eff) {
+    /* 弱体は単発(debuff)でも複数(debuffs)でも書けるようにして、同じ経路で処理する */
+    var hexes = (eff.debuffs || []).concat(eff.debuff ? [eff.debuff] : []);
     /* 状態異常の伝播 */
     if (src.side === 'player' && src.flags && src.flags.spreadStatus) {
       var extra = aliveEnemies(b).filter(function (x) { return targets.indexOf(x) < 0; })
@@ -1051,8 +1164,16 @@ G.Battle = (function () {
       if (eff.poison && U.chance(eff.poison.c != null ? eff.poison.c : 1)) addStatus(b, t, 'poison', eff.poison.t, eff.poison.v, src);
       if (eff.freeze && U.chance(eff.freeze.c != null ? eff.freeze.c : 1)) addStatus(b, t, 'freeze', eff.freeze.t, null, src);
       if (eff.shock && U.chance(eff.shock.c != null ? eff.shock.c : 1)) addStatus(b, t, 'shock', eff.shock.t, null, src);
-      if (eff.debuff) addBuff(b, t, eff.debuff.k, eff.debuff.v, eff.debuff.t);
+      hexes.forEach(function (d) { addBuff(b, t, d.k, d.v, d.t, false, src); });
     });
+    /* spreadHex: 弱体が周囲へ広がる。状態異常の spreadStatus と対になる。 */
+    if (hexes.length && src.side === 'player' && src.flags && src.flags.spreadHex) {
+      aliveEnemies(b).filter(function (x) { return targets.indexOf(x) < 0; })
+        .filter(function () { return U.chance(0.40); })
+        .forEach(function (t) {
+          hexes.forEach(function (d) { addBuff(b, t, d.k, d.v, d.t, true, src); });
+        });
+    }
   }
 
   /* ===================== 行動: アイテム ===================== */
@@ -1129,7 +1250,7 @@ G.Battle = (function () {
     }
     if (u.type === 'buff') {
       bens.forEach(function (t) {
-        (u.buffs || []).forEach(function (x) { addBuff(b, t, x.k, x.v, x.t); });
+        (u.buffs || []).forEach(function (x) { addBuff(b, t, x.k, x.v, x.t, false, src); });
         if (u.endure) {
           t.extraEndure = true; t.endureUsed = false;
           log(b, '🕊 ' + t.name + ' は致死ダメージを1度耐える加護を得た。', 'good');
@@ -1148,14 +1269,14 @@ G.Battle = (function () {
 
     if (u.type === 'util') {
       foeList().forEach(function (t) {
-        if (u.dispel) dispel(b, t);
+        if (u.dispel) dispel(b, t, src);
         if (u.seal && U.chance(u.seal.c != null ? u.seal.c : 1)) addStatus(b, t, 'seal', u.seal.t, null, src);
         if (u.blind && U.chance(u.blind.c != null ? u.blind.c : 1)) addStatus(b, t, 'blind', u.blind.t, null, src);
         if (u.mark) {
           t.mark = { t: u.mark.t + 1, v: u.mark.v };
           log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(u.mark.v * 100) + '%）。', 'good');
         }
-        if (u.debuff) addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t);
+        if (u.debuff) addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t, false, src);
       });
       return;
     }
@@ -1175,7 +1296,7 @@ G.Battle = (function () {
       function living() { return list.filter(function (t) { return t && alive(t); }); }
       if (u.freeze) living().forEach(function (t) { if (U.chance(u.freeze)) addStatus(b, t, 'freeze', 2, null, src); });
       if (u.shock) living().forEach(function (t) { if (U.chance(u.shock)) addStatus(b, t, 'shock', 2, null, src); });
-      if (u.debuff) living().forEach(function (t) { addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t); });
+      if (u.debuff) living().forEach(function (t) { addBuff(b, t, u.debuff.k, u.debuff.v, u.debuff.t, false, src); });
       if (u.mark) living().forEach(function (t) {
         t.mark = { t: u.mark.t + 1, v: u.mark.v };
         log(b, '🎯 ' + t.name + ' に刻印を刻んだ（被ダメ +' + Math.round(u.mark.v * 100) + '%）。', 'good');
@@ -1302,8 +1423,10 @@ G.Battle = (function () {
       var cl = have(function (s) { return s.eff && s.eff.cleanse; });
       if (cl) { useSkill(b, u, cl.id, target(cl, sick[0], null)); return; }
     }
-    /* 5. 序盤は支援を掛ける（同じバフの重ね掛けはしない） */
-    if (b.round <= 2) {
+    /* 5. 支援を掛ける（同じバフの重ね掛けはしない）。
+     * ふだんは序盤だけだが、支援に寄せたビルドの人は切れたら掛け直す。
+     * そうしないと、強化を伸ばす装備を着けた意味が無くなる。 */
+    if (b.round <= 2 || (u.S.buffPower || 0) >= 0.20) {
       var sup = have(function (s) {
         if (s.kind !== 'buff' && s.kind !== 'util') return false;
         if (s.eff && (s.eff.revive || s.eff.cover)) return false;
@@ -1318,6 +1441,20 @@ G.Battle = (function () {
         return;
       }
     }
+    /* 5b. 弱体に寄せたビルドの人は、まだ乗っていない弱体を優先して掛ける。
+     * 威力で選ぶと弱体技は素の火力が低いので、いつまでも使われない。 */
+    if ((u.S.debuffPower || 0) >= 0.20) {
+      var hexTarget = foes.slice().sort(function (x, y) { return y.S.maxHp - x.S.maxHp; })[0];
+      var hexSk = have(function (s) {
+        var ds = (s.eff && (s.eff.debuffs || (s.eff.debuff ? [s.eff.debuff] : []))) || [];
+        if (!ds.length) return false;
+        return !ds.every(function (d) {
+          return hexTarget.buffs.some(function (bf) { return bf.k === d.k && bf.v < 0; });
+        });
+      });
+      if (hexSk) { useSkill(b, u, hexSk.id, target(hexSk, null, hexTarget)); return; }
+    }
+
     /* 6. 攻撃。敵が多いときは範囲、単体なら威力の高いものを選ぶ */
     var wantAoe = foes.length >= 3;
     var atks = sks.filter(function (s) { return s.kind === 'phys' || s.kind === 'mag'; });

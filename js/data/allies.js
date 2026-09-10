@@ -20,7 +20,7 @@ G.ALLIES = {};
     desc: '灰都の施療院で育った治し手。誰かが倒れることを、理屈ではなく体で拒む。',
     weapon: 'w_mace', armor: 'a_robe', acc: ['n_wardearring'],
     /* 守りと浄化の道。行き着く先は、この人にしかない2つ。 */
-    line: ['priest', 'exorcist', 'guardian', 'dawnMother', 'undyingAegis'],
+    line: ['priest', 'exorcist', 'guardian', 'bard', 'dawnMother', 'undyingAegis'],
     signature: ['aid_mend', 'aid_shelter']
   });
 
@@ -43,7 +43,7 @@ G.ALLIES = {};
     desc: '塔を追われた研究者。人の心には疎いが、世界の理屈には誰よりも近い。',
     weapon: 'w_oakstaff', armor: 'a_robe', acc: ['n_sagering'],
     /* 元素・嵐・呪。世界の理屈へ寄る道ばかりで、剣を持つ道は無い。 */
-    line: ['mage', 'elementalist', 'stormcaller', 'hexer', 'worldTheorem', 'stillCalamity'],
+    line: ['mage', 'elementalist', 'stormcaller', 'hexer', 'binder', 'worldTheorem', 'stillCalamity'],
     signature: ['aid_amplify', 'aid_siphon']
   });
 

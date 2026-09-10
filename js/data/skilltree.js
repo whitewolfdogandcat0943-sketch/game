@@ -138,6 +138,32 @@
     classes: ['hexer', 'plaguelord', 'exorcist', 'finalArbiter'],
     mods: { 'el_dark': 0.25, magPct: 0.15, pierce: 0.15 }, flags: ['statusOnHit', 'soulHarvest'] });
 
+  /* ===================== 支援の道 ===================== */
+  var boon = branch({ id: 'boon', name: '支援の道', hue: 50, icon: 'acc',
+    desc: '自分は強くならない。かわりに、味方4人ぶんの数字を動かす。' });
+  node(boon, { id: 'bn_voice', name: '通る声', row: 1, cost: 1, mods: { buffPower: 0.12 } });
+  node(boon, { id: 'bn_long', name: '長い息', row: 1, cost: 1, mods: { buffTurns: 1 } });
+  node(boon, { id: 'bn_share', name: '唱和', row: 2, cost: 2, req: ['bn_voice'], flags: ['boonShare'] });
+  node(boon, { id: 'bn_guard', name: '守りの旋律', row: 2, cost: 2, req: ['bn_long'], flags: ['boonGuard'] });
+  node(boon, { id: 'bn_anthem', name: '鼓舞の讃歌', row: 3, cost: 3, branchSpent: 3,
+    mods: { buffPower: 0.20, mp: 25 }, skill: 't_anthem' });
+  node(boon, { id: 'bn_ult', name: '天佑の理', row: 4, cost: 3, req: ['bn_anthem'],
+    classes: ['bard', 'graceEmperor', 'priest', 'dawnMother'],
+    mods: { buffPower: 0.25, buffTurns: 1 }, flags: ['encore', 'openingRally'] });
+
+  /* ===================== 弱体の道 ===================== */
+  var hexdown = branch({ id: 'debuff', name: '弱体の道', hue: 265, icon: 'weapon',
+    desc: '倒すのではなく、勝てなくする。数字そのものを削り取る。' });
+  node(hexdown, { id: 'db_dull', name: '鈍らせ', row: 1, cost: 1, mods: { debuffPower: 0.12 } });
+  node(hexdown, { id: 'db_hold', name: '長い呪', row: 1, cost: 1, mods: { debuffTurns: 1 } });
+  node(hexdown, { id: 'db_spread', name: '伝播', row: 2, cost: 2, req: ['db_dull'], flags: ['spreadHex'] });
+  node(hexdown, { id: 'db_sap', name: '削る拳', row: 2, cost: 2, req: ['db_hold'], flags: ['sapStrike'] });
+  node(hexdown, { id: 'db_unmake', name: '解体の呪', row: 3, cost: 3, branchSpent: 3,
+    mods: { debuffPower: 0.20, 'el_dark': 0.10 }, skill: 't_unmake' });
+  node(hexdown, { id: 'db_ult', name: '零落の理', row: 4, cost: 3, req: ['db_unmake'],
+    classes: ['binder', 'ruinEmperor', 'hexer', 'plaguelord'],
+    mods: { debuffPower: 0.25, debuffTurns: 1 }, flags: ['hexBrand', 'doomToll'] });
+
   var byId = {};
   B.forEach(function (br) { br.nodes.forEach(function (n) { n.branchRef = br; byId[n.id] = n; }); });
 

@@ -137,6 +137,22 @@
     [n('蝕み', '弱った敵ほど深く斬れる', { magPct: 0.12 }, ['statusDamage'], 'curseBurst'),
      n('撒種', '殴るだけで呪いが乗る', null, ['statusOnHit'], 'gravityWell')]
   ]);
+  tree('bard', [
+    [n('大声', '届く声で歌う', { buffPower: 0.18 }),
+     n('長歌', '歌い終わらない', { buffTurns: 1 })],
+    [n('唱和', '自分の加護を皆で分ける', null, ['boonShare']),
+     n('緩衝', '加護が守りにもなる', null, ['boonGuard'])],
+    [n('凱歌', '攻めの歌に振り切る', { buffPower: 0.20 }, null, 'valorMarch'),
+     n('再演', 'もう一度鳴ることがある', null, ['encore'], 'wardSong')]
+  ]);
+  tree('binder', [
+    [n('深呪', '弱体を深くする', { debuffPower: 0.18 }),
+     n('長呪', '弱体を長引かせる', { debuffTurns: 1 })],
+    [n('伝播', '呪いが隣へ移る', null, ['spreadHex']),
+     n('打擲', '殴るだけで削れる', null, ['sapStrike'])],
+    [n('烙印', '弱った敵ほど深く斬れる', { magPct: 0.12 }, ['hexBrand'], 'witherAll'),
+     n('積弊', '重ねるほど脆くなる', null, ['doomToll'], 'bindingWord')]
+  ]);
   tree('spellblade', [
     [n('剣気', '剣を選ぶ', { atkPct: 0.15 }),
      n('魔気', '魔を選ぶ', { magPct: 0.15 })],
@@ -226,6 +242,22 @@
      n('撒種', '殴るだけで呪う', { magPct: 0.12 }, ['statusOnHit'])],
     [n('災禍', '蝕んだ敵に致命を与える', { magPct: 0.18 }, ['statusDamage'], 'ult_pandemic'),
      n('収穫', '倒すたびに満ちる', { lifesteal: 0.15 }, ['soulHarvest', 'killHeal'], 't_hexbloom')]
+  ]);
+  tree('graceEmperor', [
+    [n('天音', '加護そのものを強くする', { buffPower: 0.25 }),
+     n('永唱', '加護が切れない', { buffTurns: 2 })],
+    [n('斉唱', '自分の加護がそのまま隊の加護になる', null, ['boonShare', 'openingRally']),
+     n('護歌', '加護を着た者は倒れない', { dr: 0.10 }, ['boonGuard'])],
+    [n('凱旋', '攻めきる歌に振り切る', { buffPower: 0.20, magPct: 0.15 }, null, 'ult_paean'),
+     n('鎮魂', '倒れた者を歌で戻す', { mp: 40 }, ['overheal'], 'resurrect')]
+  ]);
+  tree('ruinEmperor', [
+    [n('極呪', '弱体を極める', { debuffPower: 0.25 }),
+     n('久呪', '弱体を切らさない', { debuffTurns: 2 })],
+    [n('万縛', '呪いが戦場に広がる', null, ['spreadHex', 'frailtyAura']),
+     n('刻印', '呪われた敵に致命を与える', { magPct: 0.12 }, ['hexBrand', 'doomToll'])],
+    [n('零落', '数字を根こそぎ削る', { debuffPower: 0.20 }, null, 'ult_ruin'),
+     n('侵蝕', '弱体と毒を同時に撒く', { 'el_dark': 0.20 }, ['statusOnHit', 'lingering'], 'plagueMark')]
   ]);
   tree('poleEmperor', [
     [n('剣極', '物理に寄せる', { atkPct: 0.20 }),

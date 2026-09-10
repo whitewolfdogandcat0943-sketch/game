@@ -122,6 +122,13 @@ G.UI = (function () {
     h += row('耐性貫通', U.pct(S.pierce));
     h += row('アイテム威力', U.sgnp(S.itemPower)) + row('アイテム温存率', U.pct(S.itemKeep));
     h += row('吸収', U.pct(S.lifesteal)) + row('被ダメ軽減', U.pct(S.dr)) + row('回避率', U.pct(S.evade));
+    /* 支援・弱体は伸ばしている人だけに見せる。全員に0%を並べても場所を取るだけ */
+    if (S.buffPower || S.buffTurns) {
+      h += row('強化の効果量', U.sgnp(S.buffPower)) + row('強化の継続', '+' + (S.buffTurns || 0));
+    }
+    if (S.debuffPower || S.debuffTurns) {
+      h += row('弱体の効果量', U.sgnp(S.debuffPower)) + row('弱体の継続', '+' + (S.debuffTurns || 0));
+    }
     h += '</table>';
     return h;
   }

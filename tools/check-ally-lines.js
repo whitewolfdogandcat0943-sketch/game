@@ -61,12 +61,19 @@ function buildAccs(conds) {
   return picks.slice(0, 4).map(a => a.id);
 }
 
-/* 上級職は「行動の実績」で決まるので、その職の軸を厚く積む */
-const T2_AXES = {
-  guardian: ['guard', 'reflect'], berserker: ['life'], exorcist: ['light', 'dark'],
-  elementalist: ['elem'], stormcaller: ['aoe'], hexer: ['status'], alchemist: ['item'],
-  assassin: ['crit'], windrunner: ['speed'], spellblade: ['phys', 'mag']
-};
+/* 上級職は「行動の実績」で決まる。どの軸を積めばよいかは
+ * 職業の条件記述子から読む。職業を足してもこのツールが追随するように。 */
+function styleAxes(conds) {
+  const out = [];
+  conds.forEach(d => {
+    if (!d) return;
+    if (d.t === 'style') out.push(d.k);
+    else if (d.t === 'styleAny') out.push.apply(out, d.ks);
+    else if (d.t === 'styleDual') { out.push(d.a); out.push(d.b); }
+    else if (d.t === 'styleHybrid') { out.push('phys'); out.push('mag'); }
+  });
+  return out;
+}
 
 let bad = 0;
 Object.keys(G.ALLIES).forEach(id => {
@@ -86,11 +93,12 @@ Object.keys(G.ALLIES).forEach(id => {
     if (from && from !== m.classId) { m.classHistory.push(m.classId); m.classId = from; }
 
     G.Style.AXIS_IDS.concat(['light', 'dark', 'phys', 'mag']).forEach(a => G.Style.addTo(m, a, 4));
+    const conds = (cls.req || []).map(r => r.d);
+    styleAxes(conds).forEach(a => G.Style.addTo(m, a, 400));
     if (cls.tier === 2) {
-      (T2_AXES[cid] || []).forEach(a => G.Style.addTo(m, a, 400));
+      /* 上級職は戦い方だけで決まるので、ここでは装備を触らない */
     } else {
-      const conds = (cls.req || []).map(r => r.d);
-      if (conds.some(d => d && d.t === 'mythicN')) {
+      if (conds.some(d => d && d.t === 'rarityCount' && d.r === 'mythic')) {
         G.MYTHICS.slice(0, 3).forEach((a, i) => { G.addAcc(st.hero, a.id); m.equip.acc[i] = a.id; });
         st.meta.mythics = G.MYTHICS.slice(0, 3).map(a => a.id);
       } else {

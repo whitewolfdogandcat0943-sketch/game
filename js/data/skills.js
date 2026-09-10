@@ -137,6 +137,15 @@ G.SKILLS = {};
       special: 'mythicScale', desc: '【奥義】装備中のミシック1個につき威力+45%。耐性を完全に無視。',
       eff: { fullPierce: true } });
 
+  S({ id: 'ult_paean', name: '天佑の凱歌', mp: 34, kind: 'buff', target: 'allies',
+      desc: '【奥義】味方全体の物理・魔法攻撃+55%／被ダメ軽減+25%／素早さ+25（5ターン）。全員のMPを30回復。',
+      eff: { buffs: [{ k: 'atkPct', v: 0.55, t: 5 }, { k: 'magPct', v: 0.55, t: 5 },
+                     { k: 'dr', v: 0.25, t: 5 }, { k: 'spd', v: 25, t: 5 }], mpGive: 30 } });
+  S({ id: 'ult_ruin', name: '零落の宣告', mp: 32, kind: 'mag', el: 'dark', power: 150, target: 'all',
+      desc: '【奥義】敵全体の物理・魔法攻撃-45%／物理防御-40%／素早さ-30（4ターン）。強化も打ち消す。',
+      eff: { dispel: true, debuffs: [{ k: 'atkPct', v: -0.45, t: 4 }, { k: 'magPct', v: -0.45, t: 4 },
+                                     { k: 'defPct', v: -0.40, t: 4 }, { k: 'spd', v: -30, t: 4 }] } });
+
   /* ---------- 呪術師 / 疫災呪王 ---------- */
   S({ id: 'hexMist', name: '呪縛の霧', mp: 13, kind: 'mag', el: 'dark', power: 110, target: 'all',
       desc: '敵全体に闇ダメージ。40%で毒、30%で凍結。',
@@ -147,6 +156,50 @@ G.SKILLS = {};
   S({ id: 'curseBurst', name: '崩呪', mp: 18, kind: 'mag', el: 'dark', power: 155, target: 'all',
       desc: '敵全体の防御を3ターン35%低下させる闇の奔流。',
       eff: { debuff: { k: 'defPct', v: -0.35, t: 3 } } });
+
+  /* ---------- 吟遊詩人 / 天佑楽帝（支援） ----------
+   * 支援は「自分が強くなる」のではなく「4人ぶんの数字を動かす」役。
+   * 単体の火力では割に合わないので、全体化と持続で見返りを取る。 */
+  S({ id: 'warSong', name: '進軍歌', mp: 10, kind: 'buff', target: 'allies',
+      desc: '味方全体の物理攻撃+35%／素早さ+14（3ターン）。',
+      eff: { buffs: [{ k: 'atkPct', v: 0.35, t: 3 }, { k: 'spd', v: 14, t: 3 }] } });
+  S({ id: 'wardSong', name: '守りの詩', mp: 11, kind: 'buff', target: 'allies',
+      desc: '味方全体の被ダメ軽減+22%／物理防御+30%（3ターン）。',
+      eff: { buffs: [{ k: 'dr', v: 0.22, t: 3 }, { k: 'defPct', v: 0.30, t: 3 }] } });
+  S({ id: 'resonance', name: '共鳴詠唱', mp: 12, kind: 'buff', target: 'allies',
+      desc: '味方全体の魔法攻撃+35%。全員のMPを14回復する。',
+      eff: { buffs: [{ k: 'magPct', v: 0.35, t: 3 }], mpGive: 14 } });
+  S({ id: 'valorMarch', name: '凱旋行進', mp: 14, kind: 'buff', target: 'allies',
+      desc: '味方全体の会心率+18%／与ダメージ+20%（3ターン）。',
+      eff: { buffs: [{ k: 'critRate', v: 0.18, t: 3 }, { k: 'dmgUp', v: 0.20, t: 3 }] } });
+  S({ id: 'encoreCall', name: 'アンコール', mp: 8, kind: 'buff', target: 'allies',
+      desc: '味方全体にかかっている強化の残りターンを2延長する。',
+      eff: { extendBuffs: 2 } });
+  S({ id: 'lullaby', name: '子守唄', mp: 12, kind: 'buff', target: 'allies',
+      desc: '味方全体を最大HPの22%回復し、状態異常を解除する。',
+      eff: { healMaxPct: 0.22, cleanseAllies: true } });
+
+  /* ---------- 呪縛士 / 零落呪帝（弱体） ----------
+   * 呪詛（毒・麻痺）が「時間で削る」のに対し、弱体は「相手の数字そのものを下げる」。
+   * ボスのように状態異常が入りにくい相手にも通るのが持ち味。 */
+  S({ id: 'dullEdge', name: '刃鈍らせ', mp: 9, kind: 'mag', el: 'dark', power: 95, target: 'all',
+      desc: '敵全体の物理攻撃を3ターン30%低下させる。',
+      eff: { debuff: { k: 'atkPct', v: -0.30, t: 3 } } });
+  S({ id: 'sapWill', name: '気力削ぎ', mp: 9, kind: 'mag', el: 'dark', power: 95, target: 'all',
+      desc: '敵全体の魔法攻撃を3ターン30%低下させる。',
+      eff: { debuff: { k: 'magPct', v: -0.30, t: 3 } } });
+  S({ id: 'leadenChant', name: '鈍化の呪', mp: 10, kind: 'mag', el: 'dark', power: 90, target: 'all',
+      desc: '敵全体の素早さを3ターン28低下させる。手番の順番を奪う。',
+      eff: { debuff: { k: 'spd', v: -28, t: 3 } } });
+  S({ id: 'frailty', name: '脆弱化', mp: 12, kind: 'mag', el: 'dark', power: 120, target: 'one',
+      desc: '対象の魔法防御を3ターン35%下げ、被ダメージ+30%の刻印を刻む。',
+      eff: { debuff: { k: 'resPct', v: -0.35, t: 3 }, mark: { v: 0.30, t: 3 } } });
+  S({ id: 'witherAll', name: '万象衰え', mp: 18, kind: 'mag', el: 'dark', power: 130, target: 'all',
+      desc: '敵全体の物理防御を3ターン32%低下させる。弱体の重ねがけの起点。',
+      eff: { debuff: { k: 'defPct', v: -0.32, t: 3 } } });
+  S({ id: 'bindingWord', name: '縛りの言葉', mp: 15, kind: 'util', target: 'all',
+      desc: '敵全体の強化を打ち消し、素早さを3ターン20低下させる。',
+      eff: { dispel: true, debuff: { k: 'spd', v: -20, t: 3 } } });
 
   /* ---------- 韋駄天 / 神速天翔 ---------- */
   S({ id: 'shukuchi', name: '縮地', mp: 9, kind: 'buff', target: 'self',
@@ -199,6 +252,13 @@ G.SKILLS = {};
   S({ id: 't_lifeline', name: '生命線', mp: 15, kind: 'buff', target: 'self',
       desc: '最大HPの40%回復。3ターン、吸収+30%。',
       eff: { healMaxPct: 0.40, buffs: [{ k: 'lifesteal', v: 0.30, t: 3 }] } });
+  S({ id: 't_anthem', name: '鼓舞の讃歌', mp: 15, kind: 'buff', target: 'allies',
+      desc: '味方全体の物理・魔法攻撃+28%／被ダメ軽減+15%（3ターン）。',
+      eff: { buffs: [{ k: 'atkPct', v: 0.28, t: 3 }, { k: 'magPct', v: 0.28, t: 3 },
+                     { k: 'dr', v: 0.15, t: 3 }] } });
+  S({ id: 't_unmake', name: '解体の呪', mp: 15, kind: 'mag', el: 'dark', power: 125, target: 'all',
+      desc: '敵全体の物理攻撃と物理防御を3ターン25%ずつ低下させる。',
+      eff: { debuffs: [{ k: 'atkPct', v: -0.25, t: 3 }, { k: 'defPct', v: -0.25, t: 3 }] } });
 
 
   /* ================= 追加の特殊攻撃・連携技 =================

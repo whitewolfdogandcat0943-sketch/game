@@ -18,6 +18,12 @@ G.elSpan = function (e) {
   return '<span class="' + d.cls + '">' + d.icon + d.name + '</span>';
 };
 
+/* 弱体（マイナスの割合強化）の下限。
+ * 重ねがけできるので、これが無いと攻撃力が負になって計算が壊れる。
+ * 7割減までは通し、そこから先は何を重ねても効かない。 */
+G.PCT_FLOOR_MAX = -0.70;
+G.PCT_FLOOR = function (v) { return Math.max(G.PCT_FLOOR_MAX, v || 0); };
+
 /* 属性相性: 弱点は1.6倍 / 耐性は0.55倍（敵ごとに定義） */
 G.WEAK_MULT = 1.6;
 G.RESIST_MULT = 0.55;
@@ -35,6 +41,7 @@ G.MODKEYS = {
   def:       { label: '物理防御',      kind: 'flat' },
   defPct:    { label: '物理防御',      kind: 'pct'  },
   res:       { label: '魔法防御',      kind: 'flat' },
+  resPct:    { label: '魔法防御',      kind: 'pct'  },
   spd:       { label: '素早さ',        kind: 'flat' },
   critRate:  { label: '会心率',        kind: 'pct'  },
   critDmg:   { label: '会心ダメージ',  kind: 'pct'  },
@@ -51,7 +58,12 @@ G.MODKEYS = {
   mpRegen:   { label: 'MP自動回復',    kind: 'flat' },
   goldUp:    { label: '獲得ゴールド',  kind: 'pct'  },
   dropUp:    { label: 'ドロップ率',    kind: 'pct'  },
-  evade:     { label: '回避率',        kind: 'pct'  }
+  evade:     { label: '回避率',        kind: 'pct'  },
+  /* 支援・弱体ビルドの指標。自分が「かける側」のときだけ効く */
+  buffPower:  { label: '強化の効果量',   kind: 'pct'  },
+  buffTurns:  { label: '強化の継続',     kind: 'flat' },
+  debuffPower:{ label: '弱体の効果量',   kind: 'pct'  },
+  debuffTurns:{ label: '弱体の継続',     kind: 'flat' }
 };
 G.MAGIC_ELEMENTS.concat(['phys']).forEach(function (e) {
   G.MODKEYS['el_' + e] = { label: G.ELEMENTS[e].name + '属性ダメージ', kind: 'pct' };
@@ -104,5 +116,19 @@ G.FLAGS = {
   alchemyShield: '戦闘開始時、アイテム威力に比例したバリアを得る',
   statusOnHit:   '攻撃時、20%でランダムな状態異常を付与する',
   lingering:     '自分が与える状態異常の継続ターンが1増える',
-  spellblade:    '通常攻撃が物理攻撃力と魔法攻撃力の平均で計算される'
+  spellblade:    '通常攻撃が物理攻撃力と魔法攻撃力の平均で計算される',
+
+  /* --- 支援（バフ）--- */
+  boonShare:     '自分にかけた強化が、味方全体にも半分の強さでかかる',
+  openingRally:  '戦闘開始時、味方全体の物理・魔法攻撃+18%（3ターン）',
+  boonGuard:     '強化が1つでも乗っている味方は被ダメージ-14%',
+  encore:        '支援スキルの使用後、30%でもう一度同じ効果が発動する',
+  boonSteal:     '敵の強化を打ち消したとき、その強化を自分が受け取る',
+
+  /* --- 弱体（デバフ）--- */
+  hexBrand:      '弱体が乗っている敵への与ダメージ+30%',
+  spreadHex:     '弱体を与えたとき、40%で他の敵にも同じ弱体が広がる',
+  sapStrike:     '攻撃時、25%で敵の物理攻撃を20%下げる（3ターン）',
+  doomToll:      '敵に乗っている弱体1つにつき、その敵への与ダメージ+8%',
+  frailtyAura:   'ラウンド終了時、弱体が乗っている敵の防御がさらに下がる'
 };

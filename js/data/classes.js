@@ -289,6 +289,27 @@
     skills: ['plague', 'hexMist', 'venomFang', 'curseBurst', 'soulSeal', 'plagueMark']
   });
   def({
+    id: 'bard', name: '吟遊詩人', tier: 2, icon: '🎼',
+    desc: '自分では大して殴らない。そのかわり、4人ぶんの数字を動かす。',
+    from: ['priest', 'rogue', 'mage'],
+    req: [style('buff', 18, 0.15), lv(6)],
+    base: { hp: 116, mp: 62, str: 9, int: 14, vit: 10, agi: 13, luk: 12 },
+    grow: { hp: 10, mp: 4.8, str: 1.1, int: 2.1, vit: 1.3, agi: 1.7, luk: 1.5 },
+    mods: { buffPower: 0.30, buffTurns: 1, mp: 20, spd: 6 }, flags: ['openingRally'],
+    skills: ['warSong', 'wardSong', 'resonance', 'encoreCall', 'lullaby', 'heal']
+  });
+  def({
+    id: 'binder', name: '呪縛士', tier: 2, icon: '⛓',
+    desc: '毒でも刃でもなく、相手の数字そのものを削る。効かない相手がいない。',
+    from: ['mage', 'rogue', 'priest'],
+    req: [style('debuff', 18, 0.15), lv(6)],
+    base: { hp: 112, mp: 64, str: 8, int: 15, vit: 10, agi: 12, luk: 10 },
+    grow: { hp: 10, mp: 5, str: 0.9, int: 2.3, vit: 1.3, agi: 1.5, luk: 1.2 },
+    mods: { debuffPower: 0.30, debuffTurns: 1, 'el_dark': 0.16, magPct: 0.08 },
+    flags: ['hexBrand'],
+    skills: ['dullEdge', 'sapWill', 'leadenChant', 'frailty', 'witherAll', 'bindingWord']
+  });
+  def({
     id: 'spellblade', name: '魔剣士', tier: 2, icon: '🗡',
     desc: '剣に魔を通す。物理と魔法、どちらの数値も無駄にしない。',
     from: ['swordsman', 'mage'],
@@ -402,6 +423,28 @@
     mods: { 'el_dark': 0.40, magPct: 0.25, pierce: 0.20, lifesteal: 0.12 },
     flags: ['statusDamage', 'spreadStatus', 'lingering', 'statusOnHit'],
     skills: ['ult_pandemic', 'ult_blackMiasma', 'hexMist', 'curseBurst', 'plagueMark', 'soulSeal']
+  });
+  def({
+    id: 'graceEmperor', name: '天佑楽帝', tier: 3,
+    from: ['bard', 'priest'],
+    desc: 'この人が歌い出すと、同じ4人が別の隊になる。',
+    req: [accStyle('buff', 130, 0.40), legendN(1), lv(12)],
+    base: { hp: 168, mp: 104, str: 10, int: 21, vit: 14, agi: 16, luk: 15 },
+    grow: { hp: 14, mp: 7.0, str: 1.1, int: 2.9, vit: 1.8, agi: 2.2, luk: 1.9 },
+    mods: { buffPower: 0.60, buffTurns: 2, magPct: 0.18, mp: 60, mpRegen: 7, spd: 10 },
+    flags: ['boonShare', 'encore', 'boonGuard', 'openingRally'],
+    skills: ['ult_paean', 'valorMarch', 'warSong', 'wardSong', 'resonance', 'encoreCall', 'groupHeal']
+  });
+  def({
+    id: 'ruinEmperor', name: '零落呪帝', tier: 3,
+    from: ['binder', 'hexer'],
+    desc: '殺さずに、勝てなくする。強かったはずのものが、ただの的になる。',
+    req: [accStyle('debuff', 130, 0.40), legendN(1), lv(12)],
+    base: { hp: 164, mp: 100, str: 10, int: 23, vit: 13, agi: 14, luk: 12 },
+    grow: { hp: 13, mp: 6.8, str: 1.0, int: 3.1, vit: 1.7, agi: 1.8, luk: 1.4 },
+    mods: { debuffPower: 0.60, debuffTurns: 2, 'el_dark': 0.35, magPct: 0.22, pierce: 0.18 },
+    flags: ['hexBrand', 'doomToll', 'spreadHex', 'frailtyAura'],
+    skills: ['ult_ruin', 'witherAll', 'dullEdge', 'sapWill', 'leadenChant', 'frailty', 'bindingWord']
   });
   def({
     id: 'poleEmperor', name: '双極魔剣皇', tier: 3,

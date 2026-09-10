@@ -53,6 +53,8 @@ G.FACES = (function () {
     exorcist:       { hue: 46,  sat: 30, lum: 66, accent: 280, prop: 'mace',       robe: true, circlet: true },
     windrunner:     { hue: 160, sat: 38, lum: 44, accent: 60,  prop: 'sword',      cape: true, capeHue: 165, build: 'slim', hair: 'tail' },
     hexer:          { hue: 285, sat: 34, lum: 26, accent: 120, prop: 'staff',      hair: 'hood', robe: true },
+    bard:           { hue: 44,  sat: 46, lum: 52, accent: 200, prop: 'staff',      robe: true, cape: true, capeHue: 40 },
+    binder:         { hue: 258, sat: 34, lum: 28, accent: 300, prop: 'staff',      hair: 'hood', robe: true },
     spellblade:     { hue: 235, sat: 38, lum: 40, accent: 15,  prop: 'sword',      cape: true, capeHue: 240, pauldron: true },
     phantomSaint:   { hue: 250, sat: 22, lum: 26, accent: 50,  prop: 'sword',      cape: true, capeHue: 250, hair: 'tail', circlet: true },
     mirrorEmperor:  { hue: 200, sat: 20, lum: 58, accent: 320, prop: 'greatsword', pauldron: true, build: 'heavy', circlet: true, metalHue: 200 },
@@ -64,6 +66,8 @@ G.FACES = (function () {
     voidSovereign:  { hue: 282, sat: 36, lum: 22, accent: 300, prop: 'staff',      hair: 'hood', robe: true, cape: true, capeHue: 285, circlet: true },
     skyrunner:      { hue: 168, sat: 40, lum: 48, accent: 55,  prop: 'sword',      cape: true, capeHue: 170, build: 'slim', hair: 'tail', circlet: true },
     plaguelord:     { hue: 290, sat: 36, lum: 24, accent: 120, prop: 'staff',      hair: 'hood', robe: true, cape: true, capeHue: 288, circlet: true },
+    graceEmperor:   { hue: 46,  sat: 44, lum: 60, accent: 200, prop: 'staff',      robe: true, cape: true, capeHue: 48,  circlet: true },
+    ruinEmperor:    { hue: 262, sat: 36, lum: 26, accent: 305, prop: 'staff',      hair: 'hood', robe: true, cape: true, capeHue: 260, circlet: true },
     poleEmperor:    { hue: 240, sat: 40, lum: 38, accent: 20,  prop: 'sword',      cape: true, capeHue: 245, pauldron: true, circlet: true },
     /* 仲間だけの最上級職 */
     dawnMother:     { hue: 44,  sat: 30, lum: 74, accent: 200, prop: 'mace',       robe: true, cape: true, capeHue: 48,  circlet: true },

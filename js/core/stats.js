@@ -82,13 +82,15 @@ G.Stats = (function () {
     var b = baseStats(hero);
     var S = {};
 
-    S.maxHp = Math.round((b.hp + b.vit * 6 + (mods.hp || 0)) * (1 + (mods.hpPct || 0)));
-    S.maxMp = Math.round(b.mp + b.int * 1.5 + (mods.mp || 0));
-    S.atk = Math.round((8 + b.str * 2.2 + (mods.atk || 0)) * (1 + (mods.atkPct || 0)));
-    S.mag = Math.round((8 + b.int * 2.2 + (mods.mag || 0)) * (1 + (mods.magPct || 0)));
-    S.def = Math.round((6 + b.vit * 2.6 + (mods.def || 0)) * (1 + (mods.defPct || 0)));
-    S.res = Math.round(6 + b.int * 1.3 + b.vit * 1.5 + (mods.res || 0));
-    S.spd = Math.round(5 + b.agi * 1.2 + (mods.spd || 0));
+    /* 敵の弱体も同じ経路で乗るので、下限を切っておく（G.PCT_FLOOR = -70%まで） */
+    var F = G.PCT_FLOOR;
+    S.maxHp = Math.max(1, Math.round((b.hp + b.vit * 6 + (mods.hp || 0)) * (1 + F(mods.hpPct))));
+    S.maxMp = Math.max(0, Math.round(b.mp + b.int * 1.5 + (mods.mp || 0)));
+    S.atk = Math.max(1, Math.round((8 + b.str * 2.2 + (mods.atk || 0)) * (1 + F(mods.atkPct))));
+    S.mag = Math.max(1, Math.round((8 + b.int * 2.2 + (mods.mag || 0)) * (1 + F(mods.magPct))));
+    S.def = Math.max(0, Math.round((6 + b.vit * 2.6 + (mods.def || 0)) * (1 + F(mods.defPct))));
+    S.res = Math.max(0, Math.round((6 + b.int * 1.3 + b.vit * 1.5 + (mods.res || 0)) * (1 + F(mods.resPct))));
+    S.spd = Math.max(1, Math.round(5 + b.agi * 1.2 + (mods.spd || 0)));
 
     S.critRate = clamp01(0.05 + b.luk * 0.004 + (mods.critRate || 0));
     S.critDmg = Math.max(1.1, 1.5 + (mods.critDmg || 0));
@@ -106,6 +108,11 @@ G.Stats = (function () {
     S.goldUp = mods.goldUp || 0;
     S.dropUp = mods.dropUp || 0;
     S.evade = G.U.clamp(mods.evade || 0, 0, 0.6);
+    /* 支援・弱体は「かける側」の性能。受け手ではなく術者の値を見る */
+    S.buffPower = Math.max(0, mods.buffPower || 0);
+    S.buffTurns = Math.max(0, Math.round(mods.buffTurns || 0));
+    S.debuffPower = Math.max(0, mods.debuffPower || 0);
+    S.debuffTurns = Math.max(0, Math.round(mods.debuffTurns || 0));
 
     G.ALL_ELEMENTS.forEach(function (e) { S['el_' + e] = mods['el_' + e] || 0; });
 

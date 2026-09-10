@@ -4,7 +4,7 @@
  *   上級職   … 実際にどう戦ったか（行動の実績）        -> G.Style.behaviourOf
  *   最上級職 … アクセサリ4枠がどんな構成か（組み方）   -> G.Style.fromAccessories
  *
- * どちらも同じ9軸で表す。
+ * どちらも同じ11軸で表す。
  */
 G.Style = (function () {
 
@@ -17,7 +17,12 @@ G.Style = (function () {
     { id: 'life',    name: '吸収',     cls: 'e-dark'   },
     { id: 'guard',   name: '堅守',     cls: 'e-phys'   },
     { id: 'speed',   name: '速攻',     cls: 'e-thunder'},
-    { id: 'status',  name: '呪詛',     cls: 'e-light'  }
+    { id: 'status',  name: '呪詛',     cls: 'e-light'  },
+    /* 支援と弱体は、殴る／殴られる以外の勝ち方の軸。
+     * 呪詛（状態異常）とは別に置いた。毒や麻痺を撒くことと、
+     * 敵の攻撃力そのものを削ることは、組み方も対策も違うため。 */
+    { id: 'buff',    name: '支援',     cls: 'r-legend' },
+    { id: 'debuff',  name: '弱体',     cls: 'e-dark'   }
   ];
   var AXIS_IDS = AXES.map(function (a) { return a.id; });
 
@@ -31,7 +36,9 @@ G.Style = (function () {
     lifesteal: { life: 150 },
     dr: { guard: 200 }, defPct: { guard: 60 }, hpPct: { guard: 60 },
     def: { guard: 0.5 }, res: { guard: 0.4 }, hp: { guard: 0.12 },
-    spd: { speed: 1.2 }, evade: { speed: 200 }
+    spd: { speed: 1.2 }, evade: { speed: 200 },
+    buffPower: { buff: 130 }, buffTurns: { buff: 45 },
+    debuffPower: { debuff: 130 }, debuffTurns: { debuff: 45 }
   };
   G.MAGIC_ELEMENTS.forEach(function (e) { MOD_AXES['el_' + e] = { elem: 60 }; });
 
@@ -47,7 +54,11 @@ G.Style = (function () {
     counterEvade: { speed: 12 }, speedPower: { speed: 15 }, doubleStrike: { speed: 8 },
     statusOnHit: { status: 20 }, spreadStatus: { status: 18 },
     lingering: { status: 15 }, statusDamage: { status: 18 },
-    freezeOnIce: { status: 12 }, shockOnThunder: { status: 12 }
+    freezeOnIce: { status: 12 }, shockOnThunder: { status: 12 },
+    boonShare: { buff: 20 }, openingRally: { buff: 15 },
+    boonGuard: { buff: 15 }, encore: { buff: 18 }, boonSteal: { buff: 12 },
+    hexBrand: { debuff: 18 }, spreadHex: { debuff: 18 },
+    sapStrike: { debuff: 15 }, doomToll: { debuff: 20 }, frailtyAura: { debuff: 15 }
   };
 
   function empty() {

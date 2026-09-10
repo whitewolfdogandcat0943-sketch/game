@@ -33,6 +33,10 @@
   n({ id: 'n_archmagepin', name: '大魔導の徽章', tier: 2, price: 160, mods: { magPct: 0.14, pierce: 0.10 }, desc: '魔法攻撃+14%。' });
   n({ id: 'n_assassinmark', name: '暗殺者の刻印', tier: 2, price: 170, mods: { critRate: 0.14, critDmg: 0.35, spd: 8 }, desc: '会心を大きく伸ばす。' });
   n({ id: 'n_bulwark', name: '城塞の紋', tier: 2, price: 165, mods: { defPct: 0.22, hpPct: 0.10, reflect: 0.08 }, desc: '防御を22%上昇。' });
+  n({ id: 'n_bardcharm', name: '詩人の護符', tier: 1, price: 115, mods: { buffPower: 0.22, mp: 18 }, desc: '支援ビルドの基礎。強化の効果量が上がる。' });
+  n({ id: 'n_hexneedle', name: '呪縛の針', tier: 1, price: 115, mods: { debuffPower: 0.22, mag: 8 }, desc: '弱体ビルドの基礎。弱体の効果量が上がる。' });
+  n({ id: 'n_bannerpin', name: '軍旗の徽章', tier: 2, price: 170, mods: { buffPower: 0.26, buffTurns: 1, spd: 6 }, desc: '強化が長く、強く残る。' });
+  n({ id: 'n_ruinseal', name: '零落の封印', tier: 2, price: 170, mods: { debuffPower: 0.26, debuffTurns: 1, 'el_dark': 0.10 }, desc: '弱体が長く、深く効く。' });
 
   /* =============== レジェンドアクセサリ =============== */
   l({ id: 'l_judgeoath', name: '断罪者の血盟', tier: 3, price: 620,
@@ -250,6 +254,24 @@
       desc: '溢れた慈悲は捨てられない。' });
   l({ id: 'l_bloodriver', name: '血河の指輪', tier: 3, price: 660, mods: { lifesteal: 0.35, hpPct: -0.10 },
       desc: '血の河を渡る者の指輪。奪えなければ死ぬ。' });
+  l({ id: 'l_anthemharp', name: '凱歌の竪琴', tier: 3, price: 660,
+      mods: { buffPower: 0.58, buffTurns: 2, mp: 40 }, flags: ['encore'],
+      desc: '弦が切れても鳴り続ける竪琴。かけた加護がもう一度重なる。' });
+  l({ id: 'l_auroramantle', name: '暁光の外套', tier: 3, price: 650,
+      mods: { buffPower: 0.40, dr: 0.10, mpRegen: 5 }, flags: ['boonShare', 'boonGuard'],
+      desc: '羽織った者の加護が、隣に立つ者へも滲み出す。' });
+  l({ id: 'l_marchbanner', name: '進軍の軍旗', tier: 3, price: 640,
+      mods: { buffPower: 0.34, buffTurns: 1, spd: 16, atkPct: 0.08 }, flags: ['openingRally'],
+      desc: '掲げるだけで隊が前に出る。戦の始まりを一手ぶん早める。' });
+  l({ id: 'l_witherstaff', name: '衰えの杖', tier: 3, price: 660,
+      mods: { debuffPower: 0.58, debuffTurns: 2, 'el_dark': 0.20 }, flags: ['hexBrand'],
+      desc: '触れたものから順に弱っていく杖。折れないのは、まだ削るものがあるから。' });
+  l({ id: 'l_doomchain', name: '万縛の鎖', tier: 3, price: 650,
+      mods: { debuffPower: 0.40, pierce: 0.15 }, flags: ['spreadHex', 'doomToll'],
+      desc: '一人を縛れば、繋がった全員が動けなくなる鎖。' });
+  l({ id: 'l_sappinggauntlet', name: '削骨の篭手', tier: 3, price: 630,
+      mods: { debuffPower: 0.30, atkPct: 0.14, atk: 18 }, flags: ['sapStrike'],
+      desc: '殴るたびに相手の力そのものを削り落とす篭手。' });
   l({ id: 'l_galeheart', name: '暴風の心臓', tier: 3, price: 660, mods: { aoePower: 0.55, spd: 18 },
       desc: '心臓そのものが風の渦。' });
   l({ id: 'l_stardust', name: '星屑の首飾り', tier: 3, price: 680,
@@ -268,6 +290,22 @@
       flags: ['spreadStatus', 'lingering'], desc: '焚くほどに病が広がる香炉。' });
 
   /* --- 追加ミシック --- */
+  m({ id: 'y_worldchoir', name: '万象の合唱', tier: 4, price: 0,
+      mods: { buffPower: 1.10, buffTurns: 3, mp: 60, mpRegen: 8 },
+      flags: ['boonShare', 'encore', 'boonGuard', 'openingRally'],
+      desc: '歌い手が一人でも、聞こえるのは大合唱。',
+      cond: { when: 'battleEnd', code: 'boons_cast', v: 16, label: '1回の戦闘で味方に強化を16回かけて勝利する',
+              hint: '全体強化を毎ターン重ね、アンコールで回数を稼げ',
+              test: function (c) { return c.b.boonsCast >= 16; } } });
+
+  m({ id: 'y_ruinledger', name: '零落の帳簿', tier: 4, price: 0,
+      mods: { debuffPower: 1.10, debuffTurns: 3, 'el_dark': 0.30, pierce: 0.25 },
+      flags: ['hexBrand', 'doomToll', 'spreadHex', 'frailtyAura'],
+      desc: '削り取ったものが、一行ずつ書き足されていく帳簿。',
+      cond: { when: 'battleEnd', code: 'hex_stack', v: 5, label: '1体の敵に弱体を5つ同時に乗せて勝利する',
+              hint: '攻撃・魔法・防御・魔防・素早さを別々に削れ',
+              test: function (c) { return c.b.hexPeak >= 5; } } });
+
   m({ id: 'y_flashmoment', name: '電光石火の刻', tier: 4, price: 0,
       mods: { spd: 40, critRate: 0.10 }, flags: ['firstHitCrit', 'speedPower'],
       desc: '素早さ+40。素早さの40%が攻撃力になり、各戦闘の初撃は必ず会心。',
