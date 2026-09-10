@@ -129,6 +129,9 @@ G.UI = (function () {
     if (S.debuffPower || S.debuffTurns) {
       h += row('弱体の効果量', U.sgnp(S.debuffPower)) + row('弱体の継続', '+' + (S.debuffTurns || 0));
     }
+    if (S.dotPower || S.dotTurns) {
+      h += row('持続ダメージ', U.sgnp(S.dotPower)) + row('持続の継続', '+' + (S.dotTurns || 0));
+    }
     h += '</table>';
     return h;
   }

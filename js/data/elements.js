@@ -18,6 +18,25 @@ G.elSpan = function (e) {
   return '<span class="' + d.cls + '">' + d.icon + d.name + '</span>';
 };
 
+/* 持続ダメージ（毒・火傷）の基礎倍率。
+ * 技に書いてある「最大HPの何%」に、まずこれが掛かる。
+ * 素の持続ダメージはMPあたりの効率が良すぎたので基礎を下げ、
+ * そのぶんを dotPower（伸ばした人だけが得る）へ移してある。 */
+G.DOT_BASE = 0.75;
+/* 持続ダメージ = 相手の最大HPの割合（技が決める・ビルドでは動かない）
+ *              ＋ 術者の魔力に比例する固定分（ここが伸びる）
+ *
+ * 割合部分を伸ばせるようにすると、HPの高いボスほど一方的に強くなって
+ * ほかのビルドが相手にならない。逆に割合部分だけだと、HPの低い雑魚には
+ * ほとんど効かない。両方を足すことで、伸ばした人は雑魚にもボスにも通る。
+ * 割合部分を 0.60 に下げたぶんは、下の固定分（誰でも乗る 0.12）で戻している。 */
+G.DOT_MAG_BASE = 0.10;   /* 誰にでも乗る固定分 */
+G.DOT_MAG_RATE = 0.30;   /* dotPower 1.0 につき増える固定分 */
+/* deepRot の累積上限。上限が無いと長期戦で無限に伸びる */
+G.DOT_ROT_CAP = 0.30;
+/* festering（毒と火傷の同時がけ）の倍率 */
+G.DOT_FESTER = 1.25;
+
 /* 弱体（マイナスの割合強化）の下限。
  * 重ねがけできるので、これが無いと攻撃力が負になって計算が壊れる。
  * 7割減までは通し、そこから先は何を重ねても効かない。 */
@@ -63,7 +82,9 @@ G.MODKEYS = {
   buffPower:  { label: '強化の効果量',   kind: 'pct'  },
   buffTurns:  { label: '強化の継続',     kind: 'flat' },
   debuffPower:{ label: '弱体の効果量',   kind: 'pct'  },
-  debuffTurns:{ label: '弱体の継続',     kind: 'flat' }
+  debuffTurns:{ label: '弱体の継続',     kind: 'flat' },
+  dotPower:   { label: '持続ダメージ',   kind: 'pct'  },
+  dotTurns:   { label: '持続の継続',     kind: 'flat' }
 };
 G.MAGIC_ELEMENTS.concat(['phys']).forEach(function (e) {
   G.MODKEYS['el_' + e] = { label: G.ELEMENTS[e].name + '属性ダメージ', kind: 'pct' };
@@ -130,5 +151,12 @@ G.FLAGS = {
   spreadHex:     '弱体を与えたとき、40%で他の敵にも同じ弱体が広がる',
   sapStrike:     '攻撃時、25%で敵の物理攻撃を20%下げる（3ターン）',
   doomToll:      '敵に乗っている弱体1つにつき、その敵への与ダメージ+8%',
-  frailtyAura:   'ラウンド終了時、弱体が乗っている敵の防御がさらに下がる'
+  frailtyAura:   'ラウンド終了時、弱体が乗っている敵の防御がさらに下がる',
+
+  /* --- 持続ダメージ（毒・火傷）--- */
+  festering:     '毒と火傷が同時に乗っている敵への持続ダメージ+50%',
+  deepRot:       '自分がかけた毒・火傷は、ラウンドごとに威力が12%ずつ増していく',
+  rotFeast:      '持続ダメージで敵を倒すと、最大HPの10%を回復する',
+  plagueBurst:   '持続ダメージで敵が倒れると、その毒が周囲の敵へ移る',
+  venomEdge:     '攻撃時、35%で毒を付与する'
 };

@@ -113,6 +113,8 @@ G.Stats = (function () {
     S.buffTurns = Math.max(0, Math.round(mods.buffTurns || 0));
     S.debuffPower = Math.max(0, mods.debuffPower || 0);
     S.debuffTurns = Math.max(0, Math.round(mods.debuffTurns || 0));
+    S.dotPower = Math.max(0, mods.dotPower || 0);
+    S.dotTurns = Math.max(0, Math.round(mods.dotTurns || 0));
 
     G.ALL_ELEMENTS.forEach(function (e) { S['el_' + e] = mods['el_' + e] || 0; });
 

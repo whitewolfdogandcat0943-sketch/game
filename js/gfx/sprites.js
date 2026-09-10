@@ -282,6 +282,7 @@ G.Gfx = (function () {
     hexer:          { arch: 'robed',   hue: 278, sat: 45, lum: 44, accent: 120, eye: '#a6ff7a' },
     bard:           { arch: 'robed',   hue: 44,  sat: 62, lum: 58, accent: 200, eye: '#ffe08a' },
     binder:         { arch: 'robed',   hue: 258, sat: 40, lum: 38, accent: 300, eye: '#c89dff' },
+    plaguedoctor:   { arch: 'robed',   hue: 96,  sat: 34, lum: 34, accent: 70,  eye: '#c8ff8a' },
     spellblade:     { arch: 'warrior', hue: 258, sat: 40, lum: 50, accent: 25 },
     phantomSaint:   { arch: 'hooded',  hue: 265, sat: 40, lum: 38, accent: 50, crown: true, eye: '#ff5fd2' },
     /* 仲間だけの最上級職 */
@@ -302,6 +303,7 @@ G.Gfx = (function () {
     plaguelord:     { arch: 'robed',   hue: 292, sat: 50, lum: 42, accent: 110, crown: true, eye: '#a6ff7a' },
     graceEmperor:   { arch: 'angel',   hue: 46,  sat: 58, lum: 66, accent: 200, crown: true, eye: '#ffe6a0' },
     ruinEmperor:    { arch: 'ghost',   hue: 262, sat: 46, lum: 30, accent: 305, crown: true, eye: '#d0a8ff' },
+    rotKing:        { arch: 'robed',   hue: 100, sat: 40, lum: 28, accent: 70,  crown: true, eye: '#a6ff7a' },
     poleEmperor:    { arch: 'warrior', hue: 232, sat: 45, lum: 54, accent: 45,  crown: true }
   };
 

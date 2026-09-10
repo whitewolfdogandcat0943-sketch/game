@@ -146,6 +146,10 @@ G.SKILLS = {};
       eff: { dispel: true, debuffs: [{ k: 'atkPct', v: -0.45, t: 4 }, { k: 'magPct', v: -0.45, t: 4 },
                                      { k: 'defPct', v: -0.40, t: 4 }, { k: 'spd', v: -30, t: 4 }] } });
 
+  S({ id: 'ult_rotworld', name: '万象腐蝕', mp: 32, kind: 'mag', el: 'dark', power: 165, target: 'all',
+      desc: '【奥義】敵全体に猛毒と業火（各9%×5ターン）を同時に植え付ける。',
+      eff: { poison: { t: 5, v: 0.09 }, burn: { t: 5, v: 0.09 } } });
+
   /* ---------- 呪術師 / 疫災呪王 ---------- */
   S({ id: 'hexMist', name: '呪縛の霧', mp: 13, kind: 'mag', el: 'dark', power: 110, target: 'all',
       desc: '敵全体に闇ダメージ。40%で毒、30%で凍結。',
@@ -200,6 +204,25 @@ G.SKILLS = {};
   S({ id: 'bindingWord', name: '縛りの言葉', mp: 15, kind: 'util', target: 'all',
       desc: '敵全体の強化を打ち消し、素早さを3ターン20低下させる。',
       eff: { dispel: true, debuff: { k: 'spd', v: -20, t: 3 } } });
+
+  /* ---------- 疫医 / 万蝕王（持続ダメージ） ----------
+   * 呪詛のうち「じわじわ削る」ほうに寄せた一群。
+   * 一撃は軽いが、放っておくと相手の最大HPに比例して減っていく。 */
+  S({ id: 'rotTouch', name: '腐蝕の手', mp: 8, kind: 'mag', el: 'dark', power: 105, target: 'one',
+      desc: '深い毒を植え付ける（最大HPの10%×4ターン）。',
+      eff: { poison: { t: 4, v: 0.10 } } });
+  S({ id: 'miasma', name: '瘴気', mp: 15, kind: 'mag', el: 'dark', power: 100, target: 'all',
+      desc: '敵全体に毒（8%×4ターン）。40%で火傷も重なる。',
+      eff: { poison: { t: 4, v: 0.08 }, burn: { t: 3, v: 0.06, c: 0.40 } } });
+  S({ id: 'pyreCurse', name: '火葬の呪', mp: 14, kind: 'mag', el: 'fire', power: 120, target: 'all',
+      desc: '敵全体に重い火傷（9%×4ターン）。',
+      eff: { burn: { t: 4, v: 0.09 } } });
+  S({ id: 'incubate', name: '潜伏', mp: 10, kind: 'util', target: 'all',
+      desc: '敵全体の毒・火傷の残りを2ターン延ばす。撒き直す手番を減らす技。',
+      eff: { extendRot: 2 } });
+  S({ id: 'sporeBurst', name: '胞子散布', mp: 12, kind: 'mag', el: 'dark', power: 85, target: 'all',
+      desc: '敵全体に毒を撒き、すでに毒か火傷を受けている敵には追加ダメージ。',
+      eff: { poison: { t: 3, v: 0.07 }, rotBonus: 0.60 } });
 
   /* ---------- 韋駄天 / 神速天翔 ---------- */
   S({ id: 'shukuchi', name: '縮地', mp: 9, kind: 'buff', target: 'self',

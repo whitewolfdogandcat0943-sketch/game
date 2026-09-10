@@ -128,15 +128,15 @@
   /* ===================== 呪詛の道 ===================== */
   var hex = branch({ id: 'hex', name: '呪詛の道', hue: 285, icon: 'item',
     desc: '弱らせ、蝕み、崩れたところを刈り取る。' });
-  node(hex, { id: 'hx_venom', name: '毒手', row: 1, cost: 1, mods: { 'el_dark': 0.10 } });
-  node(hex, { id: 'hx_weaken', name: '衰弱', row: 1, cost: 1, mods: { pierce: 0.08, mag: 10 } });
+  node(hex, { id: 'hx_venom', name: '毒手', row: 1, cost: 1, mods: { dotPower: 0.12, 'el_dark': 0.06 } });
+  node(hex, { id: 'hx_weaken', name: '衰弱', row: 1, cost: 1, mods: { dotTurns: 1, mag: 10 } });
   node(hex, { id: 'hx_linger', name: '執拗', row: 2, cost: 2, req: ['hx_venom'], flags: ['lingering'] });
   node(hex, { id: 'hx_spread', name: '伝染', row: 2, cost: 2, req: ['hx_weaken'], flags: ['spreadStatus'] });
   node(hex, { id: 'hx_bloom', name: '呪いの華', row: 3, cost: 3, branchSpent: 3,
-    mods: { 'el_dark': 0.15, pierce: 0.10 }, flags: ['statusDamage'], skill: 't_hexbloom' });
+    mods: { dotPower: 0.20, 'el_dark': 0.12 }, flags: ['statusDamage'], skill: 't_hexbloom' });
   node(hex, { id: 'hx_ult', name: '疫災の理', row: 4, cost: 3, req: ['hx_bloom'],
-    classes: ['hexer', 'plaguelord', 'exorcist', 'finalArbiter'],
-    mods: { 'el_dark': 0.25, magPct: 0.15, pierce: 0.15 }, flags: ['statusOnHit', 'soulHarvest'] });
+    classes: ['hexer', 'plaguelord', 'plaguedoctor', 'rotKing', 'exorcist', 'finalArbiter'],
+    mods: { dotPower: 0.25, dotTurns: 1, magPct: 0.15 }, flags: ['festering', 'statusOnHit'] });
 
   /* ===================== 支援の道 ===================== */
   var boon = branch({ id: 'boon', name: '支援の道', hue: 50, icon: 'acc',

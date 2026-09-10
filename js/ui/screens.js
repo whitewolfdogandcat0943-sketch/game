@@ -476,7 +476,8 @@ G.Screens = (function () {
       { k: '堅守', v: S.dr * 200 + S.defPct * 40 },
       { k: '速攻', v: S.spd * 1.2 + S.evade * 200 },
       { k: '支援', v: S.buffPower * 130 + S.buffTurns * 45 },
-      { k: '弱体', v: S.debuffPower * 130 + S.debuffTurns * 45 }
+      { k: '弱体', v: S.debuffPower * 130 + S.debuffTurns * 45 },
+      { k: '呪詛', v: S.dotPower * 130 + S.dotTurns * 45 }
     ].sort(function (a, b) { return b.v - a.v; });
     var top = axes.filter(function (a) { return a.v > 6; }).slice(0, 3).map(function (a) { return a.k; });
     var accs = G.Stats.equippedAccs(state.hero);
@@ -490,7 +491,9 @@ G.Screens = (function () {
       '<div class="kv"><span>アイテム威力</span><span>' + U.sgnp(S.itemPower) + '</span></div>' +
       ((S.buffPower || S.debuffPower)
         ? '<div class="kv"><span>強化 / 弱体の効果量</span><span>' +
-          U.sgnp(S.buffPower) + ' / ' + U.sgnp(S.debuffPower) + '</span></div>' : '');
+          U.sgnp(S.buffPower) + ' / ' + U.sgnp(S.debuffPower) + '</span></div>' : '') +
+      (S.dotPower
+        ? '<div class="kv"><span>持続ダメージ</span><span>' + U.sgnp(S.dotPower) + '</span></div>' : '');
   }
 
   /* ===================== 戦闘 ===================== */

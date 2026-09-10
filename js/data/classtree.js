@@ -145,6 +145,14 @@
     [n('凱歌', '攻めの歌に振り切る', { buffPower: 0.20 }, null, 'valorMarch'),
      n('再演', 'もう一度鳴ることがある', null, ['encore'], 'wardSong')]
   ]);
+  tree('plaguedoctor', [
+    [n('濃毒', '一度に入る量を増やす', { dotPower: 0.18 }),
+     n('遅効', '効き続ける時間を延ばす', { dotTurns: 1 })],
+    [n('併発', '毒と炎を同時に灯す', null, ['festering']),
+     n('毒刃', '殴るだけで毒が乗る', null, ['venomEdge'])],
+    [n('培養', '撒いたものを腐らせ続ける', { dotPower: 0.20 }, ['deepRot'], 'miasma'),
+     n('屍利用', '腐り落ちた者から次へ移す', null, ['plagueBurst', 'rotFeast'], 'incubate')]
+  ]);
   tree('binder', [
     [n('深呪', '弱体を深くする', { debuffPower: 0.18 }),
      n('長呪', '弱体を長引かせる', { debuffTurns: 1 })],
@@ -250,6 +258,14 @@
      n('護歌', '加護を着た者は倒れない', { dr: 0.10 }, ['boonGuard'])],
     [n('凱旋', '攻めきる歌に振り切る', { buffPower: 0.20, magPct: 0.15 }, null, 'ult_paean'),
      n('鎮魂', '倒れた者を歌で戻す', { mp: 40 }, ['overheal'], 'resurrect')]
+  ]);
+  tree('rotKing', [
+    [n('劇毒', '毒そのものを極める', { dotPower: 0.25 }),
+     n('不朽', '効き目が切れない', { dotTurns: 2 })],
+    [n('腐爛', '腐るほど深くなる', null, ['deepRot', 'festering']),
+     n('疫散', '死んだ端から次へ移る', { lifesteal: 0.10 }, ['plagueBurst', 'rotFeast'])],
+    [n('万蝕', '戦場ごと腐らせる', { dotPower: 0.20, 'el_dark': 0.15 }, null, 'ult_rotworld'),
+     n('収穫', '腐らせたぶんだけ満ちる', { magPct: 0.15 }, ['soulHarvest', 'killHeal'], 'pyreCurse')]
   ]);
   tree('ruinEmperor', [
     [n('極呪', '弱体を極める', { debuffPower: 0.25 }),

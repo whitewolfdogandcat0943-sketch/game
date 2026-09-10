@@ -38,7 +38,8 @@ G.Style = (function () {
     def: { guard: 0.5 }, res: { guard: 0.4 }, hp: { guard: 0.12 },
     spd: { speed: 1.2 }, evade: { speed: 200 },
     buffPower: { buff: 130 }, buffTurns: { buff: 45 },
-    debuffPower: { debuff: 130 }, debuffTurns: { debuff: 45 }
+    debuffPower: { debuff: 130 }, debuffTurns: { debuff: 45 },
+    dotPower: { status: 130 }, dotTurns: { status: 45 }
   };
   G.MAGIC_ELEMENTS.forEach(function (e) { MOD_AXES['el_' + e] = { elem: 60 }; });
 
@@ -58,7 +59,9 @@ G.Style = (function () {
     boonShare: { buff: 20 }, openingRally: { buff: 15 },
     boonGuard: { buff: 15 }, encore: { buff: 18 }, boonSteal: { buff: 12 },
     hexBrand: { debuff: 18 }, spreadHex: { debuff: 18 },
-    sapStrike: { debuff: 15 }, doomToll: { debuff: 20 }, frailtyAura: { debuff: 15 }
+    sapStrike: { debuff: 15 }, doomToll: { debuff: 20 }, frailtyAura: { debuff: 15 },
+    festering: { status: 18 }, deepRot: { status: 20 }, rotFeast: { status: 15 },
+    plagueBurst: { status: 15 }, venomEdge: { status: 15 }
   };
 
   function empty() {

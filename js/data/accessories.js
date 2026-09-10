@@ -37,6 +37,8 @@
   n({ id: 'n_hexneedle', name: '呪縛の針', tier: 1, price: 115, mods: { debuffPower: 0.22, mag: 8 }, desc: '弱体ビルドの基礎。弱体の効果量が上がる。' });
   n({ id: 'n_bannerpin', name: '軍旗の徽章', tier: 2, price: 170, mods: { buffPower: 0.26, buffTurns: 1, spd: 6 }, desc: '強化が長く、強く残る。' });
   n({ id: 'n_ruinseal', name: '零落の封印', tier: 2, price: 170, mods: { debuffPower: 0.26, debuffTurns: 1, 'el_dark': 0.10 }, desc: '弱体が長く、深く効く。' });
+  n({ id: 'n_venomvial', name: '毒の小瓶', tier: 1, price: 115, mods: { dotPower: 0.22, mag: 8 }, desc: '持続ダメージビルドの基礎。毒と火傷が重くなる。' });
+  n({ id: 'n_rotband', name: '腐蝕の腕輪', tier: 2, price: 170, mods: { dotPower: 0.26, dotTurns: 1, 'el_dark': 0.10 }, desc: '蝕みが長く、深く残る。' });
 
   /* =============== レジェンドアクセサリ =============== */
   l({ id: 'l_judgeoath', name: '断罪者の血盟', tier: 3, price: 620,
@@ -272,6 +274,15 @@
   l({ id: 'l_sappinggauntlet', name: '削骨の篭手', tier: 3, price: 630,
       mods: { debuffPower: 0.30, atkPct: 0.14, atk: 18 }, flags: ['sapStrike'],
       desc: '殴るたびに相手の力そのものを削り落とす篭手。' });
+  l({ id: 'l_blightcrown', name: '蝕みの王冠', tier: 3, price: 660,
+      mods: { dotPower: 0.58, dotTurns: 2, 'el_dark': 0.15 }, flags: ['festering'],
+      desc: '被った者の周りから緑が消えていく冠。毒と炎が同時に灯ると、深く食い込む。' });
+  l({ id: 'l_carrionmaw', name: '屍喰らいの顎', tier: 3, price: 650,
+      mods: { dotPower: 0.40, lifesteal: 0.10, hp: 50 }, flags: ['rotFeast', 'plagueBurst'],
+      desc: '朽ちたものを喰らって伸びる顎。倒れた敵から次の敵へ、疫が飛ぶ。' });
+  l({ id: 'l_venomfangs', name: '万毒の牙', tier: 3, price: 640,
+      mods: { dotPower: 0.34, atk: 18, spd: 10 }, flags: ['venomEdge', 'deepRot'],
+      desc: '触れた端から腐らせる牙。時間をかけるほど深くなる。' });
   l({ id: 'l_galeheart', name: '暴風の心臓', tier: 3, price: 660, mods: { aoePower: 0.55, spd: 18 },
       desc: '心臓そのものが風の渦。' });
   l({ id: 'l_stardust', name: '星屑の首飾り', tier: 3, price: 680,
@@ -297,6 +308,14 @@
       cond: { when: 'battleEnd', code: 'boons_cast', v: 16, label: '1回の戦闘で味方に強化を16回かけて勝利する',
               hint: '全体強化を毎ターン重ね、アンコールで回数を稼げ',
               test: function (c) { return c.b.boonsCast >= 16; } } });
+
+  m({ id: 'y_eternalrot', name: '不朽の腐核', tier: 4, price: 0,
+      mods: { dotPower: 1.10, dotTurns: 3, 'el_dark': 0.25, magPct: 0.15 },
+      flags: ['festering', 'deepRot', 'rotFeast', 'plagueBurst'],
+      desc: '何百年も腐り続けて、まだ腐りきらない核。',
+      cond: { when: 'battleEnd', code: 'rot_kills', v: 4, label: '1回の戦闘で持続ダメージだけで敵を4体倒す',
+              hint: '毒と火傷を全体に撒き、削り切るまで待て',
+              test: function (c) { return c.b.rotKills >= 4; } } });
 
   m({ id: 'y_ruinledger', name: '零落の帳簿', tier: 4, price: 0,
       mods: { debuffPower: 1.10, debuffTurns: 3, 'el_dark': 0.30, pierce: 0.25 },

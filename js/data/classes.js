@@ -285,8 +285,19 @@
     req: [style('status', 15, 0.16), lv(6)],
     base: { hp: 108, mp: 66, str: 7, int: 16, vit: 9, agi: 11, luk: 10 },
     grow: { hp: 9, mp: 5, str: 0.8, int: 2.4, vit: 1.2, agi: 1.3, luk: 1.2 },
-    mods: { 'el_dark': 0.22, magPct: 0.10 }, flags: ['statusDamage', 'lingering'],
+    mods: { 'el_dark': 0.22, magPct: 0.10, dotPower: 0.15 }, flags: ['statusDamage', 'lingering'],
     skills: ['plague', 'hexMist', 'venomFang', 'curseBurst', 'soulSeal', 'plagueMark']
+  });
+  def({
+    id: 'plaguedoctor', name: '疫医', tier: 2, icon: '🐦',
+    desc: '殺し方が遅いだけで、確実ではある。撒いたぶんだけ、時間が働く。',
+    from: ['mage', 'priest', 'rogue'],
+    req: [style('status', 22, 0.18), lv(6)],
+    base: { hp: 112, mp: 64, str: 7, int: 16, vit: 10, agi: 11, luk: 10 },
+    grow: { hp: 10, mp: 5, str: 0.8, int: 2.4, vit: 1.3, agi: 1.3, luk: 1.2 },
+    mods: { dotPower: 0.35, dotTurns: 1, 'el_dark': 0.15, magPct: 0.08 },
+    flags: ['venomEdge'],
+    skills: ['rotTouch', 'miasma', 'pyreCurse', 'incubate', 'sporeBurst', 'venomFang']
   });
   def({
     id: 'bard', name: '吟遊詩人', tier: 2, icon: '🎼',
@@ -417,10 +428,10 @@
   def({
     id: 'plaguelord', name: '疫災呪王', tier: 3,
     from: ['hexer', 'exorcist'],
-    req: [accStyle('status', 70, 0.30), legendN(1), lv(12)],
+    req: [accStyle('status', 110, 0.35), legendN(1), lv(12)],
     base: { hp: 170, mp: 96, str: 10, int: 23, vit: 14, agi: 13, luk: 12 },
     grow: { hp: 14, mp: 6.6, str: 1.0, int: 3.2, vit: 1.8, agi: 1.5, luk: 1.4 },
-    mods: { 'el_dark': 0.40, magPct: 0.25, pierce: 0.20, lifesteal: 0.12 },
+    mods: { 'el_dark': 0.40, magPct: 0.25, pierce: 0.20, lifesteal: 0.12, dotPower: 0.45 },
     flags: ['statusDamage', 'spreadStatus', 'lingering', 'statusOnHit'],
     skills: ['ult_pandemic', 'ult_blackMiasma', 'hexMist', 'curseBurst', 'plagueMark', 'soulSeal']
   });
@@ -445,6 +456,17 @@
     mods: { debuffPower: 0.60, debuffTurns: 2, 'el_dark': 0.35, magPct: 0.22, pierce: 0.18 },
     flags: ['hexBrand', 'doomToll', 'spreadHex', 'frailtyAura'],
     skills: ['ult_ruin', 'witherAll', 'dullEdge', 'sapWill', 'leadenChant', 'frailty', 'bindingWord']
+  });
+  def({
+    id: 'rotKing', name: '万蝕王', tier: 3,
+    from: ['plaguedoctor', 'hexer'],
+    desc: '倒すのではなく、腐らせる。触れたものが、触れた順に還っていく。',
+    req: [accStyle('status', 130, 0.40), legendN(1), lv(12)],
+    base: { hp: 172, mp: 98, str: 10, int: 23, vit: 15, agi: 13, luk: 12 },
+    grow: { hp: 14, mp: 6.8, str: 1.0, int: 3.1, vit: 1.9, agi: 1.5, luk: 1.4 },
+    mods: { dotPower: 0.65, dotTurns: 2, 'el_dark': 0.35, magPct: 0.20, lifesteal: 0.12 },
+    flags: ['festering', 'deepRot', 'rotFeast', 'venomEdge'],
+    skills: ['ult_rotworld', 'miasma', 'pyreCurse', 'incubate', 'sporeBurst', 'rotTouch', 'plagueMark']
   });
   def({
     id: 'poleEmperor', name: '双極魔剣皇', tier: 3,

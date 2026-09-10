@@ -133,7 +133,7 @@ G.Battle = (function () {
         damageDealt: 0, turns: 0,
         /* ミシック条件の判定に使う記録 */
         mpSpent: 0, skillsUsed: {}, skillKinds: 0, onlyBasic: true, statusPeak: 0,
-        boonsCast: 0, hexesCast: 0, hexPeak: 0,
+        boonsCast: 0, hexesCast: 0, hexPeak: 0, rotKills: 0,
         barrierAbsorbed: 0, evadeStreak: 0, evadeStreakMax: 0, healed: 0,
         weakKills: 0, maxHitDamage: 0, firstHitDone: false
       }
@@ -339,11 +339,39 @@ G.Battle = (function () {
     });
     b.units.forEach(function (u) {
       if (!alive(u)) return;
-      /* DOT */
-      u.statuses.forEach(function (s) {
-        if (s.k === 'burn' || s.k === 'poison') {
-          var d = Math.max(1, Math.round(u.S.maxHp * s.v));
-          applyRawDamage(b, u, d, s.k === 'burn' ? '🔥 火傷' : '☠ 毒', null);
+      /* DOT（毒・火傷）
+       * 基本は「相手の最大HPの割合」。ここを術者側で大きく伸ばせるようにすると、
+       * HPの高いボスに対して一撃で数千という数字になってしまうので、
+       * 伸びしろの大半は「術者の魔力に比例する固定分」に置いてある。
+       * 割合のほうも伸びるが、上限を設けて頭打ちにする。 */
+      var rotting = u.statuses.filter(function (s) { return s.k === 'burn' || s.k === 'poison'; });
+      var both = rotting.length >= 2;
+      rotting.forEach(function (s) {
+        var pw = s.pw || 0;
+        var owner = s.by ? b.units.filter(function (x) { return x.id === s.by; })[0] : null;
+        var f = (owner && owner.flags) || {};
+        /* 割合部分は技が決める。ここはビルドでは動かさない */
+        var pct = u.S.maxHp * s.v * G.DOT_BASE;
+        /* 固定部分だけがビルドで伸びる。化膿・深蝕もこちらに掛かる */
+        var flat = (s.mag || 0) * (G.DOT_MAG_BASE + G.DOT_MAG_RATE * pw);
+        if (f.festering && both) flat *= G.DOT_FESTER;
+        if (f.deepRot) {
+          s.rot = Math.min(G.DOT_ROT_CAP, (s.rot || 0) + 0.12);
+          flat *= (1 + s.rot);
+        }
+        var d = Math.max(1, Math.round(pct) + Math.round(flat));
+        var alive0 = alive(u);
+        applyRawDamage(b, u, d, s.k === 'burn' ? '🔥 火傷' : '☠ 毒', null);
+        if (alive0 && !alive(u) && u.side === 'enemy') b.rec.rotKills++;
+        /* 持続ダメージで倒したときの見返り */
+        if (alive0 && !alive(u) && owner && alive(owner)) {
+          if (f.rotFeast) heal(b, owner, Math.round(owner.S.maxHp * 0.10), '腐食の宴');
+          if (f.plagueBurst && u.side === 'enemy') {
+            aliveEnemies(b).forEach(function (x) {
+              addStatus(b, x, s.k, Math.max(2, s.t), s.v, owner);
+            });
+            log(b, '☣ ' + u.name + ' の内から疫が飛び散った。', 'aoe');
+          }
         }
       });
       /* 継続時間の減少 */
@@ -522,6 +550,10 @@ G.Battle = (function () {
     /* 攻撃時の状態異常付与 */
     if (dealt > 0 && src.flags && src.flags.statusOnHit && alive(tgt) && U.chance(0.20)) {
       addStatus(b, tgt, U.pick(['burn', 'poison', 'freeze', 'shock']), 2, null, src);
+    }
+    /* 殴りながら毒を積む。持続ダメージビルドが「撒く手番」を減らせる */
+    if (dealt > 0 && src.flags && src.flags.venomEdge && alive(tgt) && U.chance(0.35)) {
+      addStatus(b, tgt, 'poison', 3, 0.06, src);
     }
     /* 攻撃時の弱体付与。殴りながら削っていくビルドが成立する */
     if (dealt > 0 && src.flags && src.flags.sapStrike && alive(tgt) && U.chance(0.25)) {
@@ -725,10 +757,21 @@ G.Battle = (function () {
 
   function addStatus(b, u, kind, turns, val, by) {
     if (!alive(u)) return;
+    /* 持続ダメージは「かけた人の性能」で決まるので、付与時に写し取っておく。
+     * あとから術者が転職しても、すでに乗っている毒の強さは変わらない。 */
+    var pw = (by && by.S && by.S.dotPower) || 0;
+    var mg = (by && by.S && by.S.mag) || 0;
+    var byId = by ? by.id : null;
+    if (by && by.side === 'player') turns += (by.S.dotTurns || 0);
     var ex = u.statuses.filter(function (s) { return s.k === kind; })[0];
-    if (ex) { ex.t = Math.max(ex.t, turns); return; }
+    if (ex) {
+      ex.t = Math.max(ex.t, turns);
+      /* 掛け直しで弱くはならない。強い術者が上書きしたときだけ乗り換える */
+      if (pw > (ex.pw || 0)) { ex.pw = pw; ex.mag = mg; ex.by = byId; }
+      return;
+    }
     if (u.side === 'enemy' && aliveParty(b).some(function (m) { return m.flags.lingering; })) turns += 1;
-    u.statuses.push({ k: kind, t: turns, v: val || 0.06 });
+    u.statuses.push({ k: kind, t: turns, v: val || 0.06, pw: pw, mag: mg, by: byId, rot: 0 });
     if (u.side === 'enemy') {
       b.rec.statusPeak = Math.max(b.rec.statusPeak, u.statuses.length);
       b.state.run.stats.statusApplied = (b.state.run.stats.statusApplied || 0) + 1;
@@ -802,8 +845,12 @@ G.Battle = (function () {
           && !alive(mates[targetIdx.ally])) return [mates[targetIdx.ally]];
       return down.length ? [down[0]] : [];
     }
-    /* 補助・回復で対象指定が無いものは自分に返す（従来どおり） */
-    if (skill.kind === 'heal' || skill.kind === 'buff' || skill.kind === 'util') return [src];
+    /* 補助・回復で対象指定が無いものは自分に返す。
+     * ただし target が敵を指しているもの（all / random / one）は、kind が util でも敵に向ける。
+     * ここで util をひとまとめに自分へ返していたせいで、〈煙玉〉〈解呪波〉〈弱点看破〉
+     * のような「敵に効く補助技」が、使っても何も起きない状態になっていた。 */
+    if (skill.kind === 'heal' || skill.kind === 'buff') return [src];
+    if (skill.kind === 'util' && mode !== 'all' && mode !== 'random' && mode !== 'one') return [src];
 
     var foes = foesOf(b, src);
     if (mode === 'all' || mode === 'random') return foes;
@@ -941,6 +988,15 @@ G.Battle = (function () {
         });
       }
       applySkillSideEffects(b, src, targets, eff);
+      /* 胞子散布: すでに毒か火傷を受けている敵には、そのぶん深く入る */
+      if (eff.rotBonus) {
+        targets.filter(function (t) {
+          return alive(t) && t.statuses.some(function (x) { return x.k === 'burn' || x.k === 'poison'; });
+        }).forEach(function (t) {
+          strike(b, src, t, { kind: 'mag', el: sk.el || 'dark',
+            power: Math.round((sk.power || 100) * eff.rotBonus), trueHit: true, isAoe: true });
+        });
+      }
     }
 
     /* --- 回復 --- */
@@ -1060,6 +1116,21 @@ G.Battle = (function () {
     if (eff.taunt) {
       src.tauntTurns = eff.taunt + 1;
       log(b, '📢 ' + src.name + ' は敵の注意を引きつけた。', 'good');
+    }
+
+    /* 潜伏: すでに乗っている毒・火傷の残りを延ばす。撒き直す手番を減らす技 */
+    if (eff.extendRot) {
+      var ext2 = eff.extendRot + (src.S.dotTurns || 0);
+      var moved2 = 0;
+      targets.filter(function (t) { return t.side !== src.side && alive(t); }).forEach(function (t) {
+        t.statuses.forEach(function (st2) {
+          if (st2.k === 'burn' || st2.k === 'poison') { st2.t += ext2; moved2++; }
+        });
+      });
+      if (moved2) {
+        sty(b, src, 'status', 1);
+        log(b, '☣ 蝕みが ' + ext2 + 'ターン 長引いた。', 'good');
+      }
     }
 
     /* --- 刻印・打ち消し・MP奪取・封印 --- */
@@ -1441,6 +1512,28 @@ G.Battle = (function () {
         return;
       }
     }
+    /* 5a. 持続ダメージに寄せたビルドの人は、まだ腐っていない敵に先に毒を撒く。
+     * 威力で選ぶと持続系の技は素の火力が低いので、いつまでも使われない。 */
+    if ((u.S.dotPower || 0) >= 0.20) {
+      var clean = foes.filter(function (x) {
+        return !x.statuses.some(function (st3) { return st3.k === 'burn' || st3.k === 'poison'; });
+      });
+      if (clean.length) {
+        var rotSk = have(function (s) {
+          var e = s.eff || {};
+          if (!e.poison && !e.burn) return false;
+          /* 全体技は敵が2体以上いるときだけ。1体なら単体技のほうが濃い */
+          return s.target !== 'all' || clean.length >= 2;
+        });
+        if (rotSk) {
+          var rotTo = rotSk.target === 'all' ? null
+            : clean.slice().sort(function (x, y) { return y.S.maxHp - x.S.maxHp; })[0];
+          useSkill(b, u, rotSk.id, target(rotSk, null, rotTo));
+          return;
+        }
+      }
+    }
+
     /* 5b. 弱体に寄せたビルドの人は、まだ乗っていない弱体を優先して掛ける。
      * 威力で選ぶと弱体技は素の火力が低いので、いつまでも使われない。 */
     if ((u.S.debuffPower || 0) >= 0.20) {
