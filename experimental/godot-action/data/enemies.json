@@ -1023,8 +1023,8 @@
  },
  {
   "id": "nb_fenrir",
-  "name": "フェンリル",
-  "icon": "🐺",
+  "name": "縛めのフェンリル",
+  "icon": "⛓",
   "tier": 1,
   "boss": true,
   "hp": 330,
@@ -1046,7 +1046,7 @@
    "e_claw",
    "e_roar"
   ],
-  "desc": "縛めの紐に繋がれた狼。神々はこれを解く日を知っている。",
+  "desc": "グレイプニルに縫い止められた封印体。狼の形をしているが、狼ではない。神々はこれを解く日を知っていて、それでも解かずにいる。",
   "gimmick": {
    "kind": "unbound",
    "at": 0.55,
@@ -1162,6 +1162,68 @@
    "hp": 0.5,
    "word": "死者の"
   },
+  "realm": "norse"
+ },
+ {
+  "id": "nb_fenrir_true",
+  "name": "フェンリル",
+  "icon": "🐺",
+  "tier": 3,
+  "boss": true,
+  "hp": 1880,
+  "atk": 122,
+  "mag": 46,
+  "def": 78,
+  "res": 58,
+  "spd": 36,
+  "exp": 800,
+  "gold": 1150,
+  "weak": [],
+  "resist": [
+   "dark",
+   "phys"
+  ],
+  "skills": [
+   "e_bite",
+   "e_claw",
+   "e_quake",
+   "e_roar"
+  ],
+  "desc": "縛めを噛み切った狼。口は天と地に届き、目と鼻からは火が漏れている。この日のために、神々は千年をかけて紐を編んだ。",
+  "gimmick": {
+   "kind": "maw",
+   "from": 2,
+   "everyN": 3,
+   "turns": 2,
+   "crush": 0.07,
+   "pry": 0.04
+  },
+  "phases": [
+   {
+    "at": 0.65,
+    "name": "牙の相",
+    "weak": [
+     "light"
+    ],
+    "resist": [
+     "dark",
+     "phys"
+    ],
+    "say": "——もう、縛るものはない。"
+   },
+   {
+    "at": 0.3,
+    "name": "顎の相",
+    "weak": [
+     "light",
+     "thunder"
+    ],
+    "resist": [
+     "dark"
+    ],
+    "say": "——月を追うのは、もう飽きた。"
+   }
+  ],
   "realm": "norse"
  },
  {

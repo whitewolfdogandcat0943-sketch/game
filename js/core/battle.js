@@ -241,7 +241,8 @@ G.Battle = (function () {
 
   /** 敵が狙う相手。かばう・挑発を考慮する */
   function pickTarget(b, attacker) {
-    var cands = aliveParty(b);
+    var cands = aliveParty(b).filter(function (x) { return !(x.mawed > 0); });
+    if (!cands.length) cands = aliveParty(b);
     if (!cands.length) return null;
     var taunters = cands.filter(function (x) { return (x.tauntTurns || 0) > 0; });
     if (taunters.length) cands = taunters;
@@ -318,6 +319,7 @@ G.Battle = (function () {
 
   /** ターン開始時の行動不能判定 */
   function stunned(b, u) {
+    if ((u.mawed || 0) > 0) { log(b, '🐺 ' + u.name + ' は牙に咥えられていて動けない！', 'bad'); return true; }
     if (hasStatus(u, 'shock') && U.chance(0.35)) { log(b, '⚡ ' + u.name + ' は麻痺して動けない！', 'bad'); return true; }
     if (hasStatus(u, 'freeze') && U.chance(0.20)) { log(b, '❄ ' + u.name + ' は凍りついて動けない！', 'bad'); return true; }
     return false;
@@ -719,7 +721,14 @@ G.Battle = (function () {
       sty(b, tgt, 'reflect', 1);
     }
     if (tgt.hp <= 0) onDeath(b, tgt, src, meta);
-    else checkPhase(b, tgt);
+    else { checkPhase(b, tgt); if (G.Gimmick) G.Gimmick.onDamage(b, tgt); }
+    /* 顎をこじ開ける。大きな一撃が入れば、咥えられた仲間が放り出される。
+     * 「待てば戻る」だけにすると、こちらに打てる手が無い仕掛けになる。 */
+    if (tgt.gim && tgt.gim.kind === 'maw' && dmg >= tgt.S.maxHp * (tgt.gim.pry || 0.07)) {
+      var freed = 0;
+      partyUnits(b).forEach(function (m) { if (m.mawed > 0) { m.mawed = 0; freed++; } });
+      if (freed) log(b, '💥 渾身の一撃が顎をこじ開けた！ ' + freed + '人が放り出された。', 'good');
+    }
     return dmg;
   }
 

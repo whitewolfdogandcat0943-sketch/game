@@ -179,6 +179,10 @@ G.Gimmick = (function () {
         log(b, '⛓ ' + u.name + ' は' + (g.word || 'グレイプニル') + 'に縛められている。' +
           'この鎖が保つうちに決めろ。', 'bad');
       },
+      /* 縛めが切れるのは残HPで決まるので、ラウンドの頭を待たずに、
+       * 削った瞬間に見せる。短い戦いだと、待っているうちに終わってしまう
+       * （封印体は2ラウンドで片が付くので、一度も解けずに終わっていた）。 */
+      onDamage: function (b, u, g) { KINDS.unbound.onRound(b, u, g); },
       onRound: function (b, u, g) {
         if (!alive(u) || !u.gimState.bound) return;
         if (u.hp > u.S.maxHp * (g.at || 0.55)) return;
@@ -189,6 +193,38 @@ G.Gimmick = (function () {
         u.follow = Math.max(u.follow || 0, g.follow || 0.5);
         u.raged = false;
         log(b, '⛓💥 ' + (g.word || 'グレイプニル') + ' が千切れた！ ' + u.name + ' が解き放たれた。', 'bad');
+      }
+    },
+
+    /* --- 顎: 咥え込んで場から外す（解き放たれたフェンリル） ---
+     *
+     * 一番弱っている者を咥える。咥えられた者は動けず、狙われもしない。
+     * 待てば放されるが、それだけだと打てる手が無いので、
+     * 大きな一撃を入れれば顎をこじ開けて引き剥がせる（battle.js 側）。 */
+    maw: {
+      onRound: function (b, u, g) {
+        if (!alive(u)) return;
+        var held = api().partyUnits(b).filter(function (m) { return m.mawed > 0; });
+        held.forEach(function (m) {
+          m.mawed--;
+          if (m.mawed <= 0) { log(b, '🐺 ' + m.name + ' が牙から逃れた。', 'good'); return; }
+          var crush = Math.round(m.S.maxHp * (g.crush || 0.08));
+          api().applyRawDamage(b, m, crush, '🦷 牙', u, { noReflect: true });
+        });
+        if (held.length) return;
+        if (b.round < (g.from || 2)) return;
+        if (!every(u, 'mawT', g.everyN || 3)) return;
+        var prey = api().partyUnits(b).filter(alive)
+          .sort(function (x, y) { return x.hp / x.S.maxHp - y.hp / y.S.maxHp; })[0];
+        if (!prey) return;
+        prey.mawed = (g.turns || 2) + 1;
+        log(b, '🐺 ' + u.name + ' が ' + prey.name + ' を咥え込んだ！ ' +
+          '強く殴れば顎をこじ開けられる。', 'bad');
+      },
+      onDeath: function (b, u) {
+        api().partyUnits(b).forEach(function (m) {
+          if (m.mawed > 0) { m.mawed = 0; log(b, '🐺 顎が緩み、' + m.name + ' が落ちた。', 'good'); }
+        });
       }
     },
 
@@ -310,6 +346,7 @@ G.Gimmick = (function () {
   return {
     onStart: function (b, u) { run('onStart', b, u); },
     onRound: function (b, u) { run('onRound', b, u); },
+    onDamage: function (b, u) { run('onDamage', b, u); },
     onDeath: function (b, u) { run('onDeath', b, u); },
     KINDS: KINDS
   };

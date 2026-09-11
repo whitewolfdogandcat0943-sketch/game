@@ -200,13 +200,16 @@ G.Run = (function () {
     var f = state.run.floor, units = [], i;
     var realm = G.realmOf(state);
     if (kind === 'boss') {
-      /* 塔の主は5階ごとに、その世界の順に現れる。
-       * 25階から先（ラグナロク）は、根を齧り続ける竜がずっと待っている。 */
-      var bossList = G.BOSSES.filter(function (b) { return G.inRealm(b, realm); });
-      if (!bossList.length) bossList = G.BOSSES;
-      var idx = Math.floor((f / 5) - 1);
-      var boss = bossList[Math.min(Math.max(0, idx), bossList.length - 1)] || U.pick(bossList);
-      if (f >= 25) boss = bossList[bossList.length - 1];
+      /* 塔の主は5階ごとに、世界の順に現れる（G.TOWER_BOSSES）。
+       * 30階の先は最上位の三体を順に回す。 */
+      var boss = null;
+      if (realm === 'norse' && G.towerBoss) boss = G.towerBoss(f);
+      if (!boss) {
+        var bossList = G.BOSSES.filter(function (b) { return G.inRealm(b, realm); });
+        if (!bossList.length) bossList = G.BOSSES;
+        var idx = Math.floor((f / 5) - 1);
+        boss = bossList[Math.min(Math.max(0, idx), bossList.length - 1)] || U.pick(bossList);
+      }
       units.push(G.Battle.makeEnemyUnit(boss, f, 0));
       var addN = (f >= 8 ? 2 : 1) + G.Diff.get().adds;
       /* 塔でも同じ。自分で増やす主に、さらに取り巻きを付けない */

@@ -67,12 +67,16 @@
 
   /* =============== 主 =============== */
 
-  /* 5階 ―― 縛られているうちに決めろ */
-  e({ id: 'nb_fenrir', name: 'フェンリル', icon: '🐺', tier: 1, boss: true,
+  /* 5階 ―― グレイプニルに縫い止められた「封印体」。
+   * これは狼そのものではなく、紐に縛りつけられて形を保っているだけの体。
+   * 削っていくと縛めが緩み、中身が少しだけ顔を出す。
+   * 本体は塔の上、ラグナロクの側で待っている（nb_fenrir_true）。 */
+  e({ id: 'nb_fenrir', name: '縛めのフェンリル', icon: '⛓', tier: 1, boss: true,
       hp: 330, atk: 40, mag: 12, def: 24, res: 14, spd: 20,
       exp: 95, gold: 170, weak: ['light'], resist: ['dark'],
       skills: ['e_bite', 'e_claw', 'e_roar'],
-      desc: '縛めの紐に繋がれた狼。神々はこれを解く日を知っている。',
+      desc: 'グレイプニルに縫い止められた封印体。狼の形をしているが、狼ではない。' +
+            '神々はこれを解く日を知っていて、それでも解かずにいる。',
       gimmick: { kind: 'unbound', at: 0.55, weak: 0.55, rage: 1.2, follow: 0.4, word: 'グレイプニル' } });
 
   /* 10階 ―― 毒が満ちる。長引くほど効いてくる */
@@ -98,6 +102,23 @@
       skills: ['e_curse', 'e_drain', 'e_voidbeam'],
       desc: '半身は生ける者、半身は朽ちた者。冥府の主。',
       gimmick: { kind: 'reap', everyN: 2, n: 1, hp: 0.5, word: '死者の' } });
+
+  /* 30階 ―― 封印体ではない、解き放たれた本体。
+   * 5階で相手にしたのは縛られた形だけで、こちらが狼そのもの。
+   * 縛めはもう無いので、開幕から本気で来る。 */
+  e({ id: 'nb_fenrir_true', name: 'フェンリル', icon: '🐺', tier: 3, boss: true,
+      hp: 1880, atk: 122, mag: 46, def: 78, res: 58, spd: 36,
+      exp: 800, gold: 1150, weak: [], resist: ['dark', 'phys'],
+      skills: ['e_bite', 'e_claw', 'e_quake', 'e_roar'],
+      desc: '縛めを噛み切った狼。口は天と地に届き、目と鼻からは火が漏れている。' +
+            'この日のために、神々は千年をかけて紐を編んだ。',
+      gimmick: { kind: 'maw', from: 2, everyN: 3, turns: 2, crush: 0.07, pry: 0.04 },
+      phases: [
+        { at: 0.65, name: '牙の相', weak: ['light'], resist: ['dark', 'phys'],
+          say: '——もう、縛るものはない。' },
+        { at: 0.30, name: '顎の相', weak: ['light', 'thunder'], resist: ['dark'],
+          say: '——月を追うのは、もう飽きた。' }
+      ] });
 
   /* 25階 ―― 削っても戻る。蝕んでいるあいだだけ戻らない */
   e({ id: 'nb_nidhoggr', name: 'ニーズヘッグ', icon: '🐉', tier: 3, boss: true,
@@ -280,6 +301,28 @@
   G.MYTHICS = A.filter(function (a) { return a.rarity === 'mythic'; });
   G.LEGENDS = A.filter(function (a) { return a.rarity === 'legend'; });
   G.NORMALS = A.filter(function (a) { return a.rarity === 'normal'; });
+
+  /* 塔の主が出る順。5階ごとに一体ずつ。
+   * 配列に入れた順ではなく、ここで明示する（データを足した順で塔の並びが
+   * 変わってしまうのを避けるため）。
+   * 30階の先（深淵）は、最上位の三体を順に回す。 */
+  G.TOWER_BOSSES = [
+    'nb_fenrir',        /*  5階 グレイプニルの封印体 */
+    'nb_jormungandr',   /* 10階 */
+    'nb_surtr',         /* 15階 */
+    'nb_hel',           /* 20階 */
+    'nb_nidhoggr',      /* 25階 ここが踏破の区切り */
+    'nb_fenrir_true'    /* 30階 縛めを噛み切った本体 */
+  ];
+  G.TOWER_ABYSS = ['nb_nidhoggr', 'nb_fenrir_true', 'nb_hel'];
+
+  /** その階の主。5階ごとに呼ばれる。 */
+  G.towerBoss = function (floor) {
+    var i = Math.floor(floor / 5) - 1;
+    if (i < G.TOWER_BOSSES.length) return G.ENEMY_BY_ID[G.TOWER_BOSSES[Math.max(0, i)]];
+    var j = (i - G.TOWER_BOSSES.length) % G.TOWER_ABYSS.length;
+    return G.ENEMY_BY_ID[G.TOWER_ABYSS[j]];
+  };
 
   /* 世界（realm）で絞るための索引。塔は 'norse' だけを見る。 */
   G.realmOf = function (state) {

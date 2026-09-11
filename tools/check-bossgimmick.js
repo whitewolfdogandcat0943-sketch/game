@@ -54,6 +54,12 @@ const PROOF = {
     counter: '解けた回数',
     beatable: '縛られているあいだに削りきる'
   },
+  maw: {
+    label: '仲間を咥え込んで場から外す',
+    line: /咥え込んだ！/,
+    counter: '咥えた回数',
+    beatable: '大きな一撃で顎をこじ開けて引き剥がす'
+  },
   venom: {
     label: '全体を毒に沈める',
     line: /毒に侵された/,
@@ -181,12 +187,15 @@ G.STORY.CHAPTERS.forEach(c => c.places.filter(p => p.kind === 'dungeon').forEach
 /* 塔でその階に着いたときのパーティのレベル（実測の中央値）。
  * 階層の数字そのままで挑ませると、実際より強い側で試すことになり、
  * 仕掛けが出る前に決着してしまう。 */
-const TOWER_LV = { 5: 5, 10: 12, 15: 20, 20: 28, 25: 36 };
-const norse = G.BOSSES.filter(b => b.realm === 'norse');
-norse.forEach((b, i) => {
+const TOWER_LV = { 5: 5, 10: 12, 15: 20, 20: 28, 25: 36, 30: 44 };
+/* 主が出る階は G.TOWER_BOSSES が決めるので、そこから引く。
+ * 配列の並び順で決め打ちにすると、データを足したときに階が入れ替わる。 */
+(G.TOWER_BOSSES || []).forEach((id, i) => {
+  const b = G.ENEMY_BY_ID[id];
+  if (!b) return;
   const f = (i + 1) * 5;
   const mobs = G.MOBS.filter(m => m.realm === 'norse' && m.tier <= (f <= 5 ? 1 : (f <= 12 ? 2 : 3)));
-  SLOT[b.id] = { lv: f, partyLv: TOWER_LV[f] || f, pool: mobs.map(m => m.id),
+  SLOT[b.id] = { lv: f, partyLv: TOWER_LV[f] || Math.round(f * 1.5), pool: mobs.map(m => m.id),
                  place: '塔 ' + f + '階', ch: '塔' + f + 'F' };
 });
 
