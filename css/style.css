@@ -4,6 +4,7 @@
   --acc:#7ee0ff; --gold:#ffcf6b; --legend:#ff9f43; --mythic:#ff5fd2; --normal:#8fd3ff;
   --bgA:#16223a; --bgB:#0b0e18; --tint:#2a4a3a;
   --hp:#ff5a72; --mp:#6aa8ff; --xp:#9dff6a; --danger:#ff6b6b; --ok:#5ce39a;
+  --relic:#8cd6a4;
   --fire:#ff7a45; --ice:#63d8ff; --thunder:#ffe066; --wind:#8ef0b8; --light:#fff3c4; --dark:#c08bff; --phys:#d8dcea;
 }
 *{box-sizing:border-box}
@@ -44,6 +45,7 @@ button{font-family:inherit}
 .diffnote{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.5}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
 .panel h2,.panel h3{margin:0 0 10px;font-size:14px;letter-spacing:.08em;color:var(--acc)}
+.panel h3.r-relic{color:var(--relic)} .panel h3.r-legend{color:var(--legend)} .panel h3.r-mythic{color:var(--mythic)}
 h1{font-size:20px;letter-spacing:.1em;margin:18px 0 6px}
 .muted{color:var(--dim)}
 .small{font-size:12px}
@@ -59,12 +61,15 @@ h1{font-size:20px;letter-spacing:.1em;margin:18px 0 6px}
 
 /* rarity */
 .r-normal{color:var(--normal)} .r-legend{color:var(--legend)} .r-mythic{color:var(--mythic)}
+.r-relic{color:var(--relic)}
 .r-common{color:var(--dim)}
 .bd-normal{border-color:#2f4d6b} .bd-legend{border-color:#7a4d1c;box-shadow:0 0 12px rgba(255,159,67,.12) inset}
 .bd-mythic{border-color:#7a1e63;box-shadow:0 0 16px rgba(255,95,210,.18) inset}
+.bd-relic{border-color:#4d6a53;box-shadow:0 0 12px rgba(140,214,164,.10) inset}
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;border:1px solid var(--line);font-size:10px;color:var(--dim);margin-right:4px}
 .tag.mythic{border-color:#7a1e63;color:var(--mythic)}
 .tag.legend{border-color:#7a4d1c;color:var(--legend)}
+.tag.relic{border-color:#4d6a53;color:var(--relic)}
 .tag.normal{border-color:#2f4d6b;color:var(--normal)}
 
 /* elements */
@@ -112,6 +117,7 @@ h1{font-size:20px;letter-spacing:.1em;margin:18px 0 6px}
 .log .bad{color:var(--danger)}
 .log .good{color:var(--ok)}
 .log .mythic{color:var(--mythic);font-weight:700}
+.log .bark{color:#cdd6ff;font-style:normal;opacity:.92;border-bottom-color:#232a44}
 .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
 .abtn{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--ink);transition:.12s}
 .abtn:hover:not(:disabled){border-color:var(--acc);background:#252b44}

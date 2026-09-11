@@ -7,6 +7,12 @@
   function n(o) { o.rarity = 'normal'; o.slot = 'acc'; o.kind = 'acc'; ACC.push(o); return o; }
   function l(o) { o.rarity = 'legend'; o.slot = 'acc'; o.kind = 'acc'; ACC.push(o); return o; }
   function m(o) { o.rarity = 'mythic'; o.slot = 'acc'; o.kind = 'acc'; ACC.push(o); return o; }
+  /* 形見（relic）。買えないし、拾えない。倒した相手が置いていったものだけ。
+   * 抽選プール（G.LEGENDS / G.NORMALS）には入れない。出どころが一つしかないから、
+   * 「どこで手に入れたか」が装備欄に残る。
+   * 性能はわざと軸を持たせない。主戦のドロップが強い軸を指すと、
+   * 章を進めるたびにビルドがそちらへ矯正されてしまう。 */
+  function r(o) { o.rarity = 'relic'; o.slot = 'acc'; o.kind = 'acc'; ACC.push(o); return o; }
 
   /* =============== 通常アクセサリ =============== */
   n({ id: 'n_powerring', name: '力の指輪', tier: 1, price: 90, mods: { atk: 14, atkPct: 0.05 }, desc: '物理攻撃を高める。' });
@@ -457,10 +463,53 @@
       desc: '影と結んだ約束。破ると、破ったほうが影になる。' +
             '<br><b>〈影従招来〉を習得する。</b>' });
 
+  /* =============== 形見（主戦の相手が置いていったもの） =============== */
+  r({ id: 'r_ogrefang', name: '鬼の欠け牙', tier: 1, price: 0,
+      mods: { atk: 12, def: 12, hp: 60 },
+      from: '地下水路の主', desc: '折れた牙。根元だけが妙に温かい。' +
+      '<br><span class="tiny">灰都の地下で、はじめて自分の手で倒したものの牙。</span>' });
+  r({ id: 'r_thornseed', name: '棘獣の種子', tier: 1, price: 0,
+      mods: { def: 16, res: 16, hp: 70, spd: -3 },
+      from: '城塞に根を張ったもの', desc: '割れた石畳から採れた黒い種。まだ死んでいない。' +
+      '<br><span class="tiny">城が無くなっても、根だけは残っていた。</span>' });
+  r({ id: 'r_frostcrown', name: '凍てついた冠', tier: 2, price: 0,
+      mods: { mag: 20, res: 20, mp: 30, mpRegen: 3 },
+      from: '学舎に眠る女王', desc: '霜の張った小さな冠。溶ける気配がない。' +
+      '<br><span class="tiny">教室の最前列に、ずっと座っていたらしい。</span>' });
+  r({ id: 'r_stormscale', name: '嵐竜の鱗', tier: 2, price: 0,
+      mods: { spd: 18, atk: 18, evade: 0.05 },
+      from: '空を継ぐもの', desc: '触れると、遠い雷の音がする一枚。' +
+      '<br><span class="tiny">塔の天辺から落ちてきた。竜の落とし物としては、軽い。</span>' });
+  r({ id: 'r_voidsigil', name: '虚ろの印', tier: 3, price: 0,
+      mods: { magPct: 0.10, atkPct: 0.10, hpPct: 0.08 },
+      from: '王都の影', desc: '何も彫られていない印章。押しても、紙に何も残らない。' +
+      '<br><span class="tiny">王都で一番大きな影が、消えるときに落とした。</span>' });
+  r({ id: 'r_mirrorshard', name: '己の破片', tier: 3, price: 0,
+      mods: { critRate: 0.06, reflect: 0.06, aoeRatio: 0.06, buffPower: 0.08, debuffPower: 0.08 },
+      from: 'もう一人の自分', desc: '鏡の破片。覗いても、今の自分しか映らない。' +
+      '<br><span class="tiny">映っていたものは、もう居ない。</span>' });
+  r({ id: 'r_worldpiece', name: '世界の継ぎ目', tier: 3, price: 0,
+      mods: { hpPct: 0.12, defPct: 0.10, magPct: 0.10, atkPct: 0.10, mpRegen: 5 },
+      from: '世界の鏡像', desc: '割れた世界を留めていた、小さな留め具。' +
+      '<br><span class="tiny">これが外れていたら、何がどうなっていたのかは分からない。</span>' });
+
+  /* どの主戦が、どの形見を置いていくか。
+   * 1体につき1つ。二度目からは出ない（残響で形見が増える話にはしない）。 */
+  G.BOSS_RELIC = {
+    b_ogre: 'r_ogrefang',
+    b_thornbeast: 'r_thornseed',
+    b_frostqueen: 'r_frostcrown',
+    b_stormdrake: 'r_stormscale',
+    b_voidlord: 'r_voidsigil',
+    b_mirrorself: 'r_mirrorshard',
+    b_worldmirror: 'r_worldpiece'
+  };
+
   G.ACCESSORIES = ACC;
   G.ACC_BY_ID = {};
   ACC.forEach(function (a) { G.ACC_BY_ID[a.id] = a; });
   G.MYTHICS = ACC.filter(function (a) { return a.rarity === 'mythic'; });
   G.LEGENDS = ACC.filter(function (a) { return a.rarity === 'legend'; });
   G.NORMALS = ACC.filter(function (a) { return a.rarity === 'normal'; });
+  G.RELICS = ACC.filter(function (a) { return a.rarity === 'relic'; });
 })();

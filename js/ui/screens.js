@@ -302,7 +302,8 @@ G.Screens = (function () {
       '<button class="btn tiny" data-act="treeOpen">スキルツリー' +
       (state.hero.sp ? ' <span class="r-legend">+' + state.hero.sp + '</span>' : '') + '</button> ' +
       '<button class="btn tiny" data-act="altarPreview">転職条件を見る</button></div></div>';
-    h += '<div class="sep"></div>' + stylePanel(state) + '</div>';
+    h += '<div class="sep"></div>' + styleBrief(state) +
+      '<div class="tiny muted" style="margin-top:6px">細かい内訳は「転職条件を見る」から。</div></div>';
     render(h);
   }
 
@@ -479,6 +480,35 @@ G.Screens = (function () {
       }).join('') + '</div>';
   }
 
+  /** 軸の内訳を、数字ではなく言葉で一行に畳む。
+   *
+   * 12軸の%を常時ならべると、町の画面が成績表になる。
+   * 内訳が要るのは装備を組むときと転職を考えるときだけなので、
+   * 地上では「どちらに寄っているか」だけ言い、続きはボタンの向こうに置く。 */
+  function styleBrief(state, who) {
+    var m = who || target(state);
+    var rec = G.Style.behaviourOf(m), sh = G.Style.shares(rec);
+    var acc = G.Style.accShares(m);
+    function lead(score, share, total) {
+      if (total <= 0) return null;
+      var rank = G.Style.AXIS_IDS.map(function (ax) {
+        return { ax: ax, v: score[ax] || 0, s: share[ax] || 0 };
+      }).sort(function (x, y) { return y.v - x.v; }).filter(function (r) { return r.v > 0; });
+      if (!rank.length) return null;
+      var top = rank.slice(0, 2).filter(function (r) { return r.s >= 0.14; });
+      if (!top.length) top = [rank[0]];
+      return top.map(function (r) {
+        return '<span class="' + G.Style.axisClass(r.ax) + '">' + G.Style.axisName(r.ax) + '</span>';
+      }).join('・');
+    }
+    var wayTxt = lead(rec, sh.share, sh.total);
+    var accTxt = lead(acc.score, acc.share, acc.total);
+    return '<div class="kv"><span>戦い方</span><span>' +
+      (wayTxt ? wayTxt + ' に寄っている' : '<span class="muted">まだ形になっていない</span>') + '</span></div>' +
+      '<div class="kv"><span>アクセの構成</span><span>' +
+      (accTxt ? accTxt + ' で組んでいる' : '<span class="muted">装備していない</span>') + '</span></div>';
+  }
+
   /** 戦い方（行動の実績）と、アクセ構成のスタイルを並べて見せる */
   function stylePanel(state, who) {
     var m = who || target(state);
@@ -531,7 +561,10 @@ G.Screens = (function () {
       '<div class="kv"><span>アクセサリ</span><span>' +
       '<span class="r-normal">通常' + accs.filter(function (a) { return a.rarity === 'normal'; }).length + '</span> / ' +
       '<span class="r-legend">伝説' + accs.filter(function (a) { return a.rarity === 'legend'; }).length + '</span> / ' +
-      '<span class="r-mythic">神話' + accs.filter(function (a) { return a.rarity === 'mythic'; }).length + '</span></span></div>' +
+      '<span class="r-mythic">神話' + accs.filter(function (a) { return a.rarity === 'mythic'; }).length + '</span>' +
+      (accs.filter(function (a) { return a.rarity === 'relic'; }).length
+        ? ' / <span class="r-relic">形見' + accs.filter(function (a) { return a.rarity === 'relic'; }).length + '</span>' : '') +
+      '</span></div>' +
       '<div class="kv"><span>会心 / 反射</span><span>' + U.pct(S.critRate) + ' / ' + U.pct(S.reflect) + '</span></div>' +
       '<div class="kv"><span>波及 / 範囲威力</span><span>' + U.pct(S.aoeRatio) + ' / ' + U.sgnp(S.aoePower) + '</span></div>' +
       '<div class="kv"><span>アイテム威力</span><span>' + U.sgnp(S.itemPower) + '</span></div>' +
@@ -715,8 +748,16 @@ G.Screens = (function () {
         (data.mastery ? '<div class="kv"><span>' + G.CLASSES[state.hero.classId].name + ' 習熟度</span><span>+' +
           data.mastery + '（計 ' + data.masteryTotal + '）</span></div>' : '') +
         '</div>';
-      if (data.drops.length) {
-        h += '<div class="panel"><h3>ドロップ</h3><div class="grid g3">' + data.drops.map(function (d) {
+      /* 形見は他の戦利品と並べない。数のうちの1つにした瞬間、ただの装備になる。 */
+      if (data.relic) {
+        h += '<div class="panel bd-relic"><h3 class="r-relic">' + U.esc(data.relic.from || '討ち果たしたもの') +
+          ' が遺したもの</h3>' +
+          '<p class="tiny muted">倒れたあとに、これだけが残っていた。</p>' +
+          '<div class="grid g2">' + UI.accCard(data.relic) + '</div></div>';
+      }
+      var plainDrops = data.drops.filter(function (d) { return !d.relic; });
+      if (plainDrops.length) {
+        h += '<div class="panel"><h3>ドロップ</h3><div class="grid g3">' + plainDrops.map(function (d) {
           if (d.type === 'acc') return UI.accCard(d.ref);
           if (d.type === 'gear') return UI.gearCard(d.ref);
           return UI.itemCard(d.ref, null);
@@ -1169,6 +1210,9 @@ G.Screens = (function () {
     });
     h += '</div>';
 
+    h += '<div class="sep"></div><h3 class="r-relic">形見（' + (G.RELICS || []).length + '種）</h3>' +
+      '<p class="tiny muted">買えず、拾えず、抽選にも出ない。倒した相手が置いていったものだけ。</p>' +
+      '<div class="grid g2">' + (G.RELICS || []).map(function (a) { return UI.accCard(a); }).join('') + '</div>';
     h += '<div class="sep"></div><h3 class="r-legend">レジェンドアクセサリ（' + G.LEGENDS.length + '種）</h3><div class="grid g2">' +
       G.LEGENDS.map(function (a) { return UI.accCard(a); }).join('') + '</div>';
     h += '<div class="sep"></div><h3 class="r-normal">通常アクセサリ（' + G.NORMALS.length + '種）</h3><div class="grid g2">' +

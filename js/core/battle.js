@@ -173,9 +173,15 @@ G.Battle = (function () {
         log(b, '⚗ 触媒が反応し、' + m.name + ' にバリア（' + m.barrier + '）を展開した。', 'good');
       }
     });
+    bark(b, opts.isBoss ? 'boss' : 'start');
     newRound(b);
     advance(b);
     return b;
+  }
+
+  /** 掛け合いを1つ流す。出すか黙るかの判断は barks.js 側でまとめて持つ。 */
+  function bark(b, on, ctx) {
+    if (G.Barks) G.Barks.fire(b, on, ctx);
   }
 
   function log(b, text, cls) { b.log.push({ t: text, c: cls || '' }); }
@@ -495,7 +501,11 @@ G.Battle = (function () {
     if (aliveRealParty(b).length === 0) {
       b.over = true; b.result = 'lose'; log(b, '💀 全滅した……', 'bad'); return true;
     }
-    if (aliveEnemies(b).length === 0) { b.over = true; b.result = 'win'; log(b, '🏆 戦闘に勝利した！', 'good'); return true; }
+    if (aliveEnemies(b).length === 0) {
+      b.over = true; b.result = 'win'; log(b, '🏆 戦闘に勝利した！', 'good');
+      bark(b, b.isBoss ? 'bosswin' : 'win');
+      return true;
+    }
     return false;
   }
 
@@ -764,6 +774,10 @@ G.Battle = (function () {
       b.rec.damageTaken += dmg;
       b.rec.evadeStreak = 0;
       if ((tgt.S.dr || 0) >= 0.15 || (tgt.S.reflect || 0) >= 0.20) sty(b, tgt, 'guard', 1);
+      /* 追い込まれた瞬間に一言。倒れてからでは遅い場面のほうが、声は効く */
+      if (tgt.hero && alive(tgt) && tgt.hp <= tgt.S.maxHp * 0.25) {
+        bark(b, 'pinch', { who: tgt.hero.allyId || 'hero' });
+      }
     }
 
     /* 被弾時バリア獲得 */
@@ -831,6 +845,7 @@ G.Battle = (function () {
     log(b, '☠ ' + u.name + ' を倒した！', 'good');
     fx(b, { t: 'die', i: u.idx });
     if (G.Gimmick) G.Gimmick.onDeath(b, u);
+    if (u.side === 'player' && u.hero) bark(b, 'down', { who: u.hero.allyId || 'hero' });
     if (u.side === 'enemy') {
       b.rec.kills++;
       b.state.run.stats.kills++;
@@ -883,6 +898,7 @@ G.Battle = (function () {
     fx(b, { t: 'heal', i: u.idx, v: u.hp });
     /* 復帰したユニットはこのラウンドの残り手番に間に合うよう列へ戻す */
     if (b.queue.indexOf(u) < 0) b.queue.push(u);
+    if (u.hero) bark(b, 'revive', { who: u.hero.allyId || 'hero' });
     return true;
   }
 

@@ -457,7 +457,34 @@ G.Run = (function () {
     if (kind === 'elite') { state.run.stats.elites++; hero.sp = (hero.sp || 0) + 1; }
     if (kind === 'boss') { state.run.stats.bosses++; hero.sp = (hero.sp || 0) + 2; }
 
-    var choices = (kind === 'elite' || kind === 'boss') ? makeChoices(state, kind) : null;
+    /* 主戦の形見。倒した相手が置いていったものを、そのまま渡す。
+     * 選ばせないのは意図的で、「選んだ報酬」ではなく「戦った跡」にしたいから。 */
+    var relic = null;
+    if (kind === 'boss' && state.mode === 'story' && G.BOSS_RELIC) {
+      var bid = (battle.rec.bossIds || [])[0];
+      var rid = bid && G.BOSS_RELIC[bid];
+      var rref = rid && G.ACC_BY_ID[rid];
+      if (rref && hero.bag.acc.indexOf(rid) < 0) {
+        G.addAcc(hero, rid);
+        relic = rref;
+        drops.push({ type: 'acc', ref: rref, relic: true });
+      }
+    }
+
+    /* 報酬の3択は塔だけにする。
+     * 物語のほうでは、戦うたびにカードを3枚めくる作りが前に出すぎていた。
+     * 仕組み（軸を見て寄せる抽選）は捨てず、めくらせずに渡す形へ移す。 */
+    var storyMode = state.mode === 'story';
+    var choices = (!storyMode && (kind === 'elite' || kind === 'boss'))
+      ? makeChoices(state, kind) : null;
+    if (storyMode && (kind === 'elite' || kind === 'boss')) {
+      /* 3択のうち1つ、に相当する数だけ渡す。枚数は増やさない。
+       * めくる手間を外しただけで、実入りが増える変更にはしない。 */
+      makeChoices(state, kind).slice(0, 1).forEach(function (c) {
+        G.addAcc(hero, c.ref.id);
+        drops.push({ type: 'acc', ref: c.ref });
+      });
+    }
     /* その職業での実戦経験＝習熟度。仲間もそれぞれの職業で積む。 */
     var mGain = kind === 'boss' ? 3 : (kind === 'elite' ? 2 : 1);
     members(state).forEach(function (m) { G.Mastery.gain(m, m.classId, mGain); });
@@ -466,7 +493,7 @@ G.Run = (function () {
     members(state).forEach(function (m) {
       if (m !== hero) m.sp = (m.sp || 0) + (kind === 'boss' ? 2 : (kind === 'elite' ? 1 : 0));
     });
-    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices,
+    return { exp: exp, gold: gold, levels: levels, drops: drops, choices: choices, relic: relic,
              sp: spGain, mastery: mGain, masteryTotal: G.Mastery.wins(hero, hero.classId) };
   }
 

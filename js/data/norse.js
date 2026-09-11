@@ -339,6 +339,7 @@
   G.MYTHICS = A.filter(function (a) { return a.rarity === 'mythic'; });
   G.LEGENDS = A.filter(function (a) { return a.rarity === 'legend'; });
   G.NORMALS = A.filter(function (a) { return a.rarity === 'normal'; });
+  G.RELICS = A.filter(function (a) { return a.rarity === 'relic'; });
 
   /* 塔の主が出る順。5階ごとに一体ずつ。
    * 配列に入れた順ではなく、ここで明示する（データを足した順で塔の並びが

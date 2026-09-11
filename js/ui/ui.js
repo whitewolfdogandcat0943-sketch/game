@@ -32,10 +32,10 @@ G.UI = (function () {
   }
 
   function rarityLabel(r) {
-    return { normal: '通常', legend: 'レジェンド', mythic: 'ミシック', common: '一般', rare: 'レア' }[r] || r;
+    return { normal: '通常', legend: 'レジェンド', mythic: 'ミシック', relic: '形見', common: '一般', rare: 'レア' }[r] || r;
   }
   function rarityClass(r) {
-    return { normal: 'r-normal', legend: 'r-legend', mythic: 'r-mythic', rare: 'r-normal', common: 'r-common' }[r] || '';
+    return { normal: 'r-normal', legend: 'r-legend', mythic: 'r-mythic', relic: 'r-relic', rare: 'r-normal', common: 'r-common' }[r] || '';
   }
 
   /** modsオブジェクトを日本語の一覧に */
@@ -88,6 +88,10 @@ G.UI = (function () {
     var cond = '';
     if (a.rarity === 'mythic' && a.cond) {
       cond = '<br><span class="r-mythic tiny">【取得条件】' + a.cond.label + '</span>';
+    }
+    /* 形見は性能より出どころ。誰が置いていったかを先に出す。 */
+    if (a.rarity === 'relic' && a.from) {
+      cond = '<br><span class="r-relic tiny">【 ' + a.from + ' の形見 】</span>';
     }
     return '<div class="card bd-' + a.rarity + ' ' + (extra && extra.cls || '') + '" ' +
       (extra && extra.act ? 'data-act="' + extra.act + '"' : '') + '>' +
