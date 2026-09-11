@@ -40,6 +40,8 @@ G.Save = (function () {
     var allies = (state.party || []).filter(function (m) { return m !== state.hero; });
     var data = { hero: state.hero, run: state.run, allies: allies,
                  mode: state.mode || 'tower', story: state.story || null,
+                 /* 町のどこに立っていたか。次に開いたとき、同じ場所から続ける。 */
+                 field: state.field || null,
                  diff: state.diff || 'normal' };
     safeSet(RUN_KEY, JSON.stringify(data));
   }
@@ -116,6 +118,9 @@ G.Save = (function () {
               st.dungeon.path = null; st.dungeon.paths = null; st.dungeon.pathsAt = -1;
             }
           }
+          /* 地図が消えている／作り替えられた場合は、町の入口からやり直す */
+          if (d.field && !(G.MAPS || {})[d.field.map]) d.field = null;
+          if (d.field) { d.field.walking = false; d.field.ox = 0; d.field.oy = 0; }
           /* データから消えた用事は、受けたままにしない */
           [st.errands.taken, st.errands.done].forEach(function (m) {
             Object.keys(m).forEach(function (k) {
@@ -123,7 +128,7 @@ G.Save = (function () {
             });
           });
         }
-      } else d.story = null;
+      } else { d.story = null; d.field = null; }
       return d;
     } catch (e) { return null; }
   }

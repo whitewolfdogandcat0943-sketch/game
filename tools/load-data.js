@@ -23,7 +23,8 @@ const FILES = [
   'js/data/classtree.js',
   'js/data/story.js',
   'js/data/paths.js',
-  'js/data/errands.js'
+  'js/data/errands.js',
+  'js/data/maps.js'
 ];
 
 /* 戦闘まで含めたエンジン一式（DOMに触れないファイルのみ） */
@@ -33,7 +34,8 @@ const CORE_FILES = [
   'js/core/battle.js',
   'js/core/gimmick.js',
   'js/core/run.js',
-  'js/core/story.js'
+  'js/core/story.js',
+  'js/core/field.js'
 ];
 
 function load() {

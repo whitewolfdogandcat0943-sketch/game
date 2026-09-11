@@ -1309,6 +1309,7 @@ G.Screens = (function () {
     shop: shop, rest: rest, altar: altar, event: event,
     buildModal: buildModal, accPicker: accPicker, gearPicker: gearPicker, codex: codex, help: help,
     skillTree: skillTree, diffCards: diffCards, diffRow: diffRow, diffTag: diffTag,
-    render: render
+    /* 歩くマップは毎フレーム canvas を描くので、HTMLの組み立てだけ借りる */
+    raw: render, render: render
   };
 })();

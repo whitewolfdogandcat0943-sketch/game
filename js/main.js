@@ -5,7 +5,7 @@
   var state = {
     hero: null, run: null, party: null, meta: G.Save.loadMeta(), battle: null,
     screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill', buildIdx: 0,
-    mode: 'tower', story: null, scene: null, diff: 'normal',
+    mode: 'tower', story: null, scene: null, diff: 'normal', field: null,
     nodeKind: null, rewardData: null, currentEvent: null
   };
   G.state = state;
@@ -14,6 +14,9 @@
 
   /* ===================== 画面遷移 ===================== */
   function go(screen) {
+    /* 歩く画面は毎フレーム動いているので、離れるときは必ず止める。
+     * 止め忘れると、戦闘中も裏で町の人が歩き続けることになる。 */
+    if (state.screen === 'field' && screen !== 'field' && G.FieldView) G.FieldView.stop();
     state.screen = screen;
     draw();
   }
@@ -26,6 +29,7 @@
       case 'scene': S.scene(state); break;
       case 'world': S.world(state); break;
       case 'town': S.town(state); break;
+      case 'field': openField(); break;
       case 'dungeon': S.dungeon(state); break;
       case 'map': S.map(state); break;
       case 'battle': S.battle(state); break;
@@ -46,6 +50,9 @@
       return;
     }
     if (state.story.dungeon) { go('dungeon'); return; }
+    /* 町を歩いている最中なら、立っていた場所に戻す。
+     * 店から出るたびに入口へ飛ばされると、町が広く感じられない。 */
+    if (state.field) { go('field'); return; }
     if (state.story.place && G.Story.place(state.story.place)) go('town');
     else go('world');
   }
@@ -94,11 +101,63 @@
     } });
   }
 
+  /* ===================== 歩くマップ ===================== */
+
+  function mapOfPlace(id) {
+    var list = G.MAP_LIST || [];
+    for (var i = 0; i < list.length; i++) if (list[i].place === id) return list[i];
+    return null;
+  }
+
+  /** 歩く画面を開く（描画と入力は FieldView が持つ） */
+  function openField() {
+    if (!state.field) { go('world'); return; }
+    G.FieldView.open(state, { act: fieldTalk, step: fieldStep });
+  }
+
+  /** 一歩ごとに呼ばれる。出口を踏んだら外へ。 */
+  function fieldStep(what) {
+    if (what === 'exit') {
+      /* 第一段階では、町の外は従来の行き先一覧。
+       * 地続きのフィールドに差し替えるのは次の段階。 */
+      G.Field.leave(state);
+      state.story.place = null;
+      G.Save.saveRun(state);
+      go('world');
+    }
+  }
+
+  /** 目の前の相手に話しかける。台詞を読み終えてから、その人の用件へ進む。 */
+  function fieldTalk() {
+    var n = G.Field.facing(state);
+    if (!n) { UI.toast('……誰もいない。'); return; }
+    var lines = G.Field.linesOf(state, n);
+    var after = G.Field.actOf(state, n);
+    if (!lines.length) { if (after) act(after); return; }
+    playScene(lines, {
+      title: '', endLabel: after ? '…' : '閉じる',
+      then: function () {
+        /* 話し終えたら、既定では立っていた場所へ戻る。
+         * 用件が別の画面へ移るなら、そちらが勝つ。
+         * ここで戻り先を決めておかないと、用件が失敗したとき
+         * （所持金が足りない等）会話の画面から出られなくなる。 */
+        state.scene = null;
+        state.screen = 'field';
+        if (after) act(after); else go('field');
+      }
+    });
+  }
+
   function enterPlace(id) {
     var p = G.Story.place(id);
     if (!p) return;
     if (!G.Story.placeOpen(state, p)) { UI.toast('🔒 まだ、そこへの道は開いていない。'); return; }
-    if (p.kind === 'town') { state.story.place = id; state.story.dungeon = null; go('town'); return; }
+    if (p.kind === 'town') {
+      state.story.place = id; state.story.dungeon = null;
+      /* 歩ける地図があるなら、そちらへ入る。無い町は従来の一覧のまま。 */
+      if (G.MAPS && mapOfPlace(id)) { G.Field.enter(state, mapOfPlace(id).id); go('field'); return; }
+      go('town'); return;
+    }
     /* 踏破済みなら「残響」。道中は無く、別の主に直行する。 */
     G.Story.enterDungeon(state, id, !!state.story.cleared[id]);
     G.Save.saveRun(state);
@@ -210,12 +269,30 @@
     state.battle = null;
     state.run.active = true;
     G.Save.saveRun(state);
-    if (town) { state.story.place = town; go('town'); } else go('world');
+    /* 宿の寝台で目を覚ます、という体。歩ける町があるなら、宿の前に立たせる。 */
+    if (town) {
+      state.story.place = town;
+      var mp = mapOfPlace(town);
+      if (mp) {
+        G.Field.enter(state, mp.id);
+        var inn = (mp.npcs || []).filter(function (n) { return n.act === 'inn'; })[0];
+        if (inn) {
+          var spot = [[0, 1, 'up'], [0, -1, 'down'], [1, 0, 'left'], [-1, 0, 'right']]
+            .map(function (d) { return { x: inn.x + d[0], y: inn.y + d[1], dir: d[2] }; })
+            .filter(function (sp) { return G.Field.passable(state, mp, sp.x, sp.y); })[0];
+          if (spot) { state.field.x = spot.x; state.field.y = spot.y; state.field.dir = spot.dir; }
+        }
+        G.Save.saveRun(state);
+        go('field'); return;
+      }
+      go('town');
+    } else go('world');
   }
 
   /** 物語で育てたパーティのまま、試練の塔へ移る */
   function towerFromStory() {
     state.mode = 'tower';
+    G.Field.leave(state);
     state.run.floor = 1;
     state.run.active = true;
     state.run.cleared = 0;
@@ -439,7 +516,7 @@
           var night = G.Story.innTalk(state);
           if (night) {
             G.Save.saveRun(state);
-            playScene(night.lines, { title: '宿の夜', endLabel: '朝を待つ', then: function () { go('town'); } });
+            playScene(night.lines, { title: '宿の夜', endLabel: '朝を待つ', then: function () { backToField(true); } });
             break;
           }
         } else UI.toast('所持金が足りない。');
@@ -448,7 +525,20 @@
       case 'townShop':
         if (!state.run.shop) state.run.shop = G.Run.makeShop(state);
         go('shop'); break;
+      /* 町の祭壇。受け口が無く、押しても何も起きていなかった。 */
+      case 'altar': go('altar'); break;
       case 'dungeonGo': dungeonGo(p[1]); break;
+      case 'fieldTalk': fieldTalk(); break;
+      case 'fieldMenu': S.buildModal(state); break;
+      /* 地図の上で話しかけて受ける版。受けたあとも同じ場所に立ったまま。 */
+      case 'errandAsk': {
+        var qa = G.ERRAND_BY_ID[p[1]];
+        if (G.Story.takeErrand(state, p[1])) {
+          UI.toast('📜 ' + qa.who + 'の頼まれごとを引き受けた。', '');
+          G.Save.saveRun(state);
+        }
+        backToField(true); break;
+      }
       case 'errandTake':
         if (G.Story.takeErrand(state, p[1])) {
           UI.toast('📜 頼まれごとを引き受けた。', '');
@@ -467,7 +557,7 @@
             });
             if (got.acc) UI.toast('💍 <b>' + got.acc.name + '</b> を譲り受けた。', 'legend');
             G.Save.saveRun(state);
-            go('town');
+            backToField(true);
           } });
         } else draw();
         break;
@@ -483,6 +573,7 @@
         state.party = d.party || [state.hero];
         state.mode = d.mode || 'tower';
         state.story = d.story || null;
+        state.field = d.field || null;
         state.diff = G.Diff.set(d.diff || state.meta.diff || 'normal').id;
         if (!state.run.stats) state.run.stats = {};
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
@@ -502,6 +593,7 @@
         if (state.mode === 'story' && state.story) {
           if (state.story.phase === 'open') chapterOpen();
           else if (state.story.dungeon) go('dungeon');
+          else if (state.field) go('field');
           else if (state.story.place && G.Story.place(state.story.place)) go('town');
           else go('world');
         } else go('map');
@@ -509,7 +601,7 @@
       }
       case 'toTitle':
         state.hero = null; state.run = null; state.party = null; state.battle = null;
-        state.story = null; state.scene = null; state.mode = 'tower';
+        state.story = null; state.scene = null; state.mode = 'tower'; state.field = null;
         go('title'); break;
       case 'start': {
         var nameEl = document.getElementById('heroName');

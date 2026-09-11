@@ -332,3 +332,34 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 .ptag.rare{border-color:#7a4d1c;color:var(--legend)}
 .errand{padding:2px 0}
 .errand.sep-top{border-top:1px dashed #1a1f33;margin-top:10px;padding-top:10px}
+
+/* ===================== 歩くマップ ===================== */
+.fieldwrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px}
+.fieldtitle{font-size:13px;letter-spacing:.14em;color:var(--gold)}
+#fieldCv{
+  image-rendering:pixelated;
+  border:2px solid var(--line);border-radius:6px;
+  box-shadow:0 0 0 2px #0b0d14, 0 8px 28px rgba(0,0,0,.5);
+  max-width:100%;height:auto;
+  background:#0b0d14;
+}
+.fieldpad{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center}
+.dpad{position:relative;width:126px;height:126px;flex:none}
+.pad{
+  position:absolute;width:42px;height:42px;
+  background:var(--panel2);color:var(--dim);
+  border:1px solid var(--line);border-radius:8px;
+  font-size:13px;line-height:1;cursor:pointer;user-select:none;touch-action:none;
+}
+.pad:active{background:var(--acc);color:#0b0d14}
+.pad.up{left:42px;top:0} .pad.down{left:42px;top:84px}
+.pad.left{left:0;top:42px} .pad.right{left:84px;top:42px}
+.fieldbtns{display:flex;flex-direction:column;gap:8px}
+.fieldhelp{opacity:.7}
+@media (max-width:620px){
+  .dpad{width:108px;height:108px}
+  .pad{width:36px;height:36px}
+  .pad.up{left:36px;top:0} .pad.down{left:36px;top:72px}
+  .pad.left{left:0;top:36px} .pad.right{left:72px;top:36px}
+  .fieldhelp{display:none}
+}
