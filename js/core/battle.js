@@ -76,7 +76,9 @@ G.Battle = (function () {
   /* ===================== ステータス再計算 ===================== */
 
   function refresh(u) {
-    if (u.side === 'player') {
+    /* 味方でも hero を持たないもの（召喚体）は、敵と同じ base から組み立てる。
+     * 側ではなく「素性を持っているか」で分ける。 */
+    if (u.side === 'player' && u.hero) {
       var c = G.Stats.compute(u.hero, u.buffs, u.flagBuffs.map(function (f) { return f.f; }));
       u.S = c.S; u.flags = c.flags;
       u.S.maxHp = Math.max(1, u.S.maxHp);
@@ -216,6 +218,64 @@ G.Battle = (function () {
   }
   function partyUnits(b) { return b.party || [b.hero]; }
   function aliveParty(b) { return partyUnits(b).filter(alive); }
+  /* 召喚体は頭数には入るが、パーティそのものではない。
+   * 全員倒れて召喚体だけが残った盤面を「まだ負けていない」にすると、
+   * 呼び直すだけで延々と粘れてしまう。 */
+  function realParty(b) { return partyUnits(b).filter(function (u) { return !!u.hero; }); }
+  function aliveRealParty(b) { return realParty(b).filter(alive); }
+
+  /** 召喚体を場に出す。術者の魔力を元に強さを決める。 */
+  function addSummon(b, caster, spec) {
+    var cap = spec.cap || 1;
+    /* 同時に出せる数は cap まで。溢れたぶんは古いものから還す。
+     * 技ごとに cap が違うので、超えている数だけまとめて処理する
+     * （一体だけ還すと、cap 1 の技で cap 2 の顔ぶれが残ってしまう）。 */
+    var live = partyUnits(b).filter(function (u) { return u.summon && alive(u); });
+    while (live.length >= cap) {
+      var old = live.shift();
+      old.hp = 0; old._dead = true;
+      log(b, '✨ ' + old.name + ' が霧に還った。');
+    }
+    var mag = caster.S.mag || 0, atk = caster.S.atk || 0;
+    var pw = Math.max(mag, atk);
+    var u = {
+      side: 'player', id: 'sum' + b.units.length, name: spec.name, icon: spec.icon || '✨',
+      hero: null, state: b.state, buffs: [], flagBuffs: [], statuses: [],
+      barrier: 0, endureUsed: false, killStacks: 0, extraEndure: false,
+      coverFor: null, coveredBy: null, counterStance: 0, charge: 0, mark: null,
+      weak: spec.weak || [], resist: spec.resist || [],
+      summon: true, summonTurns: (spec.turns || 3) + 1, summonSkill: spec.skill || 'attack',
+      ref: { id: spec.sprite || 'summon' },
+      base: {
+        maxHp: Math.max(1, Math.round(pw * (spec.hp || 3.0))),
+        atk: Math.round(pw * (spec.pw || 0.9)), mag: Math.round(pw * (spec.pw || 0.9)),
+        def: Math.round(pw * 0.25), res: Math.round(pw * 0.25),
+        spd: Math.round((caster.S.spd || 10) * (spec.spd || 0.9))
+      },
+      flags: {}, S: null
+    };
+    refresh(u);
+    /* 召喚体はMPを使わないが、画面はMPの上限を見る。未設定だと NaN が出る。 */
+    u.S.maxMp = u.S.maxMp || 1;
+    u.hp = u.S.maxHp; u.mp = u.S.maxMp;
+    b.party.push(u);
+    b.units.push(u);
+    b.units.forEach(function (x, i) { x.idx = i; });
+    if (b.queue.indexOf(u) < 0) b.queue.push(u);
+    log(b, '✨ ' + caster.name + ' が ' + u.name + ' を呼び出した！（' + (spec.turns || 3) + 'ターン）', 'good');
+    fx(b, { t: 'heal', i: u.idx, v: 0 });
+    return u;
+  }
+
+  /** 召喚体の手番。呼んだ技だけを使う、単純な動き。 */
+  function takeSummonTurn(b, u) {
+    if (stunned(b, u)) return;
+    var foes = aliveEnemies(b);
+    if (!foes.length) return;
+    var sk = G.SKILLS[u.summonSkill] || G.SKILLS.attack;
+    var foe = foes.slice().sort(function (x, y) { return x.hp - y.hp; })[0];
+    useSkill(b, u, sk.id, { foe: b.enemies.indexOf(foe) });
+  }
   /** 各ユニットのHP/MPをパーティデータへ書き戻す */
   function syncParty(b) {
     partyUnits(b).forEach(function (u) {
@@ -279,6 +339,15 @@ G.Battle = (function () {
      * 2度目は追撃あつかいで威力を落とす。等倍で2回動かれると
      * 立て直す隙がなく、ビルドの差ではなく事故で決まる戦いになる。 */
     b.units.forEach(function (u) { u._actNo = 0; });
+    /* 召喚体の期限。切れたら静かに消える */
+    partyUnits(b).forEach(function (u) {
+      if (!u.summon || !alive(u)) return;
+      u.summonTurns--;
+      if (u.summonTurns <= 0) {
+        u.hp = 0; u._dead = true;
+        log(b, '✨ ' + u.name + ' は役目を終えて消えた。');
+      }
+    });
     aliveEnemies(b).forEach(function (u) { checkPhase(b, u); });
     if (G.Gimmick) b.enemies.slice().forEach(function (u) { G.Gimmick.onRound(b, u); });
     aliveEnemies(b).forEach(function (u) {
@@ -306,7 +375,7 @@ G.Battle = (function () {
         if (u === controller(b)) { b.actor = u; u._b = b; b.awaiting = true; return; }
         /* 操作しないメンバーは自動で動く */
         b.actor = u; u._b = b;
-        takeAllyTurn(b, u);
+        if (u.summon) takeSummonTurn(b, u); else takeAllyTurn(b, u);
         b.qi++;
         if (checkEnd(b)) return;
         continue;
@@ -416,7 +485,7 @@ G.Battle = (function () {
 
   function checkEnd(b) {
     if (b.over) return true;
-    if (aliveParty(b).length === 0) {
+    if (aliveRealParty(b).length === 0) {
       b.over = true; b.result = 'lose'; log(b, '💀 全滅した……', 'bad'); return true;
     }
     if (aliveEnemies(b).length === 0) { b.over = true; b.result = 'win'; log(b, '🏆 戦闘に勝利した！', 'good'); return true; }
@@ -1162,6 +1231,13 @@ G.Battle = (function () {
     if (eff.healSelf) heal(b, src, Math.round(src.S.mag * eff.healSelf), sk.name);
 
     /* --- 蘇生 --- */
+    /* --- 召喚: 場に味方を増やす ---
+     * 強さは術者の魔力（か攻撃力の高いほう）から決まるので、
+     * 召喚士を伸ばせば呼ぶものも一緒に伸びる。 */
+    if (eff.summon && src.side === 'player') {
+      addSummon(b, src, eff.summon);
+      sty(b, src, 'buff', 2);
+    }
     if (eff.revive) {
       var downs = toAlly ? targets : alliesOf(b, src).filter(function (x) { return !alive(x); });
       var did = false;
@@ -1697,7 +1773,9 @@ G.Battle = (function () {
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
     addEnemy: addEnemy, applyRawDamage: applyRawDamage, addBuff: addBuff, refresh: refresh,
     addStatus: addStatus, hasStatus: hasStatus,
-    partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
+    partyUnits: partyUnits, aliveParty: aliveParty, realParty: realParty,
+    aliveRealParty: aliveRealParty, addSummon: addSummon,
+    syncParty: syncParty, revive: revive,
     canFlee: canFlee, fleeChance: fleeChance, controller: controller,
     alive: alive, log: log, heal: heal
   };

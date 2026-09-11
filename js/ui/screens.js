@@ -575,19 +575,27 @@ G.Screens = (function () {
       var isActor = (b.actor === m);
       var cls = 'unit member' + (m.hp > 0 ? '' : ' dead') + (isActor ? ' acting' : '') +
         (state.allyIdx === mi ? ' picked' : '');
-      h += '<div class="' + cls + '" data-unit="' + m.idx + '" data-act="selectAlly:' + mi + '">' +
+      /* 召喚体は素性（hero）を持たない。レベルや職業の代わりに残りターンを出す。 */
+      var mtag = m.hero
+        ? 'Lv' + m.hero.level + ' ' + G.CLASSES[m.hero.classId].name
+        : '召喚 あと' + Math.max(0, (m.summonTurns || 1) - 1) + 'ターン';
+      h += '<div class="' + cls + (m.summon ? ' summoned' : '') + '" data-unit="' + m.idx +
+        '" data-act="selectAlly:' + mi + '">' +
         '<div class="un" style="font-size:12px"><span>' + U.esc(m.name) +
-        ' <span class="muted">Lv' + m.hero.level + ' ' + G.CLASSES[m.hero.classId].name + '</span></span>' +
+        ' <span class="muted">' + mtag + '</span></span>' +
         (m.coveredBy ? '<span class="tag">🛡かばわれ</span>' : '') +
         (m.coverFor ? '<span class="tag">🛡かばう</span>' : '') +
         (m.counter ? '<span class="tag">⚔構え</span>' : '') +
         (m.charge > 0 ? '<span class="tag">⚡溜め</span>' : '') +
         (m.barrier > 0 ? '<span class="tag">🛡 ' + m.barrier + '</span>' : '') + '</div>' +
         '<div class="row" style="gap:8px;align-items:center">' +
-        '<div class="sprwrap tiny-spr">' + G.Gfx.memberImg(m.hero, 3, m.hp > 0 ? 'idle' : '') + '</div>' +
+        '<div class="sprwrap tiny-spr">' +
+          (m.hero ? G.Gfx.memberImg(m.hero, 3, m.hp > 0 ? 'idle' : '')
+                  : G.Gfx.enemyImg(m.ref.id, 3, m.hp > 0 ? 'idle' : '')) + '</div>' +
         '<div style="flex:1;min-width:0">' +
-        UI.bar(m.hp, m.S.maxHp, 'hp', 'HP') + '<div style="height:4px"></div>' +
-        UI.bar(m.mp, m.S.maxMp, 'mp', 'MP') +
+        UI.bar(m.hp, m.S.maxHp, 'hp', 'HP') +
+        /* 召喚体はMPを使わないので、その欄は出さない */
+        (m.summon ? '' : '<div style="height:4px"></div>' + UI.bar(m.mp, m.S.maxMp, 'mp', 'MP')) +
         '<div class="sts" style="margin-top:4px">' + statusChips(m) + buffChips(m) + '</div>' +
         '</div></div>' +
         (mi === 0 ? '<div class="tiny muted" style="margin-top:5px">攻' + m.S.atk + ' 魔' + m.S.mag +

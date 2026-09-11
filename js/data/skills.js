@@ -120,6 +120,30 @@ G.SKILLS = {};
   S({ id: 'ult_phantomEdge', name: '一閃・無明', mp: 26, kind: 'phys', el: 'phys', power: 300, target: 'one',
       desc: '【奥義】必ず会心する。会心ダメージ+80%、防御を50%無視。',
       eff: { alwaysCrit: true, critBonusDmg: 0.80, defIgnore: 0.5 } });
+  /* 召喚。呼んだものは自分で動き、数ターンで消える。
+   * 強さは術者の魔力（か攻撃力の高いほう）から決まるので、
+   * 術者を伸ばせば呼ぶものも一緒に伸びる。同時に出せる数は cap で縛る。 */
+  S({ id: 'summonSprite', name: '精霊招来', mp: 10, kind: 'util', target: 'self',
+      desc: '炎の精霊を3ターン呼ぶ。自分で動いて敵を焼く。',
+      eff: { summon: { name: '炎の精霊', icon: '🔥', sprite: 'sum_sprite', turns: 3,
+                       hp: 2.2, pw: 0.70, spd: 0.95, skill: 'fireball',
+                       weak: ['ice'], resist: ['fire'], cap: 1 } } });
+  S({ id: 'summonGuardian', name: '守護獣招来', mp: 14, kind: 'util', target: 'self',
+      desc: '硬い守り手を4ターン呼ぶ。前に立って殴る。',
+      eff: { summon: { name: '石の守護獣', icon: '🗿', sprite: 'sum_guardian', turns: 4,
+                       hp: 4.5, pw: 0.55, spd: 0.65, skill: 'crushArmor',
+                       weak: ['thunder'], resist: ['phys'], cap: 1 } } });
+  S({ id: 'summonWisp', name: '雷光招来', mp: 12, kind: 'util', target: 'self',
+      desc: '素早い雷の光を3ターン呼ぶ。先んじて動く。',
+      eff: { summon: { name: '雷光', icon: '⚡', sprite: 'sum_wisp', turns: 3,
+                       hp: 1.6, pw: 0.75, spd: 1.35, skill: 'boltStrike',
+                       weak: ['wind'], resist: ['thunder'], cap: 1 } } });
+  S({ id: 'ult_myriad', name: '【奥義】万霊招来', mp: 30, kind: 'util', target: 'self',
+      desc: '【奥義】二体まで同時に侍らせる。呼ぶものも一回り大きい（5ターン）。',
+      eff: { summon: { name: '顕現せし大精霊', icon: '🌟', sprite: 'sum_great', turns: 5,
+                       hp: 4.0, pw: 1.05, spd: 1.05, skill: 'darkPact',
+                       weak: [], resist: ['dark'], cap: 2 } } });
+
   /* 隠し職業〈フェンリル〉の技。着ぐるみを手に入れた者だけが使う。 */
   S({ id: 'ult_ragnarok', name: '【奥義】顎・ラグナロク', mp: 30, kind: 'phys', el: 'phys', power: 250, target: 'one',
       hits: 2,

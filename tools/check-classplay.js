@@ -80,7 +80,7 @@ function styleAxes(conds) {
     if (!d) return;
     if (d.t === 'style') out.push(d.k);
     else if (d.t === 'styleAny') out.push.apply(out, d.ks);
-    else if (d.t === 'styleDual') { out.push(d.a); out.push(d.b); }
+    else if (d.t === 'styleDual' || d.t === 'styleBoth') { out.push(d.a); out.push(d.b); }
     else if (d.t === 'styleHybrid') { out.push('phys'); out.push('mag'); }
   });
   return out;
@@ -302,6 +302,14 @@ function ai(b) {
   if (heals.length && hurt && hurt.hp / hurt.S.maxHp < 0.45) {
     return { type: 'skill', id: heals[0].id, target: { ally: party.indexOf(hurt) } };
   }
+  /* 召喚は kind:'util' なので、威力で選ぶ流れには乗らない。
+   * 場に出ていないときだけ、先に呼ぶ。呼ばないと召喚職が何もしないことになる。 */
+  const sum = sks.filter(s => s.eff && s.eff.summon)
+    .sort((x, y) => (y.eff.summon.pw || 0) - (x.eff.summon.pw || 0))[0];
+  if (sum) {
+    const out = party.filter(m => m.summon && G.Battle.alive(m)).length;
+    if (out < (sum.eff.summon.cap || 1)) return { type: 'skill', id: sum.id, target: {} };
+  }
   let atks = sks.filter(s => s.kind === 'phys' || s.kind === 'mag');
   if (foes.length >= 3) { const a = atks.filter(s => s.target === 'all'); if (a.length) atks = a; }
   if (u.mp < u.S.maxMp * 0.2) atks = atks.filter(s => (s.mp || 0) === 0);
@@ -318,7 +326,8 @@ function worked(lines) {
     t.indexOf('⬆') >= 0 || t.indexOf('⬇') >= 0 ||
     t.indexOf('付与') >= 0 || t.indexOf('バリア') >= 0 ||
     t.indexOf('立ち上がった') >= 0 || t.indexOf('かばう') >= 0 ||
-    t.indexOf('長引いた') >= 0 || t.indexOf('延びた') >= 0 || t.indexOf('錬成') >= 0);
+    t.indexOf('長引いた') >= 0 || t.indexOf('延びた') >= 0 || t.indexOf('錬成') >= 0 ||
+    t.indexOf('呼び出した') >= 0);
 }
 
 /** その職業ひとりで、格に見合った主に挑ませる。

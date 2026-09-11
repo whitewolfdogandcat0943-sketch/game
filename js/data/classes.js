@@ -77,6 +77,23 @@
       }
     };
   }
+  /* 二つの軸を「両方」積んでいること。styleAny がどちらか一方なのに対し、
+   * こちらは両立を求める。召喚のように、性質が二つに跨る戦い方のため。 */
+  function styleBoth(x, y, pts) {
+    return {
+      label: '戦い方が「' + G.Style.axisName(x) + '」と「' + G.Style.axisName(y) +
+             '」の両方に寄っている（各 ' + pts + ' 以上）',
+      d: { t: 'styleBoth', a: x, b: y, v: pts },
+      test: function (c) {
+        var rec = G.Style.behaviourOf(c.hero);
+        return (rec[x] || 0) >= pts && (rec[y] || 0) >= pts;
+      },
+      prog: function (c) {
+        var rec = G.Style.behaviourOf(c.hero);
+        return G.Style.axisName(x) + (rec[x] || 0) + ' / ' + G.Style.axisName(y) + (rec[y] || 0);
+      }
+    };
+  }
   function styleDual(a, b, n) {
     return {
       label: G.ELEMENTS[a].name + 'と' + G.ELEMENTS[b].name + 'の両方で ' + n + '回以上ダメージを与えた',
@@ -169,8 +186,8 @@
     };
   }
 
-  G.COND = { style: style, styleAny: styleAny, styleDual: styleDual, styleHybrid: styleHybrid,
-             wearing: wearing,
+  G.COND = { style: style, styleAny: styleAny, styleBoth: styleBoth,
+             styleDual: styleDual, styleHybrid: styleHybrid, wearing: wearing,
              accStyle: accStyle, accStyleDual: accStyleDual, accElemPair: accElemPair,
              statusApplied: statusApplied, evades: evades, stat: stat, allElem: allElem, pairElem: pairElem, mythicN: mythicN, legendN: legendN, lv: lv,
              itemsUsed: itemsUsed, kills: kills, reflectKills: reflectKills, critCount: critCount, aoeKills: aoeKills };
@@ -294,6 +311,16 @@
     grow: { hp: 9.5, mp: 3, str: 1.8, int: 1.0, vit: 1.1, agi: 2.8, luk: 1.4 },
     mods: { spd: 22, evade: 0.12, critRate: 0.06 }, flags: ['firstHitCrit', 'counterEvade'],
     skills: ['shukuchi', 'galeFlurry', 'backstab', 'whirlwind', 'bladeStorm', 'afterimage']
+  });
+  def({
+    id: 'summoner', name: '召喚士', tier: 2,
+    from: ['mage', 'priest', 'rogue'],
+    desc: '自分で殴らず、呼んだものに殴らせる者。手番をひとつ増やすのと同じことをする。',
+    req: [styleBoth('elem', 'buff', 14), lv(6)],
+    base: { hp: 128, mp: 82, str: 6, int: 19, vit: 10, agi: 10, luk: 12 },
+    grow: { hp: 10, mp: 5.4, str: 0.8, int: 2.9, vit: 1.4, agi: 1.4, luk: 1.7 },
+    mods: { magPct: 0.18, mp: 30, buffPower: 0.12 },
+    skills: ['summonSprite', 'summonGuardian', 'blessing', 'fireball', 'focus', 'purify']
   });
   def({
     id: 'hexer', name: '呪術師', tier: 2, icon: '🕯',
@@ -512,6 +539,20 @@
   };
   Object.keys(META).forEach(function (k) {
     if (C[k]) { C[k].icon = META[k][0]; C[k].desc = META[k][1]; }
+  });
+
+  def({
+    id: 'myriadKing', name: '万霊統王', tier: 3,
+    from: ['summoner', 'elementalist', 'bard'],
+    desc: '呼ぶのではなく、従える者。盤上に自分の軍を並べ、自分は一歩も動かずに終わらせる。',
+    req: [accStyleDual('buff', 'elem', 60), legendN(1), lv(12)],
+    base: { hp: 185, mp: 135, str: 7, int: 26, vit: 15, agi: 13, luk: 16 },
+    grow: { hp: 14, mp: 8.0, str: 0.8, int: 3.5, vit: 2.0, agi: 1.8, luk: 2.2 },
+    mods: { magPct: 0.34, mp: 70, mpRegen: 8, buffPower: 0.30, buffTurns: 1,
+            'el_fire': 0.18, 'el_thunder': 0.18, 'el_dark': 0.18 },
+    flags: ['encore', 'boonGuard'],
+    skills: ['ult_myriad', 'summonSprite', 'summonGuardian', 'summonWisp',
+             'encoreCall', 'blessing', 'groupHeal']
   });
 
   /* =================== 隠し職業 ===================

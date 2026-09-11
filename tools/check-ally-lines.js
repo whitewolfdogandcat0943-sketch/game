@@ -73,7 +73,7 @@ function styleAxes(conds) {
     if (!d) return;
     if (d.t === 'style') out.push(d.k);
     else if (d.t === 'styleAny') out.push.apply(out, d.ks);
-    else if (d.t === 'styleDual') { out.push(d.a); out.push(d.b); }
+    else if (d.t === 'styleDual' || d.t === 'styleBoth') { out.push(d.a); out.push(d.b); }
     else if (d.t === 'styleHybrid') { out.push('phys'); out.push('mag'); }
   });
   return out;

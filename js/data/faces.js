@@ -40,6 +40,8 @@ G.FACES = (function () {
 
   /* ---------- 主人公の職業別の装い ---------- */
   var CLASS_LOOK = {
+    summoner:       { hue: 285, sat: 38, lum: 48, accent: 55,  prop: 'staff',      robe: true, pauldron: false, hair: 'short' },
+    myriadKing:     { hue: 292, sat: 46, lum: 52, accent: 45,  prop: 'staff',      robe: true, circlet: true, cape: true, capeHue: 292 },
     /* 隠し職業。狼の抜け殻を着ているので、獣寄りの色と毛皮の肩 */
     fenrir:         { hue: 348, sat: 30, lum: 30, accent: 25,  prop: 'sword',      pauldron: true, cape: true, capeHue: 348, build: 'heavy', hair: 'tail' },
     swordsman:      { hue: 214, sat: 34, lum: 44, accent: 45,  prop: 'sword',      pauldron: true },

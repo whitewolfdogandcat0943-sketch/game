@@ -114,6 +114,14 @@ function ai(b) {
   if (heals.length && hurt && hurt.hp / hurt.S.maxHp < 0.45) {
     return { type: 'skill', id: heals[0].id, target: { ally: party.indexOf(hurt) } };
   }
+  /* 召喚は kind:'util' なので、威力で選ぶ流れには乗らない。
+   * 場に出ていないときだけ、先に呼ぶ。呼ばないと召喚職が何もしないことになる。 */
+  const sum = sks.filter(s => s.eff && s.eff.summon)
+    .sort((x, y) => (y.eff.summon.pw || 0) - (x.eff.summon.pw || 0))[0];
+  if (sum) {
+    const out = party.filter(m => m.summon && G.Battle.alive(m)).length;
+    if (out < (sum.eff.summon.cap || 1)) return { type: 'skill', id: sum.id, target: {} };
+  }
   let atks = sks.filter(s => s.kind === 'phys' || s.kind === 'mag');
   if (foes.length >= 3) { const a = atks.filter(s => s.target === 'all'); if (a.length) atks = a; }
   if (u.mp < u.S.maxMp * 0.2) atks = atks.filter(s => (s.mp || 0) === 0);

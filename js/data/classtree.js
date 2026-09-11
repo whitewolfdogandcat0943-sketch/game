@@ -334,6 +334,24 @@
      n('枯らす', '毒と刻印で削り切る', { magPct: 0.22 }, ['spreadStatus', 'statusDamage'], 'soulSeal')]
   ]);
 
+  /* 召喚。呼ぶものを強くするか、長く留めるか。 */
+  tree('summoner', [
+    [n('依代', '呼ぶものが硬くなる', { magPct: 0.15, mp: 25 }),
+     n('触媒', '呼ぶものが強く出る', { magPct: 0.20 })],
+    [n('長縁', '支援の効きと持ちを上げる', { buffPower: 0.20, buffTurns: 1 }),
+     n('速招', '素早く呼び、素早く動く', { spd: 18, mpRegen: 5 })],
+    [n('二重召喚', '雷光も呼べるようになる', { magPct: 0.12 }, null, 'summonWisp'),
+     n('守り手', '呼んだものごと守りを固める', { defPct: 0.20, hpPct: 0.15 }, ['boonGuard'], 'bulwark')]
+  ]);
+  tree('myriadKing', [
+    [n('統率', '呼ぶものの威力を大きく上げる', { magPct: 0.28 }),
+     n('顕現', 'MPと回復を厚くする', { mp: 70, mpRegen: 10 })],
+    [n('加護', '支援の効果量を伸ばす', { buffPower: 0.30 }),
+     n('常駐', '支援が長く残る', { buffTurns: 2 })],
+    [n('万霊', '奥義を撃ちやすくする', { magPct: 0.15, mpRegen: 8 }, null, 'ult_myriad'),
+     n('霊盾', '呼んだものに守られる', { dr: 0.14, hpPct: 0.18 }, ['boonGuard', 'wardAll'], 'sanctuary')]
+  ]);
+
   /* 隠し職業。狼のやり方をどこまで受け入れるか、という枝分かれ。 */
   tree('fenrir', [
     [n('牙', '噛みつきの威力を上げる', { atkPct: 0.25, critDmg: 0.35 }),

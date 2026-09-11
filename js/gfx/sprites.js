@@ -240,6 +240,11 @@ G.Gfx = (function () {
 
   /* ===================== 個体ごとの設定 ===================== */
   var ENEMY_SPEC = {
+    /* --- 召喚体（味方側） --- */
+    sum_sprite:    { arch: 'orb',      hue: 18,  sat: 88, lum: 58, eye: '#fff0c0' },
+    sum_guardian:  { arch: 'golem',    hue: 35,  sat: 22, lum: 48, eye: '#9fe8c0' },
+    sum_wisp:      { arch: 'orb',      hue: 52,  sat: 90, lum: 62, eye: '#fffbd0' },
+    sum_great:     { arch: 'angel',    hue: 288, sat: 52, lum: 60, eye: '#ffe066' },
     /* --- 試練の塔（北欧）--- */
     nm_draugr:     { arch: 'skeleton', hue: 150, sat: 18, lum: 46, eye: '#8cf0b0' },
     nm_ratatosk:   { arch: 'beast',    hue: 28,  sat: 62, lum: 52, eye: '#fff' },
@@ -286,6 +291,8 @@ G.Gfx = (function () {
   };
 
   var CLASS_SPEC = {
+    summoner:       { arch: 'robed',   hue: 285, sat: 40, lum: 50, accent: 55 },
+    myriadKing:     { arch: 'robed',   hue: 292, sat: 50, lum: 56, accent: 45, eye: '#ffe066' },
     fenrir:         { arch: 'beast',   hue: 348, sat: 40, lum: 40, accent: 25, eye: '#ff8c2a' },
     swordsman:      { arch: 'warrior', hue: 210, sat: 35, lum: 52, accent: 45 },
     mage:           { arch: 'robed',   hue: 265, sat: 45, lum: 52, accent: 190 },

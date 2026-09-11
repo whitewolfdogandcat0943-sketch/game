@@ -1,8 +1,8 @@
 {
  "generated_from": "js/data/*.js",
  "counts": {
-  "skills": 177,
-  "classes": 38,
+  "skills": 181,
+  "classes": 40,
   "weapons": 16,
   "armors": 11,
   "accessories": 206,
@@ -13,8 +13,8 @@
   "enemies": 43,
   "tree_branches": 11,
   "tree_nodes": 66,
-  "classtree_classes": 38,
-  "classtree_nodes": 228,
+  "classtree_classes": 40,
+  "classtree_nodes": 240,
   "flags": 59
  }
 }

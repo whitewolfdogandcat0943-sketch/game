@@ -2419,6 +2419,136 @@
    }
   }
  ],
+ "summoner": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "依代",
+    "desc": "呼ぶものが硬くなる",
+    "mods": {
+     "magPct": 0.15,
+     "mp": 25
+    }
+   },
+   "b": {
+    "name": "触媒",
+    "desc": "呼ぶものが強く出る",
+    "mods": {
+     "magPct": 0.2
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "長縁",
+    "desc": "支援の効きと持ちを上げる",
+    "mods": {
+     "buffPower": 0.2,
+     "buffTurns": 1
+    }
+   },
+   "b": {
+    "name": "速招",
+    "desc": "素早く呼び、素早く動く",
+    "mods": {
+     "spd": 18,
+     "mpRegen": 5
+    }
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "二重召喚",
+    "desc": "雷光も呼べるようになる",
+    "mods": {
+     "magPct": 0.12
+    },
+    "skill": "summonWisp"
+   },
+   "b": {
+    "name": "守り手",
+    "desc": "呼んだものごと守りを固める",
+    "mods": {
+     "defPct": 0.2,
+     "hpPct": 0.15
+    },
+    "flags": [
+     "boonGuard"
+    ],
+    "skill": "bulwark"
+   }
+  }
+ ],
+ "myriadKing": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "統率",
+    "desc": "呼ぶものの威力を大きく上げる",
+    "mods": {
+     "magPct": 0.28
+    }
+   },
+   "b": {
+    "name": "顕現",
+    "desc": "MPと回復を厚くする",
+    "mods": {
+     "mp": 70,
+     "mpRegen": 10
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "加護",
+    "desc": "支援の効果量を伸ばす",
+    "mods": {
+     "buffPower": 0.3
+    }
+   },
+   "b": {
+    "name": "常駐",
+    "desc": "支援が長く残る",
+    "mods": {
+     "buffTurns": 2
+    }
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "万霊",
+    "desc": "奥義を撃ちやすくする",
+    "mods": {
+     "magPct": 0.15,
+     "mpRegen": 8
+    },
+    "skill": "ult_myriad"
+   },
+   "b": {
+    "name": "霊盾",
+    "desc": "呼んだものに守られる",
+    "mods": {
+     "dr": 0.14,
+     "hpPct": 0.18
+    },
+    "flags": [
+     "boonGuard",
+     "wardAll"
+    ],
+    "skill": "sanctuary"
+   }
+  }
+ ],
  "fenrir": [
   {
    "tier": 1,
