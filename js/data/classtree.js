@@ -334,6 +334,16 @@
      n('枯らす', '毒と刻印で削り切る', { magPct: 0.22 }, ['spreadStatus', 'statusDamage'], 'soulSeal')]
   ]);
 
+  /* 隠し職業。狼のやり方をどこまで受け入れるか、という枝分かれ。 */
+  tree('fenrir', [
+    [n('牙', '噛みつきの威力を上げる', { atkPct: 0.25, critDmg: 0.35 }),
+     n('脚', '速さと回避を得る', { spd: 30, evade: 0.12 })],
+    [n('飢え', '倒すたびに強くなる', null, ['stackAtkOnKill', 'killHeal']),
+     n('喰らい', '与えた傷から取り返す', { lifesteal: 0.22, hpPct: 0.12 })],
+    [n('縛めなし', '瀕死ほど手がつけられない', null, ['lowHpRage', 'endure'], 'houling'),
+     n('顎', '会心が貫き、二度食い込む', null, ['critPierce', 'doubleStrike'], 'fenrirBite')]
+  ]);
+
   G.CLASSTREE = T;
 
   /* ===================== 習熟の判定 ===================== */

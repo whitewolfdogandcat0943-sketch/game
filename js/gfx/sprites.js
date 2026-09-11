@@ -286,6 +286,7 @@ G.Gfx = (function () {
   };
 
   var CLASS_SPEC = {
+    fenrir:         { arch: 'beast',   hue: 348, sat: 40, lum: 40, accent: 25, eye: '#ff8c2a' },
     swordsman:      { arch: 'warrior', hue: 210, sat: 35, lum: 52, accent: 45 },
     mage:           { arch: 'robed',   hue: 265, sat: 45, lum: 52, accent: 190 },
     rogue:          { arch: 'hooded',  hue: 150, sat: 30, lum: 46, accent: 45 },

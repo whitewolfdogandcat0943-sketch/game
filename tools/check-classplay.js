@@ -136,6 +136,17 @@ function setup(cls) {
   who.equip.acc = who.equip.acc || [];
   accIds.forEach((aid, i) => { G.addAcc(st.hero, aid); who.equip.acc[i] = aid; });
 
+  /* 隠し職業の鍵（着ぐるみなど）は、発見済みにしたうえで身に着ける。
+   * 発見していないと一覧にも出てこないので、装備だけでは判定できない。
+   * 軸を埋めたあとに挿す。先に置くと、上の一括代入で潰れてしまう。 */
+  const key = conds.filter(d => d && d.t === 'wearing')[0];
+  if (key) {
+    if (st.meta.mythics.indexOf(key.id) < 0) st.meta.mythics.push(key.id);
+    G.addAcc(st.hero, key.id);
+    who.equip.acc[0] = key.id;
+    accIds = [key.id].concat(accIds.slice(0, 3));
+  }
+
   return { st, who, accIds };
 }
 

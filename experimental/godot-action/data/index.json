@@ -1,20 +1,20 @@
 {
  "generated_from": "js/data/*.js",
  "counts": {
-  "skills": 174,
-  "classes": 37,
+  "skills": 177,
+  "classes": 38,
   "weapons": 16,
   "armors": 11,
-  "accessories": 205,
+  "accessories": 206,
   "accessories_normal": 100,
   "accessories_legend": 78,
-  "accessories_mythic": 27,
+  "accessories_mythic": 28,
   "items": 31,
   "enemies": 43,
   "tree_branches": 11,
   "tree_nodes": 66,
-  "classtree_classes": 37,
-  "classtree_nodes": 222,
+  "classtree_classes": 38,
+  "classtree_nodes": 228,
   "flags": 59
  }
 }

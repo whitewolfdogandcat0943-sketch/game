@@ -102,11 +102,24 @@ Object.keys(G.ALLIES).forEach(id => {
     if (cls.tier === 2) {
       /* 上級職は戦い方だけで決まるので、ここでは装備を触らない */
     } else {
-      if (conds.some(d => d && d.t === 'rarityCount' && d.r === 'mythic')) {
+      /* 隠し職業の鍵（着ぐるみなど）は、発見済みにしたうえで身に着ける。
+   * 発見していないと一覧にも出てこないので、装備だけでは判定できない。 */
+  const key = conds.filter(d => d && d.t === 'wearing')[0];
+  if (key) {
+    if (st.meta.mythics.indexOf(key.id) < 0) st.meta.mythics.push(key.id);
+    G.addAcc(st.hero, key.id);
+    who.equip.acc[0] = key.id;
+  }
+
+  if (conds.some(d => d && d.t === 'rarityCount' && d.r === 'mythic')) {
         G.MYTHICS.slice(0, 3).forEach((a, i) => { G.addAcc(st.hero, a.id); m.equip.acc[i] = a.id; });
         st.meta.mythics = G.MYTHICS.slice(0, 3).map(a => a.id);
       } else {
-        buildAccs(conds).forEach((aid, i) => { G.addAcc(st.hero, aid); m.equip.acc[i] = aid; });
+        buildAccs(conds).forEach((aid, i) => {
+          const slot = key ? i + 1 : i;
+          if (slot > 3) return;
+          G.addAcc(st.hero, aid); m.equip.acc[slot] = aid;
+        });
       }
     }
 

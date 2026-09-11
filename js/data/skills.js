@@ -120,6 +120,17 @@ G.SKILLS = {};
   S({ id: 'ult_phantomEdge', name: '一閃・無明', mp: 26, kind: 'phys', el: 'phys', power: 300, target: 'one',
       desc: '【奥義】必ず会心する。会心ダメージ+80%、防御を50%無視。',
       eff: { alwaysCrit: true, critBonusDmg: 0.80, defIgnore: 0.5 } });
+  /* 隠し職業〈フェンリル〉の技。着ぐるみを手に入れた者だけが使う。 */
+  S({ id: 'ult_ragnarok', name: '【奥義】顎・ラグナロク', mp: 30, kind: 'phys', el: 'phys', power: 250, target: 'one',
+      hits: 2,
+      desc: '【奥義】喰らいつき、二度噛み砕く。与えたダメージの40%を吸収し、会心なら追撃する。',
+      eff: { drain: 0.40, critBonus: 0.25, critBonusDmg: 0.50, defIgnore: 0.35 } });
+  S({ id: 'fenrirBite', name: '喰らいつき', mp: 9, kind: 'phys', el: 'phys', power: 165, target: 'one',
+      desc: '牙で噛み千切る。与えたダメージの30%を吸収する。',
+      eff: { drain: 0.30 } });
+  S({ id: 'houling', name: '遠吠え', mp: 7, kind: 'buff', target: 'self',
+      desc: '3ターン、攻撃力+45%／素早さ+25%。狼のやり方に戻る。',
+      eff: { buffs: [{ k: 'atkPct', v: 0.45, t: 3 }, { k: 'spd', v: 25, t: 3 }] } });
   S({ id: 'ult_mirrorEnd', name: '万象返し', mp: 28, kind: 'phys', el: 'light', power: 140, target: 'all',
       special: 'reflectScale', desc: '【奥義】反射率に比例した反撃を敵全体へ叩き込む。' });
   S({ id: 'ult_calamity', name: '終焉の渦', mp: 30, kind: 'mag', el: 'wind', power: 265, target: 'all',

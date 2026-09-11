@@ -669,6 +669,58 @@
    "defIgnore": 0.5
   }
  },
+ "ult_ragnarok": {
+  "id": "ult_ragnarok",
+  "name": "【奥義】顎・ラグナロク",
+  "mp": 30,
+  "kind": "phys",
+  "el": "phys",
+  "power": 250,
+  "target": "one",
+  "hits": 2,
+  "desc": "【奥義】喰らいつき、二度噛み砕く。与えたダメージの40%を吸収し、会心なら追撃する。",
+  "eff": {
+   "drain": 0.4,
+   "critBonus": 0.25,
+   "critBonusDmg": 0.5,
+   "defIgnore": 0.35
+  }
+ },
+ "fenrirBite": {
+  "id": "fenrirBite",
+  "name": "喰らいつき",
+  "mp": 9,
+  "kind": "phys",
+  "el": "phys",
+  "power": 165,
+  "target": "one",
+  "desc": "牙で噛み千切る。与えたダメージの30%を吸収する。",
+  "eff": {
+   "drain": 0.3
+  }
+ },
+ "houling": {
+  "id": "houling",
+  "name": "遠吠え",
+  "mp": 7,
+  "kind": "buff",
+  "target": "self",
+  "desc": "3ターン、攻撃力+45%／素早さ+25%。狼のやり方に戻る。",
+  "eff": {
+   "buffs": [
+    {
+     "k": "atkPct",
+     "v": 0.45,
+     "t": 3
+    },
+    {
+     "k": "spd",
+     "v": 25,
+     "t": 3
+    }
+   ]
+  }
+ },
  "ult_mirrorEnd": {
   "id": "ult_mirrorEnd",
   "name": "万象返し",

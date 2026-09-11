@@ -40,6 +40,8 @@ G.FACES = (function () {
 
   /* ---------- 主人公の職業別の装い ---------- */
   var CLASS_LOOK = {
+    /* 隠し職業。狼の抜け殻を着ているので、獣寄りの色と毛皮の肩 */
+    fenrir:         { hue: 348, sat: 30, lum: 30, accent: 25,  prop: 'sword',      pauldron: true, cape: true, capeHue: 348, build: 'heavy', hair: 'tail' },
     swordsman:      { hue: 214, sat: 34, lum: 44, accent: 45,  prop: 'sword',      pauldron: true },
     mage:           { hue: 265, sat: 40, lum: 42, accent: 190, prop: 'staff',      robe: true, pauldron: false, hair: 'short' },
     rogue:          { hue: 190, sat: 26, lum: 30, accent: 150, prop: 'sword',      pauldron: false, cape: true, capeHue: 200 },

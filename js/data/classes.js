@@ -153,7 +153,24 @@
     };
   }
 
+  /* --- 特定のアクセサリを身に着けている（隠し職業の鍵） ---
+   * classes.js は accessories.js より先に読まれるので、
+   * ここで G.ACC_BY_ID は引けない。表示名は呼び出し側から渡す。 */
+  function wearing(accId, accName) {
+    return {
+      label: '〈' + accName + '〉を装備している',
+      d: { t: 'wearing', id: accId },
+      test: function (c) {
+        return (c.hero.equip.acc || []).indexOf(accId) >= 0;
+      },
+      prog: function (c) {
+        return (c.hero.equip.acc || []).indexOf(accId) >= 0 ? '装備中' : '未装備';
+      }
+    };
+  }
+
   G.COND = { style: style, styleAny: styleAny, styleDual: styleDual, styleHybrid: styleHybrid,
+             wearing: wearing,
              accStyle: accStyle, accStyleDual: accStyleDual, accElemPair: accElemPair,
              statusApplied: statusApplied, evades: evades, stat: stat, allElem: allElem, pairElem: pairElem, mythicN: mythicN, legendN: legendN, lv: lv,
              itemsUsed: itemsUsed, kills: kills, reflectKills: reflectKills, critCount: critCount, aoeKills: aoeKills };
@@ -495,6 +512,23 @@
   };
   Object.keys(META).forEach(function (k) {
     if (C[k]) { C[k].icon = META[k][0]; C[k].desc = META[k][1]; }
+  });
+
+  /* =================== 隠し職業 ===================
+   * 解き放たれた狼を倒し、その抜け殻を着た者だけが就ける。
+   * hidden: true の職業は、鍵のミシックを見つけるまで一覧に出てこない。
+   * 「条件を満たせば解放される」職業とは別物で、存在自体が伏せてある。 */
+  def({
+    id: 'fenrir', name: 'フェンリル', tier: 3, hidden: true, key: 'y_fenrirsuit',
+    from: ['berserker', 'assassin', 'windrunner', 'swordsman', 'rogue'],
+    desc: '狼の抜け殻を着た者。着ているつもりが、途中から着られている。' +
+          '縛めを持たないので、加減も持たない。',
+    req: [wearing('y_fenrirsuit', 'フェンリルの着ぐるみ'), lv(20)],
+    base: { hp: 230, mp: 50, str: 26, int: 8, vit: 17, agi: 26, luk: 14 },
+    grow: { hp: 19, mp: 2.6, str: 3.4, int: 0.8, vit: 2.1, agi: 3.4, luk: 1.6 },
+    mods: { atkPct: 0.34, spd: 34, critRate: 0.18, critDmg: 0.60, lifesteal: 0.22, hpPct: 0.15 },
+    flags: ['killHeal', 'stackAtkOnKill', 'critPierce', 'lowHpRage'],
+    skills: ['ult_ragnarok', 'fenrirBite', 'houling', 'shadowStep', 'executioner', 'bloodOffering', 'retaliate']
   });
 
   /* =================== 仲間だけの最上級職 ===================

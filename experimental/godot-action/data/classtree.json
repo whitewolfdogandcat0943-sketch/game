@@ -2418,5 +2418,69 @@
     "skill": "soulSeal"
    }
   }
+ ],
+ "fenrir": [
+  {
+   "tier": 1,
+   "need": 2,
+   "a": {
+    "name": "牙",
+    "desc": "噛みつきの威力を上げる",
+    "mods": {
+     "atkPct": 0.25,
+     "critDmg": 0.35
+    }
+   },
+   "b": {
+    "name": "脚",
+    "desc": "速さと回避を得る",
+    "mods": {
+     "spd": 30,
+     "evade": 0.12
+    }
+   }
+  },
+  {
+   "tier": 2,
+   "need": 5,
+   "a": {
+    "name": "飢え",
+    "desc": "倒すたびに強くなる",
+    "flags": [
+     "stackAtkOnKill",
+     "killHeal"
+    ]
+   },
+   "b": {
+    "name": "喰らい",
+    "desc": "与えた傷から取り返す",
+    "mods": {
+     "lifesteal": 0.22,
+     "hpPct": 0.12
+    }
+   }
+  },
+  {
+   "tier": 3,
+   "need": 9,
+   "a": {
+    "name": "縛めなし",
+    "desc": "瀕死ほど手がつけられない",
+    "flags": [
+     "lowHpRage",
+     "endure"
+    ],
+    "skill": "houling"
+   },
+   "b": {
+    "name": "顎",
+    "desc": "会心が貫き、二度食い込む",
+    "flags": [
+     "critPierce",
+     "doubleStrike"
+    ],
+    "skill": "fenrirBite"
+   }
+  }
  ]
 }

@@ -17,7 +17,8 @@ G.Screens = (function () {
     h += '<div class="panel"><h3>記録</h3><div class="grid g4">' +
       kv('到達最深階層', m.bestFloor + 'F') + kv('挑戦回数', m.runs + '回') +
       kv('発見したミシック', m.mythics.length + ' / ' + G.MYTHICS.length) +
-      kv('到達した職業', m.classesSeen.length + ' / ' + G.CLASS_LIST.filter(function (c) { return c.tier > 1; }).length) +
+      kv('到達した職業', m.classesSeen.length + ' / ' +
+        shownClasses(state).filter(function (c) { return c.tier > 1; }).length) +
       '</div></div>';
     h += '<div class="panel"><h3>このゲームの遊び方</h3>' + helpHtml() + '</div>';
     render(h);
@@ -54,7 +55,7 @@ G.Screens = (function () {
     });
     h += '</div>';
     h += '<div class="panel"><h3>到達しうる最上級職</h3><div class="grid g2">' +
-      G.CLASS_LIST.filter(function (c) { return c.tier === 3; }).map(function (c) {
+      shownClasses(state).filter(function (c) { return c.tier === 3; }).map(function (c) {
         return '<div class="card locked"><div class="classcard-head">' + G.Gfx.classImg(c.id, 3) +
           '<div class="cname r-mythic">' + c.name + '</div></div>' +
           '<div class="cdesc">' + c.desc + '</div></div>';
@@ -150,7 +151,8 @@ G.Screens = (function () {
     h += '<div class="panel"><h3>記録</h3><div class="grid g4">' +
       kv('到達最深階層', m.bestFloor + 'F') + kv('挑戦回数', m.runs + '回') +
       kv('発見したミシック', m.mythics.length + ' / ' + G.MYTHICS.length) +
-      kv('到達した職業', m.classesSeen.length + ' / ' + G.CLASS_LIST.filter(function (c) { return c.tier > 1; }).length) +
+      kv('到達した職業', m.classesSeen.length + ' / ' +
+        shownClasses(state).filter(function (c) { return c.tier > 1; }).length) +
       '</div></div>';
     h += '<div class="panel"><h3>このゲームの遊び方</h3>' + helpHtml() + '</div>';
     render(h);
@@ -1087,6 +1089,13 @@ G.Screens = (function () {
       ' <span class="tag">' + n.cost + 'SP</span></div>' + body + '</div>';
   }
 
+  /* 一覧に出してよい職業。隠し職業は、鍵のミシックを見つけるまで
+   * 名前も数も伏せる（見つければ図鑑にも祭壇にも並ぶ）。
+   * 取得条件は、ミシックの側が図鑑で提示してくれる。 */
+  function shownClasses(state) {
+    return G.CLASS_LIST.filter(function (c) { return G.Unlock.hiddenOpen(state, c); });
+  }
+
   /* ===================== 図鑑 ===================== */
   function codex(state) {
     var meta = state.meta;
@@ -1135,7 +1144,7 @@ G.Screens = (function () {
 
     h += '<div class="sep"></div><h3 class="r-legend">職業ツリー</h3><div class="grid g2">';
     [1, 2, 3].forEach(function (t) {
-      G.CLASS_LIST.filter(function (c) { return c.tier === t; }).forEach(function (c) {
+      shownClasses(state).filter(function (c) { return c.tier === t; }).forEach(function (c) {
         var seen = t === 1 || meta.classesSeen.indexOf(c.id) >= 0;
         h += '<div class="card ' + (seen ? '' : 'locked') + ' ' + (t === 3 ? 'bd-mythic' : t === 2 ? 'bd-legend' : '') + '">' +
           '<div class="classcard-head">' + G.Gfx.classImg(c.id, 3, seen ? '' : 'dim') +

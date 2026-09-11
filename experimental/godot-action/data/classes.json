@@ -2075,6 +2075,78 @@
   "icon": "⚔",
   "desc": "剣と魔、二つの極を一振りに束ねた皇。どちらの数値も捨てない。"
  },
+ "fenrir": {
+  "id": "fenrir",
+  "name": "フェンリル",
+  "tier": 3,
+  "hidden": true,
+  "key": "y_fenrirsuit",
+  "from": [
+   "berserker",
+   "assassin",
+   "windrunner",
+   "swordsman",
+   "rogue"
+  ],
+  "desc": "狼の抜け殻を着た者。着ているつもりが、途中から着られている。縛めを持たないので、加減も持たない。",
+  "req": [
+   {
+    "label": "〈フェンリルの着ぐるみ〉を装備している",
+    "d": {
+     "t": "wearing",
+     "id": "y_fenrirsuit"
+    }
+   },
+   {
+    "label": "レベル 20 以上",
+    "d": {
+     "t": "level",
+     "v": 20
+    }
+   }
+  ],
+  "base": {
+   "hp": 230,
+   "mp": 50,
+   "str": 26,
+   "int": 8,
+   "vit": 17,
+   "agi": 26,
+   "luk": 14
+  },
+  "grow": {
+   "hp": 19,
+   "mp": 2.6,
+   "str": 3.4,
+   "int": 0.8,
+   "vit": 2.1,
+   "agi": 3.4,
+   "luk": 1.6
+  },
+  "mods": {
+   "atkPct": 0.34,
+   "spd": 34,
+   "critRate": 0.18,
+   "critDmg": 0.6,
+   "lifesteal": 0.22,
+   "hpPct": 0.15
+  },
+  "flags": [
+   "killHeal",
+   "stackAtkOnKill",
+   "critPierce",
+   "lowHpRage"
+  ],
+  "skills": [
+   "ult_ragnarok",
+   "fenrirBite",
+   "houling",
+   "shadowStep",
+   "executioner",
+   "bloodOffering",
+   "retaliate"
+  ]
+ },
  "dawnMother": {
   "id": "dawnMother",
   "name": "暁光聖母",

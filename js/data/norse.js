@@ -290,6 +290,26 @@
       mods: { debuffPower: 0.50, debuffTurns: 1 },
       desc: '猫の足音で編んだ紐の、余ったところ。' });
 
+  /* =============== 隠しのミシック =============== */
+
+  /* 解き放たれた本体を倒した者だけが持ち帰るもの。
+   * 「毛皮を剥いだ」ではなく「着られるようになった」ところが肝で、
+   * これを着ると隠しの職業〈フェンリル〉に就ける（classes.js の fenrir）。 */
+  A.push({
+    id: 'y_fenrirsuit', name: 'フェンリルの着ぐるみ', tier: 4, price: 0,
+    rarity: 'mythic', slot: 'acc', kind: 'acc', realm: 'norse',
+    mods: { atkPct: 0.30, spd: 40, critRate: 0.20, critDmg: 0.50, lifesteal: 0.20, hpPct: 0.20 },
+    flags: ['killHeal', 'stackAtkOnKill'],
+    desc: '解き放たれた狼の、抜け殻。中はまだ温かい。' +
+          '袖を通すと、自分の歯が尖っていくのが分かる。',
+    cond: { when: 'battleEnd', code: 'slay_fenrir',
+            label: '解き放たれたフェンリル（塔30階）を倒す',
+            hint: '25階を越えて深淵へ。30階で待っているのは封印体ではない',
+            test: function (c) {
+              return !!(c.b && (c.b.bossIds || []).indexOf('nb_fenrir_true') >= 0);
+            } }
+  });
+
   /* --- 索引を組み直す --- */
   G.ENEMY_BY_ID = {};
   E.forEach(function (x) { G.ENEMY_BY_ID[x.id] = x; });

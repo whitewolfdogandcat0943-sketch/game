@@ -47,12 +47,22 @@ G.Unlock = (function () {
       .map(function (c) { return c.id; });
   }
 
+  /* 隠し職業が見えてよいか。
+   * 鍵のミシックを「発見」するまでは、存在そのものを伏せる。
+   * 条件を満たせば解放される職業（一覧には最初から並ぶ）とは別あつかい。 */
+  function hiddenOpen(state, cls) {
+    if (!cls || !cls.hidden) return true;
+    if (!cls.key) return true;
+    return (state.meta.mythics || []).indexOf(cls.key) >= 0;
+  }
+
   /** 転職可能な職業一覧 */
   function availableClasses(state, member) {
     var who = member || state.hero;
     var c = ctx(state, null, who);
     var line = classLine(who);
-    return G.CLASS_LIST.filter(function (cl) { return line.indexOf(cl.id) >= 0; })
+    return G.CLASS_LIST
+      .filter(function (cl) { return line.indexOf(cl.id) >= 0 && hiddenOpen(state, cl); })
       .map(function (cl) { return classCheck(cl.id, c); });
   }
 
@@ -77,5 +87,6 @@ G.Unlock = (function () {
   }
 
   return { ctx: ctx, classCheck: classCheck, availableClasses: availableClasses,
-           classLine: classLine, checkMythics: checkMythics, mythicStatus: mythicStatus };
+           classLine: classLine, hiddenOpen: hiddenOpen,
+           checkMythics: checkMythics, mythicStatus: mythicStatus };
 })();

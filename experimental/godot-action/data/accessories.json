@@ -3440,5 +3440,34 @@
   "slot": "acc",
   "kind": "acc",
   "realm": "norse"
+ },
+ {
+  "id": "y_fenrirsuit",
+  "name": "フェンリルの着ぐるみ",
+  "tier": 4,
+  "price": 0,
+  "rarity": "mythic",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse",
+  "mods": {
+   "atkPct": 0.3,
+   "spd": 40,
+   "critRate": 0.2,
+   "critDmg": 0.5,
+   "lifesteal": 0.2,
+   "hpPct": 0.2
+  },
+  "flags": [
+   "killHeal",
+   "stackAtkOnKill"
+  ],
+  "desc": "解き放たれた狼の、抜け殻。中はまだ温かい。袖を通すと、自分の歯が尖っていくのが分かる。",
+  "cond": {
+   "when": "battleEnd",
+   "code": "slay_fenrir",
+   "label": "解き放たれたフェンリル（塔30階）を倒す",
+   "hint": "25階を越えて深淵へ。30階で待っているのは封印体ではない"
+  }
  }
 ]

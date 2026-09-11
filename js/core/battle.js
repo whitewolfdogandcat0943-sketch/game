@@ -139,7 +139,11 @@ G.Battle = (function () {
         mpSpent: 0, skillsUsed: {}, skillKinds: 0, onlyBasic: true, statusPeak: 0,
         boonsCast: 0, hexesCast: 0, hexPeak: 0, rotKills: 0,
         barrierAbsorbed: 0, evadeStreak: 0, evadeStreakMax: 0, healed: 0,
-        weakKills: 0, maxHitDamage: 0, firstHitDone: false
+        weakKills: 0, maxHitDamage: 0, firstHitDone: false,
+        /* 誰と戦ったか。「あの相手を倒した」を条件にできるようにする */
+        foeIds: enemyUnits.map(function (e) { return e.ref.id; }),
+        bossIds: enemyUnits.filter(function (e) { return e.isBoss; })
+          .map(function (e) { return e.ref.id; })
       }
     };
     b.units.forEach(function (u, i) { u.idx = i; });
