@@ -375,8 +375,7 @@ G.Screens = (function () {
     h += errandPanel(state, t);
     /* 章の主を倒したあとは、同じ人が違うことを言う。
      * 町の台詞が最後まで同じだと、こちらが何をしても世界は動いていないことになる。 */
-    var ch = G.Story.chapter(state);
-    var moved = !!(ch && state.story.cleared[ch.goal] && t.talksAfter);
+    var moved = !!(t.talksAfter && G.Story.placeMoved(state, t.id));
     h += '<div class="panel"><h3>街の声</h3>' +
       (moved ? t.talksAfter : (t.talks || [])).map(function (x) {
         return '<p class="line"><b class="who">' + U.esc(x.who) + '</b><span class="say">' +

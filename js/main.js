@@ -6,6 +6,7 @@
     hero: null, run: null, party: null, meta: G.Save.loadMeta(), battle: null,
     screen: 'title', targetIdx: 0, allyIdx: 0, battleTab: 'skill', buildIdx: 0,
     mode: 'tower', story: null, scene: null, diff: 'normal', field: null,
+    worldAt: null, fieldBattle: false,
     nodeKind: null, rewardData: null, currentEvent: null
   };
   G.state = state;
@@ -14,11 +15,23 @@
 
   /* ===================== 画面遷移 ===================== */
   function go(screen) {
+    /* 「地上」は行き先の一覧ではなく、歩ける大陸になった。
+     * 既存の go('world') を全部書き換えるより、ここで受けたほうが穴が無い。 */
+    if (screen === 'world' && state.mode === 'story' && G.MAPS && G.MAPS.world) {
+      ensureWorldField(); screen = 'field';
+    }
     /* 歩く画面は毎フレーム動いているので、離れるときは必ず止める。
      * 止め忘れると、戦闘中も裏で町の人が歩き続けることになる。 */
     if (state.screen === 'field' && screen !== 'field' && G.FieldView) G.FieldView.stop();
     state.screen = screen;
     draw();
+  }
+
+  /** 大陸へ戻る。前に立っていた場所から続ける。 */
+  function ensureWorldField() {
+    if (state.story) state.story.place = null;
+    if (state.field && state.field.map === 'world') return;
+    G.Field.enter(state, 'world', state.worldAt || null);
   }
 
   function draw() {
@@ -112,19 +125,90 @@
   /** 歩く画面を開く（描画と入力は FieldView が持つ） */
   function openField() {
     if (!state.field) { go('world'); return; }
+    /* 章の目標が済んでいたら、大陸に足を着けた時点で章末の話に入る。
+     * 「次の章へ」というボタンが世界のどこにも無いので、ここで拾う。
+     * 順番どおりでなく先に遠くを片づけていた場合も、ここで追いつく。 */
+    if (state.field.map === 'world' && state.mode === 'story' && state.story &&
+        !state.story.done && state.story.phase !== 'open' && G.Story.chapterDone(state)) {
+      chapterNext(); return;
+    }
     G.FieldView.open(state, { act: fieldTalk, step: fieldStep });
   }
 
-  /** 一歩ごとに呼ばれる。出口を踏んだら外へ。 */
+  /** 一歩ごとに呼ばれる。踏んだ先で何が起きるかはここで決まる。 */
   function fieldStep(what) {
-    if (what === 'exit') {
-      /* 第一段階では、町の外は従来の行き先一覧。
-       * 地続きのフィールドに差し替えるのは次の段階。 */
-      G.Field.leave(state);
-      state.story.place = null;
-      G.Save.saveRun(state);
-      go('world');
+    var f = state.field;
+    if (what === 'gate') {
+      /* 関所。通れない理由を、門番の口から言わせる。 */
+      var g = f.blockedBy;
+      f.blockedBy = null;
+      if (g) playScene([{ w: g.who || '', t: g.shut }], {
+        title: '', endLabel: '引き返す', then: function () { state.scene = null; go('field'); }
+      });
+      return;
     }
+    if (what === 'exit') { leaveMap(); return; }
+    if (what === 'warp') { enterWarp(f.pendingWarp); f.pendingWarp = null; return; }
+    if (what !== 'move') return;
+    /* 歩いていると敵が出る。どれだけ出るかは、踏んでいる地面で変わる。 */
+    var enc = G.Field.rollEncounter(state);
+    if (enc) {
+      G.FieldView.stop();
+      state.nodeKind = 'battle';
+      state.fieldBattle = true;
+      state.targetIdx = 0; state.allyIdx = 0; state.battleTab = 'skill';
+      state.battle = G.Battle.start(state, enc.units, { isBoss: false });
+      G.Save.saveRun(state);
+      go('battle');
+      return;
+    }
+    /* 地帯をまたいだら一言。橋を渡った手応えは、ここで伝える。 */
+    var m = G.Field.current(state);
+    var z = G.Field.zoneAt(m, f.x, f.y);
+    if (z && f.zone !== z.id) {
+      var first = !state.story.flags['zone_' + z.id];
+      f.zone = z.id;
+      if (first) {
+        state.story.flags['zone_' + z.id] = true;
+        UI.toast('🗺 <b>' + z.name + '</b><br><span class="tiny">' + z.word + '</span>', 'legend');
+        G.Save.saveRun(state);
+      }
+    }
+  }
+
+  /** 町やダンジョンの出口を踏んだ。大陸のもと居た場所へ戻す。 */
+  function leaveMap() {
+    G.Field.leave(state);
+    if (state.story) state.story.place = null;
+    G.Save.saveRun(state);
+    go('world');
+  }
+
+  /** 大陸の目印を踏んだ。町なら中へ、ダンジョンなら潜る。 */
+  function enterWarp(w) {
+    if (!w) return;
+    var f = state.field;
+    /* 戻ってくる場所を覚えておく。目印の上に戻すと、その場でまた入ってしまう。 */
+    state.worldAt = { x: (f.prev ? f.prev.x : f.x), y: (f.prev ? f.prev.y : f.y), dir: f.dir };
+
+    if (w.to === 'tower') { towerFromStory(); return; }
+    var mp = G.MAPS[w.to];
+    if (mp && mp.kind === 'town') {
+      state.story.place = mp.place;
+      state.story.dungeon = null;
+      G.Field.enter(state, mp.id);
+      G.Save.saveRun(state);
+      go('field');
+      return;
+    }
+    /* ダンジョン。踏破済みなら残響。 */
+    var pl = G.Story.place(w.to);
+    if (!pl) { go('field'); return; }
+    G.Field.leave(state);
+    state.story.place = w.to;
+    G.Story.enterDungeon(state, w.to, !!state.story.cleared[w.to]);
+    G.Save.saveRun(state);
+    go('dungeon');
   }
 
   /** 目の前の相手に話しかける。台詞を読み終えてから、その人の用件へ進む。 */
@@ -242,17 +326,8 @@
     G.Story.leaveDungeon(state);
     var isGoal = (G.Story.chapter(state) || {}).goal === d.id;
     playScene(d.clear || [], { title: d.name, endLabel: '地上へ戻る', then: function () {
-      if (isGoal && G.Story.chapter(state).id === G.STORY.CHAPTERS[G.STORY.CHAPTERS.length - 1].id) {
-        /* 最終章のクリア。エンディングまで一気に流す。 */
-        chapterNext();
-        return;
-      }
-      if (isGoal) {
-        /* 仲間は「ついていく」と言った場面で加わる。
-         * 章を跨ぐ前に加入させることで、その章の町で旅の話が聞ける。 */
-        var joined = G.Story.joinForChapter(state);
-        if (joined) UI.toast('🤝 <b>' + joined.name + '</b>（' + joined.role + '）が仲間になった！', 'class');
-      }
+      /* 章末の話は、大陸に戻ったところで openField が拾う。
+       * ここで直接呼ぶと、ダンジョンの出口に立つ前に次章が始まってしまう。 */
       G.Save.saveRun(state);
       go('world');
     } });
@@ -260,6 +335,7 @@
 
   /** 物語モードの全滅。所持金の半分を失い、章の町から立て直す。 */
   function storyRecover() {
+    state.fieldBattle = false;
     /* 誰かが宿まで運んでくれた、という体。全快で立て直せる。 */
     G.Run.healParty(state, 1);
     G.Story.leaveDungeon(state);
@@ -363,6 +439,13 @@
     if (b.result === 'flee') {
       state.battle = null;
       state.rewardData = null;
+      if (state.fieldBattle) {
+        state.fieldBattle = false;
+        UI.toast('🏃 その場を離れた。');
+        G.Save.saveRun(state);
+        go('field');
+        return;
+      }
       if (state.mode === 'story' && state.story && state.story.dungeon) {
         /* 逃げると、そのダンジョンは入口からやり直しになる */
         G.Story.enterDungeon(state, state.story.dungeon.id);
@@ -431,6 +514,14 @@
 
   /** 報酬確認後 → 次の階層へ */
   function afterReward() {
+    /* 野外で出た敵。ダンジョンの進行には関わらないので、大陸へそのまま戻す。 */
+    if (state.fieldBattle) {
+      state.fieldBattle = false;
+      state.nodeKind = null;
+      G.Save.saveRun(state);
+      go('field');
+      return;
+    }
     if (state.mode === 'story') { storyAfterBattle(); return; }
     if (state.nodeKind === 'boss') {
       UI.toast('👑 階層の主を撃破した！', 'legend');
@@ -574,6 +665,8 @@
         state.mode = d.mode || 'tower';
         state.story = d.story || null;
         state.field = d.field || null;
+        state.worldAt = d.worldAt || null;
+        state.fieldBattle = false;
         state.diff = G.Diff.set(d.diff || state.meta.diff || 'normal').id;
         if (!state.run.stats) state.run.stats = {};
         ['kills', 'crits', 'itemsUsed', 'reflectKills', 'aoeKills', 'elites', 'bosses', 'classChanges',
@@ -601,7 +694,8 @@
       }
       case 'toTitle':
         state.hero = null; state.run = null; state.party = null; state.battle = null;
-        state.story = null; state.scene = null; state.mode = 'tower'; state.field = null;
+        state.story = null; state.scene = null; state.mode = 'tower';
+        state.field = null; state.worldAt = null; state.fieldBattle = false;
         go('title'); break;
       case 'start': {
         var nameEl = document.getElementById('heroName');
@@ -893,4 +987,9 @@
   G.Portraits.preload(function (n) {
     if (n > 0) draw();
   });
+
+  /* 画面を経由せずに、実際の処理を叩ける口。
+   * 検証ツールがボタンを探して押す代わりに、本物の関数をそのまま通せる。
+   * 「テスト用の別経路」を作らずに済むので、テストと本番がずれない。 */
+  G.Game = { act: act, go: go, step: fieldStep, talk: fieldTalk, draw: draw };
 })();

@@ -80,6 +80,13 @@ G.FieldView = (function () {
       ctx.drawImage(d.cv, Math.round((d.x - cx) * TS), Math.round((d.y - cy) * TS), TS, TS);
     });
 
+    /* 見出しの土地名。歩いて土地が変われば、ここも変わる。 */
+    if (m.zones) {
+      var zn = G.Field.zoneAt(m, f.x, f.y);
+      var el = document.getElementById('zoneTag');
+      if (el && zn && el.textContent !== zn.name) el.textContent = zn.name;
+    }
+
     /* 話しかけられる相手が居るときだけ、足元に印を出す。
      * 「調べる」を連打して回るのは、探検ではなく作業になる。 */
     var n2 = peek(state);
@@ -118,8 +125,8 @@ G.FieldView = (function () {
         var dir = held.up ? 'up' : held.down ? 'down' : held.left ? 'left' : held.right ? 'right' : null;
         if (dir) {
           var r = G.Field.step(state, dir);
-          if (r && r !== 'blocked' && r !== 'move' && onStep) onStep(r);
-          else if (r === 'move' && onStep) onStep('move');
+          /* 壁にぶつかっただけなら何も起きない。それ以外は呼び出し側が決める。 */
+          if (r && r !== 'blocked' && onStep) onStep(r);
         }
       }
       G.Field.tick(state, dt);
@@ -139,8 +146,11 @@ G.FieldView = (function () {
     stop();
 
     var m = G.Field.current(state);
+    /* 今どの土地に居るか。橋を渡ったことが、名前でも分かるようにする。 */
+    var z = m && m.zones ? G.Field.zoneAt(m, state.field.x, state.field.y) : null;
     var h = '<div class="fieldwrap">' +
-      '<div class="fieldtitle">' + (m ? U.esc(m.name) : '') + '</div>' +
+      '<div class="fieldtitle">' + (m ? U.esc(m.name) : '') +
+      (z ? ' <span class="zonetag" id="zoneTag">' + U.esc(z.name) + '</span>' : '') + '</div>' +
       '<canvas id="fieldCv" width="' + (VW * TS) + '" height="' + (VH * TS) + '"></canvas>' +
       '<div class="fieldpad">' +
         '<div class="dpad">' +

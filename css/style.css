@@ -363,3 +363,4 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
   .pad.left{left:0;top:36px} .pad.right{left:72px;top:36px}
   .fieldhelp{display:none}
 }
+.zonetag{color:var(--dim);font-size:11px;letter-spacing:.1em;margin-left:8px}

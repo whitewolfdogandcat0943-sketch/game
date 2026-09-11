@@ -8,16 +8,11 @@
  */
 const { load } = require('./load-data.js');
 
-/* tiles.js は canvas を使うので読み込めない。通行判定だけ写して持つ。 */
-const SOLID = {
-  mountain: 1, water: 1, wall: 1, roof: 1, tree: 1, rock: 1, counter: 1,
-  table: 1, bed: 1, shelf: 1, pot: 1, barrel: 1, sign: 1, fountain: 1,
-  chest: 1, chestOpen: 1, torch: 1, pillar: 1, altarTile: 1, voidTile: 1,
-  townIcon: 1, castleIcon: 1, caveIcon: 1, shrineIcon: 1, towerIcon: 1
-};
+/* 通行判定の表はデータ側（G.TILE_SOLID）にある。写しは作らない。 */
 
 function main() {
   const G = load();
+  const SOLID = G.TILE_SOLID;
   const bad = [], warn = [];
   const L = G.MAP_LEGEND;
 
@@ -37,7 +32,7 @@ function main() {
     const pass = (x, y) => !SOLID[kind(x, y)];
 
     /* --- 出入口から歩ける範囲 --- */
-    const starts = [m.start, ...(m.exits || [])].filter(Boolean);
+    const starts = [m.start, ...(m.exits || []), ...(m.warps || [])].filter(Boolean);
     if (!starts.length) { bad.push(`${tag}: 出入口も開始位置も無い`); return; }
     starts.forEach(s => { if (!pass(s.x, s.y)) bad.push(`${tag}: 出入口(${s.x},${s.y})が通れないタイル(${kind(s.x, s.y)})`); });
 
@@ -86,7 +81,7 @@ function main() {
 
     /* --- 参照先 --- */
     const place = G.STORY.PLACE_BY_ID[m.place];
-    if (!place) bad.push(`${tag}: 物語の場所 ${m.place} が無い`);
+    if (m.kind === 'town' && !place) bad.push(`${tag}: 物語の場所 ${m.place} が無い`);
     (m.npcs || []).forEach(n => {
       if (n.src === 'talk') {
         if (!place) return;
@@ -112,7 +107,60 @@ function main() {
       if (placed < qs) warn.push(`${tag}: 頼まれごと ${qs} 件のうち ${placed} 件しか人が居ない`);
     }
 
-    console.log(`${m.name.padEnd(10, '　')} ${w}×${h}  歩ける ${seen.size} マス ／ 扉 ${doors}（塞がり ${shut}）／ 人物 ${(m.npcs || []).length}`);
+    /* --- フィールド固有: 行き先・地帯・関所 --- */
+    let zinfo = '';
+    if (m.kind === 'world') {
+      (m.warps || []).forEach(wp => {
+        if (!seen.has(wp.y * w + wp.x)) bad.push(`${tag}: 行き先(${wp.x},${wp.y})→${wp.to} に辿り着けない`);
+        const isMap = !!G.MAPS[wp.to], isPlace = !!G.STORY.PLACE_BY_ID[wp.to];
+        if (!isMap && !isPlace && wp.to !== 'tower') bad.push(`${tag}: 行き先 ${wp.to} が無い`);
+      });
+      /* すべての町とダンジョンが大陸に置かれているか */
+      const on = new Set((m.warps || []).map(wp => wp.to));
+      G.STORY.CHAPTERS.forEach(c => c.places.forEach(pl => {
+        if (!on.has(pl.id)) bad.push(`${tag}: ${pl.name}(${pl.id}) が大陸に置かれていない`);
+      }));
+
+      /* 地帯。橋を壁として塗り、重なりと取りこぼしを見る */
+      const zone = {}, sizes = {};
+      (m.zones || []).forEach(z => {
+        const sx = z.seed.x, sy = z.seed.y, k0 = sy * w + sx;
+        if (!pass(sx, sy)) { bad.push(`${tag}: ${z.name} の種が通れない`); return; }
+        if (zone[k0]) { bad.push(`${tag}: ${z.name} の種が ${zone[k0]} と同じまとまりにある（川が繋がっている）`); return; }
+        const qq = [[sx, sy]]; zone[k0] = z.id; sizes[z.id] = 1;
+        while (qq.length) {
+          const [x, y] = qq.shift();
+          for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const nx = x + dx, ny = y + dy, k = ny * w + nx;
+            if (nx < 0 || ny < 0 || nx >= w || ny >= h || zone[k]) continue;
+            if (kind(nx, ny) === 'bridge' || !pass(nx, ny)) continue;
+            zone[k] = z.id; sizes[z.id]++; qq.push([nx, ny]);
+          }
+        }
+      });
+      let orphan = 0;
+      seen.forEach(k => { if (!zone[k] && kind(k % w, Math.floor(k / w)) !== 'bridge') orphan++; });
+      if (orphan) warn.push(`${tag}: どの地帯にも属さない陸が ${orphan} マス`);
+      /* 段が上がっていく並びになっているか */
+      const lvs = (m.zones || []).map(z => z.lv);
+      for (let i = 1; i < lvs.length; i++) {
+        if (lvs[i] <= lvs[i - 1]) warn.push(`${tag}: ${m.zones[i].name} の格(${lvs[i]})が手前より高くない`);
+      }
+      (m.zones || []).forEach(z => {
+        (z.pool || []).forEach(id => { if (!G.ENEMY_BY_ID[id]) bad.push(`${tag}: ${z.name} の敵 ${id} が無い`); });
+        if (!z.pool || !z.pool.length) bad.push(`${tag}: ${z.name} に敵が居ない`);
+      });
+      zinfo = ' ／ 地帯 ' + (m.zones || []).map(z => z.name + 'Lv' + z.lv + '(' + (sizes[z.id] || 0) + ')').join('・');
+
+      /* 関所 */
+      (m.gates || []).forEach(g => {
+        if (kind(g.x, g.y) !== 'bridge') bad.push(`${tag}: 関所(${g.x},${g.y})が橋の上にない`);
+        if (g.need && !G.STORY.PLACE_BY_ID[g.need]) bad.push(`${tag}: 関所の条件 ${g.need} が無い`);
+        if (!g.shut) bad.push(`${tag}: 関所(${g.x},${g.y})に断り文句が無い`);
+      });
+    }
+
+    console.log(`${m.name.padEnd(10, '　')} ${w}×${h}  歩ける ${seen.size} マス ／ 扉 ${doors}（塞がり ${shut}）／ 人物 ${(m.npcs || []).length}${zinfo}`);
   });
 
   console.log('');

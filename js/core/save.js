@@ -41,7 +41,7 @@ G.Save = (function () {
     var data = { hero: state.hero, run: state.run, allies: allies,
                  mode: state.mode || 'tower', story: state.story || null,
                  /* 町のどこに立っていたか。次に開いたとき、同じ場所から続ける。 */
-                 field: state.field || null,
+                 field: state.field || null, worldAt: state.worldAt || null,
                  diff: state.diff || 'normal' };
     safeSet(RUN_KEY, JSON.stringify(data));
   }
@@ -128,7 +128,7 @@ G.Save = (function () {
             });
           });
         }
-      } else { d.story = null; d.field = null; }
+      } else { d.story = null; d.field = null; d.worldAt = null; }
       return d;
     } catch (e) { return null; }
   }

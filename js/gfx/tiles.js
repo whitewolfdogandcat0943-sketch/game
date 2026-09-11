@@ -328,12 +328,10 @@ G.Tiles = (function () {
   };
 
   /* 通れるか。ここに無いものは通れる扱い。 */
-  var SOLID = {
-    mountain: 1, water: 1, wall: 1, roof: 1, tree: 1, rock: 1, counter: 1,
-    table: 1, bed: 1, shelf: 1, pot: 1, barrel: 1, sign: 1, fountain: 1,
-    chest: 1, chestOpen: 1, torch: 1, pillar: 1, altarTile: 1, voidTile: 1,
-    townIcon: 1, castleIcon: 1, caveIcon: 1, shrineIcon: 1, towerIcon: 1, forest: 0
-  };
+  /* 通れるかどうかの表は maps.js（G.TILE_SOLID）が持つ。
+   * 描画は canvas が要るので検証ツールから読めない。表をこちらに置くと、
+   * 検証側に写しを作ることになり、必ずどちらかが古くなる。 */
+  var SOLID = G.TILE_SOLID || {};
 
   /** そのタイルを踏めるか */
   function passable(kind) { return !SOLID[kind]; }

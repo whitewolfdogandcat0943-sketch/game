@@ -17,6 +17,21 @@ G.Story = (function () {
     return G.STORY.CHAPTERS.filter(function (c) { return c.id === state.story.ch; })[0];
   }
 
+  /** その場所が属する章。地続きの世界では「今の章」と一致しないことがある。 */
+  function chapterOf(placeId) {
+    return G.STORY.CHAPTERS.filter(function (c) {
+      return c.places.some(function (p) { return p.id === placeId; });
+    })[0] || null;
+  }
+
+  /** その町の「その後」が始まっているか。
+   *  今いる章ではなく、その町が属する章の主を倒したかで決める。
+   *  先に遠くの土地を片づけて戻ってきても、町の反応が巻き戻らない。 */
+  function placeMoved(state, placeId) {
+    var c = chapterOf(placeId);
+    return !!(c && state.story && state.story.cleared && state.story.cleared[c.goal]);
+  }
+
   /** 話者名などに含まれる {hero} を主人公の名前に差し替える */
   function fill(text, state) {
     return String(text).replace(/\{hero\}/g, state.hero ? state.hero.name : '主人公');
@@ -496,7 +511,8 @@ G.Story = (function () {
   }
 
   return {
-    begin: begin, chapter: chapter, places: places, place: place, placeOpen: placeOpen,
+    begin: begin, chapter: chapter, chapterOf: chapterOf, placeMoved: placeMoved,
+    places: places, place: place, placeOpen: placeOpen,
     fill: fill, fillLines: fillLines,
     enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
     paths: paths, curPath: curPath, takePath: takePath,
