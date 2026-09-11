@@ -707,5 +707,518 @@
     "say": "——もう、写すものがない。"
    }
   ]
+ },
+ {
+  "id": "nm_draugr",
+  "name": "ドラウグル",
+  "icon": "🧟",
+  "tier": 1,
+  "hp": 54,
+  "atk": 17,
+  "mag": 5,
+  "def": 11,
+  "res": 5,
+  "spd": 9,
+  "exp": 10,
+  "gold": 11,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark"
+  ],
+  "skills": [
+   "e_bite",
+   "e_claw"
+  ],
+  "desc": "塚に眠るはずの屍が、剣を持ったまま起き上がったもの。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_ratatosk",
+  "name": "ラタトスク",
+  "icon": "🐿",
+  "tier": 1,
+  "hp": 30,
+  "atk": 12,
+  "mag": 9,
+  "def": 4,
+  "res": 8,
+  "spd": 24,
+  "exp": 9,
+  "gold": 12,
+  "weak": [
+   "wind"
+  ],
+  "resist": [],
+  "skills": [
+   "e_bite"
+  ],
+  "desc": "世界樹を駆け上がり、悪口を運ぶ栗鼠。速い。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_hresvelgr",
+  "name": "フレースヴェルグの雛",
+  "icon": "🦅",
+  "tier": 1,
+  "hp": 40,
+  "atk": 14,
+  "mag": 11,
+  "def": 6,
+  "res": 9,
+  "spd": 19,
+  "exp": 10,
+  "gold": 10,
+  "weak": [
+   "thunder"
+  ],
+  "resist": [
+   "wind"
+  ],
+  "skills": [
+   "e_gust",
+   "e_claw"
+  ],
+  "desc": "羽ばたきが北風になるという鷲の、まだ小さいもの。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_hrimthurs",
+  "name": "フリムスルス",
+  "icon": "🧊",
+  "tier": 2,
+  "hp": 150,
+  "atk": 31,
+  "mag": 14,
+  "def": 26,
+  "res": 14,
+  "spd": 10,
+  "exp": 26,
+  "gold": 30,
+  "weak": [
+   "fire"
+  ],
+  "resist": [
+   "ice"
+  ],
+  "skills": [
+   "e_slam",
+   "e_frost"
+  ],
+  "desc": "霜から生まれた者。触れたものから順に白く曇る。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_einherjar",
+  "name": "エインヘリャル",
+  "icon": "⚔",
+  "tier": 2,
+  "hp": 124,
+  "atk": 34,
+  "mag": 10,
+  "def": 24,
+  "res": 16,
+  "spd": 18,
+  "exp": 28,
+  "gold": 34,
+  "weak": [],
+  "resist": [
+   "phys"
+  ],
+  "skills": [
+   "e_claw",
+   "e_roar"
+  ],
+  "desc": "戦って死に、また戦うために選ばれた者。毎晩よみがえる。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_muspelspark",
+  "name": "ムスペルの火片",
+  "icon": "🔥",
+  "tier": 2,
+  "hp": 96,
+  "atk": 16,
+  "mag": 38,
+  "def": 12,
+  "res": 26,
+  "spd": 21,
+  "exp": 26,
+  "gold": 28,
+  "weak": [
+   "ice"
+  ],
+  "resist": [
+   "fire"
+  ],
+  "skills": [
+   "e_fire",
+   "e_inferno"
+  ],
+  "desc": "炎の国から飛んだ欠片。落ちた先から世界が焦げる。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_nidhoggr_larva",
+  "name": "ニーズヘッグの牙虫",
+  "icon": "🪱",
+  "tier": 2,
+  "hp": 138,
+  "atk": 26,
+  "mag": 22,
+  "def": 20,
+  "res": 20,
+  "spd": 13,
+  "exp": 27,
+  "gold": 26,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark"
+  ],
+  "skills": [
+   "e_bite",
+   "e_curse"
+  ],
+  "desc": "根を齧る竜の、口の周りに湧いたもの。齧る癖だけは同じ。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_jotun",
+  "name": "ヨトゥン",
+  "icon": "🗿",
+  "tier": 3,
+  "hp": 380,
+  "atk": 58,
+  "mag": 22,
+  "def": 44,
+  "res": 30,
+  "spd": 14,
+  "exp": 62,
+  "gold": 76,
+  "weak": [
+   "thunder"
+  ],
+  "resist": [
+   "ice"
+  ],
+  "skills": [
+   "e_slam",
+   "e_quake",
+   "e_roar"
+  ],
+  "desc": "山と見分けがつかない大きさの者。歩くと谷ができる。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_valkyrie",
+  "name": "ヴァルキュリア",
+  "icon": "🕊",
+  "tier": 3,
+  "hp": 310,
+  "atk": 52,
+  "mag": 48,
+  "def": 38,
+  "res": 44,
+  "spd": 30,
+  "exp": 64,
+  "gold": 84,
+  "weak": [
+   "dark"
+  ],
+  "resist": [
+   "light"
+  ],
+  "skills": [
+   "e_ray",
+   "e_claw",
+   "e_heal"
+  ],
+  "desc": "誰が死ぬかを決めて回る乙女。決めた相手を迎えに来る。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_garmr",
+  "name": "ガルム",
+  "icon": "🐕",
+  "tier": 3,
+  "hp": 340,
+  "atk": 56,
+  "mag": 18,
+  "def": 40,
+  "res": 28,
+  "spd": 26,
+  "exp": 62,
+  "gold": 74,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark"
+  ],
+  "skills": [
+   "e_bite",
+   "e_claw",
+   "e_roar"
+  ],
+  "desc": "冥府の門に繋がれた犬。鎖の長さだけは誰も測っていない。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_surtsguard",
+  "name": "スルトの焔衛",
+  "icon": "🜂",
+  "tier": 3,
+  "hp": 300,
+  "atk": 44,
+  "mag": 64,
+  "def": 34,
+  "res": 46,
+  "spd": 24,
+  "exp": 66,
+  "gold": 80,
+  "weak": [
+   "ice"
+  ],
+  "resist": [
+   "fire",
+   "dark"
+  ],
+  "skills": [
+   "e_fire",
+   "e_inferno",
+   "e_meteorfall"
+  ],
+  "desc": "炎の巨人の露払い。通った跡には灰も残らない。",
+  "realm": "norse"
+ },
+ {
+  "id": "nm_vafthrudnir",
+  "name": "ヴァフスルーズニル",
+  "icon": "📜",
+  "tier": 3,
+  "hp": 258,
+  "atk": 22,
+  "mag": 70,
+  "def": 26,
+  "res": 48,
+  "spd": 22,
+  "exp": 60,
+  "gold": 86,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark"
+  ],
+  "skills": [
+   "e_curse",
+   "e_drain",
+   "e_frost"
+  ],
+  "desc": "知恵比べを挑んでは、負けた相手の首を賭けさせる巨人。",
+  "realm": "norse"
+ },
+ {
+  "id": "nb_fenrir",
+  "name": "フェンリル",
+  "icon": "🐺",
+  "tier": 1,
+  "boss": true,
+  "hp": 330,
+  "atk": 40,
+  "mag": 12,
+  "def": 24,
+  "res": 14,
+  "spd": 20,
+  "exp": 95,
+  "gold": 170,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark"
+  ],
+  "skills": [
+   "e_bite",
+   "e_claw",
+   "e_roar"
+  ],
+  "desc": "縛めの紐に繋がれた狼。神々はこれを解く日を知っている。",
+  "gimmick": {
+   "kind": "unbound",
+   "at": 0.55,
+   "weak": 0.55,
+   "rage": 1.2,
+   "follow": 0.4,
+   "word": "グレイプニル"
+  },
+  "realm": "norse"
+ },
+ {
+  "id": "nb_jormungandr",
+  "name": "ヨルムンガンド",
+  "icon": "🐍",
+  "tier": 2,
+  "boss": true,
+  "hp": 760,
+  "atk": 46,
+  "mag": 50,
+  "def": 38,
+  "res": 44,
+  "spd": 18,
+  "exp": 200,
+  "gold": 340,
+  "weak": [
+   "thunder"
+  ],
+  "resist": [
+   "ice",
+   "dark"
+  ],
+  "skills": [
+   "e_bite",
+   "e_curse",
+   "e_frost"
+  ],
+  "desc": "世界をひと巻きし、自らの尾を咥えた蛇。放す日が終わりの日。",
+  "gimmick": {
+   "kind": "venom",
+   "from": 1,
+   "everyN": 2,
+   "turns": 3,
+   "v": 0.06
+  },
+  "realm": "norse"
+ },
+ {
+  "id": "nb_surtr",
+  "name": "スルト",
+  "icon": "🗡",
+  "tier": 2,
+  "boss": true,
+  "hp": 1020,
+  "atk": 62,
+  "mag": 72,
+  "def": 44,
+  "res": 50,
+  "spd": 22,
+  "exp": 250,
+  "gold": 400,
+  "weak": [
+   "ice"
+  ],
+  "resist": [
+   "fire"
+  ],
+  "skills": [
+   "e_inferno",
+   "e_meteorfall",
+   "e_roar"
+  ],
+  "desc": "炎の剣を提げて世界の南に立つ者。振り下ろせば九つの世界が燃える。",
+  "gimmick": {
+   "kind": "conflagration",
+   "from": 2,
+   "base": 0.12,
+   "cap": 5,
+   "word": "業火"
+  },
+  "realm": "norse"
+ },
+ {
+  "id": "nb_hel",
+  "name": "ヘル",
+  "icon": "💀",
+  "tier": 3,
+  "boss": true,
+  "hp": 1560,
+  "atk": 70,
+  "mag": 92,
+  "def": 56,
+  "res": 64,
+  "spd": 24,
+  "exp": 420,
+  "gold": 640,
+  "weak": [
+   "light"
+  ],
+  "resist": [
+   "dark",
+   "ice"
+  ],
+  "skills": [
+   "e_curse",
+   "e_drain",
+   "e_voidbeam"
+  ],
+  "desc": "半身は生ける者、半身は朽ちた者。冥府の主。",
+  "gimmick": {
+   "kind": "reap",
+   "everyN": 2,
+   "n": 1,
+   "hp": 0.5,
+   "word": "死者の"
+  },
+  "realm": "norse"
+ },
+ {
+  "id": "nb_nidhoggr",
+  "name": "ニーズヘッグ",
+  "icon": "🐉",
+  "tier": 3,
+  "boss": true,
+  "hp": 1720,
+  "atk": 104,
+  "mag": 96,
+  "def": 74,
+  "res": 72,
+  "spd": 28,
+  "exp": 720,
+  "gold": 1040,
+  "weak": [],
+  "resist": [
+   "dark",
+   "ice"
+  ],
+  "skills": [
+   "e_voidbeam",
+   "e_meteorfall",
+   "e_drain",
+   "e_quake"
+  ],
+  "desc": "世界樹の根を齧り続ける竜。齧り終えた日に、すべてが倒れる。",
+  "gimmick": {
+   "kind": "gnaw",
+   "heal": 0.06
+  },
+  "phases": [
+   {
+    "at": 0.6,
+    "name": "根の相",
+    "weak": [
+     "fire"
+    ],
+    "resist": [
+     "dark",
+     "ice",
+     "phys"
+    ],
+    "say": "——根は、まだ甘い。"
+   },
+   {
+    "at": 0.25,
+    "name": "幹の相",
+    "weak": [
+     "light",
+     "thunder"
+    ],
+    "resist": [],
+    "say": "——幹まで来たか。ならば、支えるものは無い。"
+   }
+  ],
+  "realm": "norse"
  }
 ]

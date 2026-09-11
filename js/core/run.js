@@ -183,30 +183,46 @@ G.Run = (function () {
   }
 
   /* ===================== 遭遇生成 ===================== */
-  function enemyPool(floor, tierBias) {
+  /* 塔と物語で、敵の顔ぶれを分ける。
+   * 塔は世界樹を登る場所なので北欧の側（realm: 'norse'）だけ、
+   * 物語は相刻の側だけを見る。同じエンジンで、住人が違う。 */
+  function enemyPool(floor, tierBias, realm) {
+    realm = realm || 'norse';
     var t = floor <= 5 ? 1 : (floor <= 12 ? 2 : 3);
     t = Math.min(3, t + (tierBias || 0));
-    var list = G.MOBS.filter(function (e) { return e.tier === t; });
-    return list.length ? list : G.MOBS;
+    var mine = G.MOBS.filter(function (e) { return G.inRealm(e, realm); });
+    if (!mine.length) mine = G.MOBS;
+    var list = mine.filter(function (e) { return e.tier === t; });
+    return list.length ? list : mine;
   }
 
   function makeEncounter(state, kind) {
     var f = state.run.floor, units = [], i;
+    var realm = G.realmOf(state);
     if (kind === 'boss') {
-      var bossList = G.BOSSES.filter(function (b) { return b.tier <= (f <= 5 ? 1 : (f <= 12 ? 2 : 3)); });
+      /* 塔の主は5階ごとに、その世界の順に現れる。
+       * 25階から先（ラグナロク）は、根を齧り続ける竜がずっと待っている。 */
+      var bossList = G.BOSSES.filter(function (b) { return G.inRealm(b, realm); });
+      if (!bossList.length) bossList = G.BOSSES;
       var idx = Math.floor((f / 5) - 1);
-      var boss = bossList[Math.min(idx, bossList.length - 1)] || U.pick(G.BOSSES);
-      if (f >= 25) boss = G.ENEMY_BY_ID.b_worldmirror;
+      var boss = bossList[Math.min(Math.max(0, idx), bossList.length - 1)] || U.pick(bossList);
+      if (f >= 25) boss = bossList[bossList.length - 1];
       units.push(G.Battle.makeEnemyUnit(boss, f, 0));
       var addN = (f >= 8 ? 2 : 1) + G.Diff.get().adds;
       /* 塔でも同じ。自分で増やす主に、さらに取り巻きを付けない */
       if (boss.gimmick && (boss.gimmick.kind === 'clones' || boss.gimmick.kind === 'summon')) {
         addN = Math.max(0, addN - 2);
       }
-      for (i = 0; i < addN; i++) units.push(G.Battle.makeEnemyUnit(U.pick(enemyPool(f)), Math.max(1, f - 2), i + 1));
+      for (i = 0; i < addN; i++) {
+        units.push(G.Battle.makeEnemyUnit(U.pick(enemyPool(f, 0, realm)), Math.max(1, f - 2), i + 1));
+      }
       return { units: units, isBoss: true };
     }
-    var pool = enemyPool(f, (kind === 'elite' && f >= 6) ? 1 : 0);
+    /* 精鋭はひとつ上のティアから引く。ただし6階では早すぎる ――
+     * この階の精鋭だけで60走行中16回も全滅していた。
+     * 上のティアは一体あたりが重いうえ全体攻撃を持つので、
+     * こちらの手札が揃う前に出すと、難しいのではなく事故になる。 */
+    var pool = enemyPool(f, (kind === 'elite' && f >= 9) ? 1 : 0, realm);
     var n;
     if (f <= 3) n = U.rint(2, 3);
     else if (f <= 9) n = U.rint(3, 4);
@@ -236,12 +252,22 @@ G.Run = (function () {
     return U.pick(pool);
   }
 
-  function rollAcc(floor, dropUp, forceLegend) {
+  /* アクセサリもその世界のものだけ出す。
+   * 塔の宝が相刻の品だと、登っている場所の手触りが消えるため。
+   * レジェンドは11の軸をひととおり揃えてあるので、片側だけでもビルドは組める。 */
+  function accPool(rarity, realm) {
+    var all = rarity === 'legend' ? G.LEGENDS : G.NORMALS;
+    var mine = all.filter(function (a) { return G.inRealm(a, realm || 'norse'); });
+    return mine.length ? mine : all;
+  }
+
+  function rollAcc(floor, dropUp, forceLegend, realm) {
     var legendChance = U.clamp(0.06 + floor * 0.018 + (dropUp || 0) * 0.5 +
                                 G.Diff.get().drop * 0.6, 0, 0.6);
-    if (forceLegend || U.chance(legendChance)) return U.pick(G.LEGENDS);
-    var pool = G.NORMALS.filter(function (a) { return a.tier <= (floor <= 6 ? 1 : (floor <= 12 ? 2 : 3)); });
-    return U.pick(pool.length ? pool : G.NORMALS);
+    if (forceLegend || U.chance(legendChance)) return U.pick(accPool('legend', realm));
+    var pool = accPool('normal', realm)
+      .filter(function (a) { return a.tier <= (floor <= 6 ? 1 : (floor <= 12 ? 2 : 3)); });
+    return U.pick(pool.length ? pool : accPool('normal', realm));
   }
 
   /** 通常アイテムの抽選。深いほど上位ティアが出やすくなる。 */
@@ -290,6 +316,7 @@ G.Run = (function () {
    * 主軸がまだ無い序盤は、3つとも別の軸からランダムに選ぶ。 */
   function makeChoices(state, kind) {
     var f = state.run.floor, S = G.Stats.compute(state.hero).S;
+    var realm = G.realmOf(state);
     var out = [], used = {}, usedAxis = {};
     function push(o) {
       if (!o || used[o.id]) return false;
@@ -306,12 +333,14 @@ G.Run = (function () {
     /* その軸で、今の階層に見合うアクセを1つ引く */
     function drawFor(axis) {
       var wantLegend = legendsLeft > 0;
-      var pool = (wantLegend ? G.LEGENDS : G.NORMALS).filter(function (a) {
+      var pool = accPool(wantLegend ? 'legend' : 'normal', realm).filter(function (a) {
         return !used[a.id] && G.Style.topAxis(a) === axis && (wantLegend || a.tier <= tier);
       });
       /* レジェンドに該当が無ければ通常から、通常に無ければレジェンドから */
       if (!pool.length) {
-        pool = (wantLegend ? G.NORMALS.filter(function (a) { return a.tier <= tier; }) : G.LEGENDS)
+        pool = (wantLegend
+          ? accPool('normal', realm).filter(function (a) { return a.tier <= tier; })
+          : accPool('legend', realm))
           .filter(function (a) { return !used[a.id] && G.Style.topAxis(a) === axis; });
         wantLegend = !wantLegend;
       }
@@ -347,7 +376,7 @@ G.Run = (function () {
     }
     /* それでも埋まらなければ従来どおり抽選で埋める */
     guard = 0;
-    while (out.length < 3 && guard++ < 60) push(rollAcc(f, S.dropUp || 0, legendsLeft-- > 0));
+    while (out.length < 3 && guard++ < 60) push(rollAcc(f, S.dropUp || 0, legendsLeft-- > 0, realm));
     return out;
   }
 
@@ -404,7 +433,7 @@ G.Run = (function () {
     var dropUp = S.dropUp || 0;
     var accChance = (kind === 'boss' ? 1.0 : kind === 'elite' ? 0.75 : 0.28) + dropUp * 0.4;
     if (U.chance(accChance)) {
-      var a = rollAcc(state.run.floor, dropUp, kind === 'boss' && U.chance(0.55));
+      var a = rollAcc(state.run.floor, dropUp, kind === 'boss' && U.chance(0.55), G.realmOf(state));
       G.addAcc(hero, a.id); drops.push({ type: 'acc', ref: a });
     }
     var gearChance = (kind === 'boss' ? 0.85 : kind === 'elite' ? 0.5 : 0.18) + dropUp * 0.3;
@@ -493,7 +522,7 @@ G.Run = (function () {
     var stock = [];
     var i;
     for (i = 0; i < 4; i++) {
-      var a = rollAcc(f, 0.1, U.chance(0.22));
+      var a = rollAcc(f, 0.1, U.chance(0.22), G.realmOf(state));
       stock.push({ type: 'acc', id: a.id, price: Math.round((a.price || 200) * U.rf(0.9, 1.15)) });
     }
     for (i = 0; i < 2; i++) {
@@ -542,7 +571,7 @@ G.Run = (function () {
       opts: [
         { label: '祈る（HP/MP全回復）', run: function (s) { rest(s, 'full'); return 'HP/MPが全回復した。'; } },
         { label: '供物を捧げる（100G→ランダムなアクセ）', cost: 100, run: function (s) {
-            var a = rollAcc(s.run.floor, 0.3, U.chance(0.3)); G.addAcc(s.hero, a.id);
+            var a = rollAcc(s.run.floor, 0.3, U.chance(0.3), G.realmOf(s)); G.addAcc(s.hero, a.id);
             return '〈' + a.name + '〉を授かった。'; } }
       ] },
     { id: 'ev_merchant', name: '怪しい薬売り', text: '「良い品があるよ。試してみるかい？」',
@@ -604,7 +633,7 @@ G.Run = (function () {
     checkMythicUnlocks: checkMythicUnlocks, checkClassUnlocks: checkClassUnlocks,
     makeShop: makeShop, rest: rest, randomEvent: randomEvent, nextFloor: nextFloor,
     storyExpScale: storyExpScale,
-    rollAcc: rollAcc, rollGear: rollGear, rollItem: rollItem,
+    rollAcc: rollAcc, accPool: accPool, rollGear: rollGear, rollItem: rollItem,
     rollRareItem: rollRareItem, rareItemChance: rareItemChance, EVENTS: EVENTS
   };
 })();

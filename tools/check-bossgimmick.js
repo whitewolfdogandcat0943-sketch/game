@@ -48,6 +48,36 @@ const PROOF = {
     counter: '吸われた回数',
     beatable: '掛け直す間合いを計るか、吸われる前に決める'
   },
+  unbound: {
+    label: '鎖を断ち切って豹変する',
+    line: /千切れた！/,
+    counter: '解けた回数',
+    beatable: '縛られているあいだに削りきる'
+  },
+  venom: {
+    label: '全体を毒に沈める',
+    line: /毒に侵された/,
+    counter: '撒かれた回数',
+    beatable: '解毒か、毒に強い構え'
+  },
+  conflagration: {
+    label: '燃え広がり、長引くほど熱くなる',
+    line: /燃え広がる/,
+    counter: '燃えた段数',
+    beatable: '上がり幅に天井があるので、削りきる速さで越える'
+  },
+  reap: {
+    label: '倒した者を起き上がらせる',
+    line: /起き上がった/,
+    counter: '起こされた回数',
+    beatable: '一体につき一度だけ。本体を落とせば終わる'
+  },
+  gnaw: {
+    label: '削っても根を啜って戻る',
+    line: /根を啜り|蝕まれていて/,
+    counter: '啜った回数',
+    beatable: '毒か火傷を乗せているあいだは戻れない'
+  },
   clones: {
     label: '写し身が甦り続ける',
     line: /立ち上がった/,
@@ -142,11 +172,23 @@ function spendSp(hero) {
   }
 }
 
-/* 物語のどの場所で出る主かを引く（レベルと取り巻きを合わせるため） */
+/* その主がどこで出るかを引く（レベルと取り巻きを合わせるため）。
+ * 物語の主は章から、塔の主は5階ごとの並びから。 */
 const SLOT = {};
 G.STORY.CHAPTERS.forEach(c => c.places.filter(p => p.kind === 'dungeon').forEach(d => {
-  SLOT[d.boss] = { lv: d.bossLv, pool: d.pool, place: d.name, ch: c.id };
+  SLOT[d.boss] = { lv: d.bossLv, pool: d.pool, place: d.name, ch: '物語' + c.id };
 }));
+/* 塔でその階に着いたときのパーティのレベル（実測の中央値）。
+ * 階層の数字そのままで挑ませると、実際より強い側で試すことになり、
+ * 仕掛けが出る前に決着してしまう。 */
+const TOWER_LV = { 5: 5, 10: 12, 15: 20, 20: 28, 25: 36 };
+const norse = G.BOSSES.filter(b => b.realm === 'norse');
+norse.forEach((b, i) => {
+  const f = (i + 1) * 5;
+  const mobs = G.MOBS.filter(m => m.realm === 'norse' && m.tier <= (f <= 5 ? 1 : (f <= 12 ? 2 : 3)));
+  SLOT[b.id] = { lv: f, partyLv: TOWER_LV[f] || f, pool: mobs.map(m => m.id),
+                 place: '塔 ' + f + '階', ch: '塔' + f + 'F' };
+});
 
 let bad = 0;
 const rows = [];
@@ -168,7 +210,7 @@ G.BOSSES.forEach(def => {
     try {
       /* 実測で、パーティはその章の主のおよそ1.6倍のレベルで着く。
        * そこに合わせないと、装備とレベルが足りないだけの負けになる。 */
-      const st = party(Math.max(4, Math.round(slot.lv * 1.6)), BUILDS[bn]);
+      const st = party(slot.partyLv || Math.max(4, Math.round(slot.lv * 1.6)), BUILDS[bn]);
       st.run.floor = slot.lv;
       const units = [G.Battle.makeEnemyUnit(def, slot.lv, 0)];
       for (let i = 0; i < 2; i++) {
@@ -207,7 +249,7 @@ console.log('■ ボスの仕掛け（各' + RUNS + '戦・難易度 ' + G.Diff.
 rows.forEach(r => {
   const ok = r.problems.length === 0;
   console.log((ok ? '  ' : '!!') + r.def.name.padEnd(10, '　') +
-    ' 第' + r.slot.ch + '章 ' +
+    ' ' + String(r.slot.ch).padEnd(6) + ' ' +
     (r.kind || '—').padEnd(8) +
     (r.proof ? r.proof.label : '').padEnd(22, '　') +
     (r.fired + '回').padStart(6) +

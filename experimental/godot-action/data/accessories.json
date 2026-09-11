@@ -2716,5 +2716,729 @@
   "rarity": "mythic",
   "slot": "acc",
   "kind": "acc"
+ },
+ {
+  "id": "nn_runestone",
+  "name": "ルーンの刻み石",
+  "tier": 1,
+  "price": 95,
+  "mods": {
+   "mag": 15,
+   "mp": 14
+  },
+  "desc": "刻まれた文字が、読めないのに意味だけ伝わってくる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_wolffang",
+  "name": "狼の牙",
+  "tier": 1,
+  "price": 110,
+  "mods": {
+   "critRate": 0.1,
+   "atk": 8
+  },
+  "desc": "噛み千切られた鎖の、相手側の欠片。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_ravenfeather",
+  "name": "鴉の羽根",
+  "tier": 1,
+  "price": 100,
+  "mods": {
+   "spd": 17,
+   "evade": 0.05
+  },
+  "desc": "思考と記憶、どちらの鴉のものかは分からない。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_frostring",
+  "name": "霜の指輪",
+  "tier": 1,
+  "price": 105,
+  "mods": {
+   "el_ice": 0.14,
+   "res": 10
+  },
+  "desc": "嵌めた指だけ、いつまでも冷たい。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_valknut",
+  "name": "ヴァルクヌートの護符",
+  "tier": 2,
+  "price": 200,
+  "mods": {
+   "def": 24,
+   "hp": 60,
+   "dr": 0.05
+  },
+  "desc": "三つの三角が絡んだ印。戦死者を縛めるものだという。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_goathide",
+  "name": "山羊の毛皮",
+  "tier": 2,
+  "price": 210,
+  "mods": {
+   "hp": 95,
+   "mpRegen": 0.06
+  },
+  "desc": "食べても翌朝には戻っている山羊の、抜けた毛。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_emberchip",
+  "name": "火の粉の欠片",
+  "tier": 2,
+  "price": 220,
+  "mods": {
+   "el_fire": 0.2,
+   "dotPower": 0.14
+  },
+  "desc": "ムスペルから飛んできて、まだ消えていない。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_rootmoss",
+  "name": "根の苔",
+  "tier": 3,
+  "price": 340,
+  "mods": {
+   "dotPower": 0.2,
+   "mag": 22
+  },
+  "desc": "世界樹の根に生えた苔。齧られた跡から生える。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_mjolnir",
+  "name": "ミョルニル",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "critRate": 0.22,
+   "critDmg": 0.7,
+   "el_thunder": 0.22,
+   "atkPct": 0.14
+  },
+  "desc": "投げれば必ず手に返る槌。柄が短いのは、作りそこねたからだという。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_gungnir",
+  "name": "グングニル",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "pierce": 0.34,
+   "critRate": 0.12,
+   "atk": 34,
+   "dmgUp": 0.12
+  },
+  "desc": "狙いを違えぬ槍。これで刺すと決めたものは、もう決まっている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_svalinn",
+  "name": "スヴァリンの盾",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "reflect": 0.42,
+   "reflectPow": 0.4,
+   "def": 28
+  },
+  "desc": "太陽の前に立てられた盾。これが無ければ海も山も燃えている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_gjallarhorn",
+  "name": "ギャラルホルン",
+  "tier": 3,
+  "price": 680,
+  "mods": {
+   "aoeRatio": 0.34,
+   "aoePower": 0.26,
+   "mag": 24
+  },
+  "desc": "終わりの日に吹かれる角笛。音は九つの世界に届く。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_bifrost",
+  "name": "ビフレストの欠片",
+  "tier": 3,
+  "price": 720,
+  "mods": {
+   "el_fire": 0.2,
+   "el_ice": 0.2,
+   "el_thunder": 0.2,
+   "el_wind": 0.2,
+   "el_light": 0.2,
+   "el_dark": 0.2
+  },
+  "desc": "燃える虹の橋のひとかけら。七つの色が全部入っている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_eldhrimnir",
+  "name": "エルドフリムニルの鍋",
+  "tier": 3,
+  "price": 670,
+  "mods": {
+   "itemPower": 0.72,
+   "itemKeep": 0.3,
+   "mp": 30
+  },
+  "desc": "毎晩煮ても、朝には中身が戻っている鍋。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_idunn",
+  "name": "イズンの林檎",
+  "tier": 3,
+  "price": 710,
+  "mods": {
+   "lifesteal": 0.36,
+   "hpPct": 0.2,
+   "mpRegen": 0.1
+  },
+  "desc": "齧ると齢が戻る林檎。齧りすぎた者の話は残っていない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_valhollshield",
+  "name": "ヴァルホルの盾屋根",
+  "tier": 3,
+  "price": 665,
+  "mods": {
+   "dr": 0.18,
+   "def": 40,
+   "res": 36,
+   "hpPct": 0.16
+  },
+  "desc": "五百四十の扉を持つ館の屋根。盾を並べて葺いてある。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_sleipnir",
+  "name": "スレイプニルの蹄鉄",
+  "tier": 3,
+  "price": 675,
+  "mods": {
+   "spd": 44,
+   "evade": 0.14,
+   "dmgUp": 0.08
+  },
+  "desc": "八本の脚で駆ける馬の蹄鉄。どこへでも、何よりも早く着く。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_andvaranaut",
+  "name": "アンドヴァラナウト",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "dotPower": 0.8,
+   "dotTurns": 2,
+   "mag": 24,
+   "goldUp": 0.2
+  },
+  "desc": "持ち主を必ず滅ぼす指輪。滅びるまでは、よく富む。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_brisingamen",
+  "name": "ブリーシンガメン",
+  "tier": 3,
+  "price": 705,
+  "mods": {
+   "buffPower": 0.8,
+   "buffTurns": 2,
+   "mag": 22,
+   "mp": 40
+  },
+  "desc": "四人の小人が打った首飾り。フレイヤが四夜を支払った。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_gleipnir",
+  "name": "グレイプニル",
+  "tier": 3,
+  "price": 695,
+  "mods": {
+   "debuffPower": 0.8,
+   "debuffTurns": 2,
+   "mag": 20
+  },
+  "desc": "猫の足音と、女の髭と、山の根と、熊の腱と、魚の息と、鳥の唾で編んだ紐。細いのに、千切れない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_solmani",
+  "name": "ソールとマーニ",
+  "tier": 3,
+  "price": 715,
+  "mods": {
+   "el_light": 0.3,
+   "el_dark": 0.3,
+   "mag": 20,
+   "spd": 16
+  },
+  "desc": "日を駆る姉と、月を駆る弟。二匹の狼に追われて、休まず空を回り続けている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_draupnir",
+  "name": "ドラウプニル",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "goldUp": 0.45,
+   "dropUp": 0.18,
+   "itemKeep": 0.12
+  },
+  "desc": "九夜ごとに、同じ重さの腕輪が八つ滴り落ちる。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_huginmunin",
+  "name": "フギンとムニン",
+  "tier": 3,
+  "price": 685,
+  "mods": {
+   "spd": 28,
+   "mp": 55,
+   "mpRegen": 0.16,
+   "magPct": 0.1
+  },
+  "desc": "思考と記憶。毎朝飛ばして、毎晩戻るのを待つ。帰らない日が来るのを、いちばん恐れているという。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_jarngreipr",
+  "name": "ヤルングレイプル",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "critRate": 0.24,
+   "critDmg": 0.6,
+   "atk": 22
+  },
+  "desc": "雷の槌を掴むための鉄の手甲。これが無ければ、柄は持てない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_windfeather",
+  "name": "フレースヴェルグの風切羽",
+  "tier": 3,
+  "price": 330,
+  "mods": {
+   "critRate": 0.18,
+   "critDmg": 0.44,
+   "spd": 10
+  },
+  "desc": "北風になる鷲の、いちばん外側の一枚。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_hildshield",
+  "name": "ヒルドの盾",
+  "tier": 3,
+  "price": 655,
+  "mods": {
+   "reflect": 0.34,
+   "reflectPow": 0.28,
+   "def": 26
+  },
+  "desc": "戦さの乙女が掲げる盾。受けた分だけ、相手へ返す。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_svalinnshard",
+  "name": "スヴァリンの破片",
+  "tier": 3,
+  "price": 325,
+  "mods": {
+   "reflect": 0.28,
+   "reflectPow": 0.16,
+   "def": 26
+  },
+  "desc": "太陽の前の盾が、欠けて落ちたもの。まだ熱い。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_hvergelmir",
+  "name": "フヴェルゲルミルの渦",
+  "tier": 3,
+  "price": 670,
+  "mods": {
+   "aoeRatio": 0.32,
+   "aoePower": 0.28,
+   "mag": 20
+  },
+  "desc": "十一の川が湧き出す泉。落ちたものは、すべて巻き込まれる。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_ragnarokecho",
+  "name": "ラグナロクの残響",
+  "tier": 3,
+  "price": 335,
+  "mods": {
+   "aoeRatio": 0.26,
+   "aoePower": 0.18
+  },
+  "desc": "まだ来ていない終わりの音が、先に届いている。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_yggleaf",
+  "name": "ユグドラシルの葉",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "el_fire": 0.18,
+   "el_ice": 0.18,
+   "el_thunder": 0.18,
+   "el_wind": 0.18,
+   "el_light": 0.18,
+   "el_dark": 0.18
+  },
+  "desc": "九つの世界を貫く樹の、一枚の葉。九つ全部の色が混じっている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_rainbowchip",
+  "name": "虹のかけら",
+  "tier": 3,
+  "price": 330,
+  "mods": {
+   "el_fire": 0.13,
+   "el_ice": 0.13,
+   "el_thunder": 0.13,
+   "el_wind": 0.13,
+   "el_light": 0.13,
+   "el_dark": 0.13
+  },
+  "desc": "橋から剥がれ落ちた色。触れると指が七色になる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_alfheim",
+  "name": "アルヴヘイムの秘薬",
+  "tier": 3,
+  "price": 665,
+  "mods": {
+   "itemPower": 0.66,
+   "itemKeep": 0.24
+  },
+  "desc": "光の妖精の国で調じられた薬。小瓶がいつまでも空にならない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_dwarfcase",
+  "name": "小人の手箱",
+  "tier": 3,
+  "price": 330,
+  "mods": {
+   "itemPower": 0.58,
+   "itemKeep": 0.2
+  },
+  "desc": "打ち出しの名人が持ち歩いていた箱。中身より箱のほうが高い。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_saehrimnir",
+  "name": "セーフリームニルの肉",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "lifesteal": 0.34,
+   "hpPct": 0.1
+  },
+  "desc": "毎晩食べられ、毎朝また生えている猪。戦士たちの夕食。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_meadcup",
+  "name": "蜜酒の杯",
+  "tier": 3,
+  "price": 335,
+  "mods": {
+   "lifesteal": 0.26,
+   "hp": 70
+  },
+  "desc": "山羊の乳房から流れ続ける蜜酒を受ける杯。空にならない。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_jarnvidr",
+  "name": "ヤルンヴィズの樹皮",
+  "tier": 3,
+  "price": 660,
+  "mods": {
+   "dr": 0.16,
+   "def": 38,
+   "res": 32,
+   "hpPct": 0.14
+  },
+  "desc": "鉄の森の樹の皮。狼を産む魔女たちが、この下で眠る。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_ironbough",
+  "name": "鉄の森の枝",
+  "tier": 3,
+  "price": 330,
+  "mods": {
+   "def": 40,
+   "res": 30,
+   "hp": 90,
+   "dr": 0.06
+  },
+  "desc": "折ろうとすると、こちらの手のほうが折れる。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_skidbladnir",
+  "name": "スキーズブラズニルの帆",
+  "tier": 3,
+  "price": 665,
+  "mods": {
+   "spd": 38,
+   "evade": 0.12,
+   "dmgUp": 0.06
+  },
+  "desc": "畳めば懐に入り、開けば軍勢を乗せる船の帆。順風しか吹かない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_windlace",
+  "name": "風の靴紐",
+  "tier": 3,
+  "price": 325,
+  "mods": {
+   "spd": 30,
+   "evade": 0.08
+  },
+  "desc": "結ぶと足が軽くなる。解くのを忘れると止まれない。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_lokisknot",
+  "name": "ロキの結び目",
+  "tier": 3,
+  "price": 695,
+  "mods": {
+   "dotPower": 0.72,
+   "dotTurns": 1,
+   "mag": 22
+  },
+  "desc": "どう解いても、解いた先がまた結ばれている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_serpentfang",
+  "name": "毒蛇の牙",
+  "tier": 3,
+  "price": 335,
+  "mods": {
+   "dotPower": 0.5,
+   "dotTurns": 1
+  },
+  "desc": "縛められた者の顔の上で、いつまでも滴り続けている牙。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_odrerir",
+  "name": "オーズレリルの蜜酒",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "buffPower": 0.72,
+   "buffTurns": 1,
+   "mag": 20,
+   "mp": 36
+  },
+  "desc": "一口飲めば誰でも詩人になる蜜酒。返す言葉が、必ず韻を踏む。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_blessrune",
+  "name": "祝福のルーン",
+  "tier": 3,
+  "price": 335,
+  "mods": {
+   "buffPower": 0.5,
+   "buffTurns": 1,
+   "mp": 30
+  },
+  "desc": "刻んだ者の名前は残っていない。効き目だけが残っている。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_niflfetter",
+  "name": "ニヴルの霧枷",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "debuffPower": 0.72,
+   "debuffTurns": 1,
+   "mag": 18
+  },
+  "desc": "霧でできた枷。見えないので、外し方も分からない。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_bindknot",
+  "name": "縛めの結び目",
+  "tier": 3,
+  "price": 330,
+  "mods": {
+   "debuffPower": 0.5,
+   "debuffTurns": 1
+  },
+  "desc": "猫の足音で編んだ紐の、余ったところ。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
  }
 ]

@@ -22,8 +22,8 @@ function allElemScore(acc) {
 }
 
 /** 条件記述子から「4枠に何を入れるべきか」を組む */
-function buildAccs(conds) {
-  const pool = G.LEGENDS.concat(G.NORMALS);
+function buildAccs(conds, realm) {
+  const pool = G.LEGENDS.concat(G.NORMALS).filter(a => G.inRealm(a, realm || 'mid'));
   const want = [];
   let needLegend = 0, needAllElem = false;
   conds.forEach(d => {
@@ -68,6 +68,12 @@ function styleAxes(conds) {
   return out;
 }
 
+/* どちらの世界のアクセサリだけで組めるかを見る。
+ * 塔と物語でアクセサリの顔ぶれを分けたので、「塔からは就けない職業」が
+ * 出ていないかを確かめる必要がある。 */
+const ri = process.argv.indexOf('--realm');
+const REALM = ri >= 0 ? process.argv[ri + 1] : 'mid';
+
 let bad = 0;
 const rows = [];
 
@@ -105,7 +111,7 @@ G.CLASS_LIST.forEach(cls => {
     G.MYTHICS.slice(0, 3).forEach((a, i) => { G.addAcc(st.hero, a.id); who.equip.acc[i] = a.id; });
     st.meta.mythics = G.MYTHICS.slice(0, 3).map(a => a.id);
   } else {
-    buildAccs(conds).forEach((aid, i) => { G.addAcc(st.hero, aid); who.equip.acc[i] = aid; });
+    buildAccs(conds, REALM).forEach((aid, i) => { G.addAcc(st.hero, aid); who.equip.acc[i] = aid; });
   }
 
   const r = G.Unlock.availableClasses(st, who).filter(x => x.cls.id === cls.id)[0];
@@ -137,7 +143,8 @@ const st2 = newState(G);
 G.Run.newRun(st2, 'swordsman', 'カイ');
 const heroLine = G.Unlock.classLine(st2.hero);
 const leaked = G.CLASS_LIST.filter(c => c.ally && heroLine.indexOf(c.id) >= 0).map(c => c.name);
-console.log('\n職業 ' + G.CLASS_LIST.length + '種（主人公 ' + heroLine.length + '／仲間の固有職 ' +
+console.log('\n（' + (REALM === 'norse' ? '塔（北欧）' : '物語（相刻）') + 'のアクセサリだけで判定）');
+console.log('職業 ' + G.CLASS_LIST.length + '種（主人公 ' + heroLine.length + '／仲間の固有職 ' +
   G.CLASS_LIST.filter(c => c.ally).length + '）' +
   (leaked.length ? '  !! 仲間の固有職が主人公に漏れている: ' + leaked.join('・') : ''));
 if (leaked.length) bad++;

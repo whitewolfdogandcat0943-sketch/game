@@ -240,6 +240,24 @@ G.Gfx = (function () {
 
   /* ===================== 個体ごとの設定 ===================== */
   var ENEMY_SPEC = {
+    /* --- 試練の塔（北欧）--- */
+    nm_draugr:     { arch: 'skeleton', hue: 150, sat: 18, lum: 46, eye: '#8cf0b0' },
+    nm_ratatosk:   { arch: 'beast',    hue: 28,  sat: 62, lum: 52, eye: '#fff' },
+    nm_hresvelgr:  { arch: 'bird',     hue: 205, sat: 42, lum: 58, eye: '#dff6ff' },
+    nm_hrimthurs:  { arch: 'brute',    hue: 196, sat: 40, lum: 58, accent: 200, eye: '#eafaff' },
+    nm_einherjar:  { arch: 'warrior',  hue: 42,  sat: 40, lum: 52, accent: 15 },
+    nm_muspelspark:{ arch: 'orb',      hue: 16,  sat: 90, lum: 56, eye: '#fff0c0' },
+    nm_nidhoggr_larva: { arch: 'scorpion', hue: 285, sat: 42, lum: 40, eye: '#c08cff' },
+    nm_jotun:      { arch: 'golem',    hue: 150, sat: 20, lum: 44, eye: '#9fe8c0' },
+    nm_valkyrie:   { arch: 'angel',    hue: 50,  sat: 55, lum: 64, eye: '#fff8d0' },
+    nm_garmr:      { arch: 'beast',    hue: 340, sat: 38, lum: 38, eye: '#ff6b6b' },
+    nm_surtsguard: { arch: 'knight',   hue: 12,  sat: 70, lum: 48, accent: 30, eye: '#ffd08c' },
+    nm_vafthrudnir:{ arch: 'hooded',   hue: 265, sat: 34, lum: 44, eye: '#b98cff' },
+    nb_fenrir:     { arch: 'beast',    hue: 220, sat: 26, lum: 46, accent: 0,   eye: '#ffe066' },
+    nb_jormungandr:{ arch: 'dragon',   hue: 140, sat: 52, lum: 40, eye: '#c8ff6b' },
+    nb_surtr:      { arch: 'knight',   hue: 8,   sat: 82, lum: 46, accent: 34,  eye: '#fff0a0' },
+    nb_hel:        { arch: 'robed',    hue: 255, sat: 30, lum: 38, accent: 150, eye: '#d0ffe8' },
+    nb_nidhoggr:   { arch: 'dragon',   hue: 282, sat: 48, lum: 34, accent: 300, eye: '#ff6bd8' },
     slime:       { arch: 'slime',    hue: 120, sat: 48, lum: 50 },
     bat:         { arch: 'bat',      hue: 275, sat: 30, lum: 46 },
     goblin:      { arch: 'goblin',   hue: 95,  sat: 40, lum: 44, accent: 25 },

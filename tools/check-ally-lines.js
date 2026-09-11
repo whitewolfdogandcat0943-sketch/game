@@ -24,8 +24,12 @@ function allElemScore(acc) {
 }
 
 /** 条件記述子から「4枠に何を入れるべきか」を組む */
+const ri = process.argv.indexOf('--realm');
+/* 塔と物語でアクセサリの顔ぶれが違うので、どちらだけで組めるかを切り替える。 */
+const REALM = ri >= 0 ? process.argv[ri + 1] : 'mid';
+
 function buildAccs(conds) {
-  const pool = G.LEGENDS.concat(G.NORMALS);
+  const pool = G.LEGENDS.concat(G.NORMALS).filter(a => G.inRealm(a, REALM));
   const want = [];                       /* [軸, 欲しい枠数] */
   let needLegend = 0, needAllElem = false;
 
@@ -53,7 +57,7 @@ function buildAccs(conds) {
   /* レジェンドが要るのに1つも入っていなければ、一番効く軸のレジェンドと入れ替える */
   if (needLegend && !picks.some(a => a.rarity === 'legend')) {
     const axis = (want[0] || ['crit'])[0];
-    const best = G.LEGENDS.filter(a => !taken.has(a.id))
+    const best = G.LEGENDS.filter(a => G.inRealm(a, REALM) && !taken.has(a.id))
       .map(a => ({ a, v: needAllElem ? allElemScore(a) : axisScore(a, axis) }))
       .filter(x => x.v > 0).sort((x, y) => y.v - x.v)[0];
     if (best) { picks.pop(); picks.push(best.a); }

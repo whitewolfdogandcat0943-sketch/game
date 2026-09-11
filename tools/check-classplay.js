@@ -36,8 +36,14 @@ function allElemScore(acc) {
   const m = acc.mods || {};
   return Math.min.apply(null, G.MAGIC_ELEMENTS.map(e => Math.max(0, m['el_' + e] || 0)));
 }
+const ri = process.argv.indexOf('--realm');
+/* どちらの世界のアクセサリだけで組めるかを切り替える。
+ * 塔と物語でアクセサリの顔ぶれを分けたので、片側だけでは組めない職業が
+ * 出ていないかを確かめられるようにしてある。 */
+const REALM = ri >= 0 ? process.argv[ri + 1] : 'mid';
+
 function buildAccs(conds) {
-  const pool = G.LEGENDS.concat(G.NORMALS);
+  const pool = G.LEGENDS.concat(G.NORMALS).filter(a => G.inRealm(a, REALM));
   const want = [];
   let needLegend = 0, needAllElem = false;
   conds.forEach(d => {
@@ -59,7 +65,7 @@ function buildAccs(conds) {
   want.forEach(([axis, n]) => { if (picks.length < 4) take(a => axisScore(a, axis), Math.min(n, 4 - picks.length)); });
   if (needLegend && !picks.some(a => a.rarity === 'legend')) {
     const axis = (want[0] || ['crit'])[0];
-    const best = G.LEGENDS.filter(a => !taken.has(a.id))
+    const best = G.LEGENDS.filter(a => G.inRealm(a, REALM) && !taken.has(a.id))
       .map(a => ({ a, v: needAllElem ? allElemScore(a) : axisScore(a, axis) }))
       .filter(x => x.v > 0).sort((x, y) => y.v - x.v)[0];
     if (best) { picks.pop(); picks.push(best.a); }
@@ -437,7 +443,8 @@ const label = { 1: '初級職', 2: '上級職', 3: '最上級職' };
   });
 });
 
-console.log('\n難易度 ' + G.Diff.get().name + ' ／ 職業 ' + G.CLASS_LIST.length +
+console.log('\n（' + (REALM === 'norse' ? '塔（北欧）' : '物語（相刻）') + 'のアクセサリだけで判定）');
+console.log('難易度 ' + G.Diff.get().name + ' ／ 職業 ' + G.CLASS_LIST.length +
   '種 ／ 単独' + FIGHTS + '戦＋4人' + FIGHTS + '戦');
 console.log('単独で主に勝てないのは、支援・弱体の職業では役割どおり（4人で勝てていれば問題なし）。');
 console.log(bad ? '!! 問題のある職業 ' + bad + '種' : 'すべての職業が、就けて・技が通って・勝てて・ツリーも効く');

@@ -235,7 +235,7 @@
     var hero = state.hero, f = state.run.floor;
     var Sx = G.Stats.compute(hero).S;
     var got = [];
-    var a = G.Run.rollAcc(f, (Sx.dropUp || 0) + 0.2, U.chance(0.25 + (Sx.dropUp || 0) * 0.3));
+    var a = G.Run.rollAcc(f, (Sx.dropUp || 0) + 0.2, U.chance(0.25 + (Sx.dropUp || 0) * 0.3), G.realmOf(state));
     G.addAcc(hero, a.id); got.push({ type: 'acc', ref: a });
     if (U.chance(0.5 + (Sx.dropUp || 0))) {
       var g = G.Run.rollGear(f); G.addGear(hero, g.id); got.push({ type: 'gear', ref: g });

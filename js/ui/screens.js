@@ -138,8 +138,11 @@ G.Screens = (function () {
       '<b>推奨:</b> はじめての人はこちら。</div></div>';
     h += '<div class="card" data-act="towerStart">' +
       '<div class="classcard-head"><div class="modeico">🗼</div><div class="cname" style="font-size:16px">試練の塔</div></div>' +
-      '<div class="cdesc">25階の登り切り勝負。道は毎回変わり、倒れればそこで終わり。' +
-      '好きな初級職から始められる、腕試しのモード。<br><br>' +
+      '<div class="cdesc"><b>世界樹ユグドラシルを登る。</b>' +
+      '九つの世界を抜け、25階の登り切り勝負。道は毎回変わり、倒れればそこで終わり。' +
+      '物語とは別の神話で、敵も主もアクセサリも丸ごと違う。<br>' +
+      '<span class="muted small">ミズガルズ → ニヴルヘイム → ムスペルヘイム → ' +
+      'ヨトゥンヘイム → アースガルズ → ラグナロク</span><br><br>' +
       '<b>到達最深:</b> ' + m.bestFloor + 'F ／ <b>挑戦:</b> ' + m.runs + '回</div></div>';
     h += '</div>';
     h += diffCards(state);

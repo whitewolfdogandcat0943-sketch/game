@@ -1683,6 +1683,7 @@ G.Battle = (function () {
     start: start, advance: advance, playerAction: playerAction, refresh: refresh,
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
     addEnemy: addEnemy, applyRawDamage: applyRawDamage, addBuff: addBuff, refresh: refresh,
+    addStatus: addStatus, hasStatus: hasStatus,
     partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
     canFlee: canFlee, fleeChance: fleeChance, controller: controller,
     alive: alive, log: log, heal: heal

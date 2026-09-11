@@ -166,6 +166,102 @@ G.Gimmick = (function () {
       onDeath: function (b, u) { u.aloft = false; }
     },
 
+    /* --- 縛め: 鎖に繋がれているあいだは本気を出さない（フェンリル） ---
+     *
+     * 「開幕から強い」より「途中で顔が変わる」ほうが記憶に残る。
+     * 縛られているあいだは弱いので、そこで削りきれるかを試される。 */
+    unbound: {
+      onStart: function (b, u, g) {
+        u.gimState.bound = true;
+        u.base.atk = Math.round(u.base.atk * (g.weak || 0.55));
+        u.base.spd = Math.round(u.base.spd * (g.weak || 0.55));
+        api().refresh(u);
+        log(b, '⛓ ' + u.name + ' は' + (g.word || 'グレイプニル') + 'に縛められている。' +
+          'この鎖が保つうちに決めろ。', 'bad');
+      },
+      onRound: function (b, u, g) {
+        if (!alive(u) || !u.gimState.bound) return;
+        if (u.hp > u.S.maxHp * (g.at || 0.55)) return;
+        u.gimState.bound = false;
+        u.base.atk = Math.round(u.base.atk / (g.weak || 0.55) * (g.rage || 1.25));
+        u.base.spd = Math.round(u.base.spd / (g.weak || 0.55));
+        api().refresh(u);
+        u.follow = Math.max(u.follow || 0, g.follow || 0.5);
+        u.raged = false;
+        log(b, '⛓💥 ' + (g.word || 'グレイプニル') + ' が千切れた！ ' + u.name + ' が解き放たれた。', 'bad');
+      }
+    },
+
+    /* --- 毒の海: 世界を一巻きする蛇の吐息（ヨルムンガンド） --- */
+    venom: {
+      onRound: function (b, u, g) {
+        if (!alive(u) || b.round < (g.from || 2)) return;
+        if (!every(u, 'venT', g.everyN || 2)) return;
+        var n = 0;
+        api().partyUnits(b).filter(alive).forEach(function (m) {
+          api().addStatus(b, m, 'poison', g.turns || 3, g.v || 0.05, u);
+          n++;
+        });
+        if (n) log(b, '🐍 ' + u.name + ' の吐息が満ちる。パーティ全体が毒に侵された。', 'bad');
+      }
+    },
+
+    /* --- 業火: 燃え広がり、長引くほど熱くなる（スルト） ---
+     *
+     * 削りきる速さそのものを問う仕掛け。ただし際限なく上がると
+     * 「間に合わなければ必敗」になるので、上がり幅には天井を置く。 */
+    conflagration: {
+      onRound: function (b, u, g) {
+        if (!alive(u) || b.round < (g.from || 2)) return;
+        var step = Math.min((g.cap || 6), b.round - (g.from || 2) + 1);
+        var dmg = Math.round(u.S.mag * (g.base || 0.30) * step);
+        api().partyUnits(b).filter(alive).forEach(function (m) {
+          api().applyRawDamage(b, m, dmg, '🔥 ' + (g.word || '業火'), u, { aoe: true, noReflect: true });
+        });
+        log(b, '🔥 ' + (g.word || '業火') + ' が燃え広がる（' + step + '段目）。', 'bad');
+      }
+    },
+
+    /* --- 死者の招き: 倒した取り巻きが、一度だけ死者として起き上がる（ヘル） --- */
+    reap: {
+      onRound: function (b, u, g) {
+        if (!alive(u)) return;
+        var fallen = b.enemies.filter(function (e) {
+          return e !== u && !alive(e) && !e.reaped;
+        });
+        if (!fallen.length) return;
+        if (!every(u, 'reapT', g.everyN || 2)) return;
+        var n = Math.min(g.n || 1, fallen.length);
+        for (var i = 0; i < n; i++) {
+          var e = fallen[i];
+          e.reaped = true; e._dead = false;
+          e.hp = Math.max(1, Math.round(e.S.maxHp * (g.hp || 0.5)));
+          e.name = (g.word || '死者の') + e.name;
+          e.exp = 0; e.gold = 0;
+          if (b.queue.indexOf(e) < 0) b.queue.push(e);
+        }
+        log(b, '💀 ' + u.name + ' が招く。倒れた者が ' + n + '体 起き上がった。', 'bad');
+      }
+    },
+
+    /* --- 根喰らい: 削っても戻る。継続ダメージを乗せているあいだは戻らない（ニーズヘッグ） ---
+     *
+     * 持続ダメージのビルドにだけ、はっきり答えが用意されている仕掛け。
+     * 他のビルドは「戻る量を上回る速さ」で殴れば越えられる。 */
+    gnaw: {
+      onRound: function (b, u, g) {
+        if (!alive(u)) return;
+        if (api().hasStatus(u, 'poison') || api().hasStatus(u, 'burn')) {
+          log(b, '🩸 ' + u.name + ' は蝕まれていて、根を啜れない。', 'good');
+          return;
+        }
+        var got = Math.round(u.S.maxHp * (g.heal || 0.06));
+        if (u.hp >= u.S.maxHp) return;
+        u.hp = Math.min(u.S.maxHp, u.hp + got);
+        log(b, '🌳 ' + u.name + ' が世界樹の根を啜り、HPが ' + got + ' 戻った。', 'bad');
+      }
+    },
+
     /* --- 吸魂: こちらの加護を「ひとつだけ」吸い取って自分のものにする ---
      *
      * 最初は全員の強化を根こそぎ剥がす形にしていたが、支援を積むビルドが

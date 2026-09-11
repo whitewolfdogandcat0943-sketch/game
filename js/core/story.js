@@ -77,11 +77,15 @@ G.Story = (function () {
   /** 残響で出る主を決める。挑む格に見合ったボスから選ぶ。 */
   function echoBoss(state, d, n) {
     var lv = Math.max(d.bossLv, effLv(state, d.bossLv)) + n * 2;
-    var pool = G.BOSSES.filter(function (b) {
+    /* 相刻の側の主だけを呼ぶ。塔の北欧の主が物語に出てくると、
+     * 世界がひとつ混ざってしまう。 */
+    var mine = G.BOSSES.filter(function (b) { return G.inRealm(b, 'mid'); });
+    if (!mine.length) mine = G.BOSSES;
+    var pool = mine.filter(function (b) {
       var home = { 1: 5, 2: 10, 3: 15 }[b.tier] || 5;
       return home <= lv + 4;
     });
-    if (!pool.length) pool = G.BOSSES;
+    if (!pool.length) pool = mine;
     return U.pick(pool);
   }
   /** 残響の報酬倍率。挑むほど実入りが減る。
