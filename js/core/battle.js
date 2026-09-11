@@ -136,7 +136,7 @@ G.Battle = (function () {
       rec: {
         critStreak: 0, critStreakMax: 0, reflectDmg: 0, reflectKills: 0, elementsUsed: {},
         itemsUsed: 0, damageTaken: 0, maxMultiKill: 0, kills: 0, aoeKills: 0, isBoss: !!opts.isBoss,
-        damageDealt: 0, turns: 0,
+        damageDealt: 0, turns: 0, killIds: {},
         /* ミシック条件の判定に使う記録 */
         mpSpent: 0, skillsUsed: {}, skillKinds: 0, onlyBasic: true, statusPeak: 0,
         boonsCast: 0, hexesCast: 0, hexPeak: 0, rotKills: 0,
@@ -848,6 +848,8 @@ G.Battle = (function () {
     if (u.side === 'player' && u.hero) bark(b, 'down', { who: u.hero.allyId || 'hero' });
     if (u.side === 'enemy') {
       b.rec.kills++;
+      /* 何を何体倒したか。町の頼まれごとがここを見る。 */
+      if (u.ref && u.ref.id) b.rec.killIds[u.ref.id] = (b.rec.killIds[u.ref.id] || 0) + 1;
       b.state.run.stats.kills++;
       if (meta && meta.byReflect) {
         b.rec.reflectKills++; b.state.run.stats.reflectKills++; sty(b, src, 'reflect', 3);

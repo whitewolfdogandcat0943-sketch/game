@@ -106,6 +106,22 @@ G.Save = (function () {
           if (!st.flags) st.flags = {};
           if (st.place && !G.STORY.PLACE_BY_ID[st.place]) st.place = null;
           if (st.dungeon && !G.STORY.PLACE_BY_ID[st.dungeon.id]) st.dungeon = null;
+          /* 分かれ道と頼まれごとは後から足したもの。古い保存には無い。 */
+          if (!st.errands) st.errands = { taken: {}, done: {} };
+          if (!st.errands.taken) st.errands.taken = {};
+          if (!st.errands.done) st.errands.done = {};
+          if (st.dungeon) {
+            /* 保存時に無かった道が選ばれていることにならないよう、選び直しから始める */
+            if (!st.dungeon.paths || st.dungeon.pathsAt !== st.dungeon.at) {
+              st.dungeon.path = null; st.dungeon.paths = null; st.dungeon.pathsAt = -1;
+            }
+          }
+          /* データから消えた用事は、受けたままにしない */
+          [st.errands.taken, st.errands.done].forEach(function (m) {
+            Object.keys(m).forEach(function (k) {
+              if (!(G.ERRAND_BY_ID || {})[k]) delete m[k];
+            });
+          });
         }
       } else d.story = null;
       return d;

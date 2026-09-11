@@ -79,7 +79,16 @@ function story() {
         G.Story.enterDungeon(st, d.id);
         let steps = 0;
         while (st.story.dungeon && steps++ < 40) {
-          const enc = G.Story.nextEncounter(st);
+          /* 分かれ道。実際の遊びでは選ぶので、測るときも選ぶ。
+         * 「拾い物のある道を選び続ける人」が一番多いはずなので、それで測る。 */
+        const ps = G.Story.paths(st).filter(x => !x.skip);
+        /* 消耗する道は、余力があるときだけ。人は瀕死で淀みに降りない。 */
+        const party = st.party || [st.hero];
+        const fresh = party.every(m => m.hp / G.Stats.compute(m).S.maxHp > 0.6);
+        const pick = ps.filter(x => fresh || !x.toll);
+        const want = pick.filter(x => x.find >= 0.85)[0] || pick[0] || ps[0];
+        if (want && st.story.dungeon.at < st.story.dungeon.depth - 1) G.Story.takePath(st, want.id);
+        const enc = G.Story.nextEncounter(st);
           const b = G.Battle.start(st, enc.units, { isBoss: enc.isBoss });
           let g = 0;
           while (!b.over && g++ < 400) {
@@ -101,6 +110,8 @@ function story() {
           G.Run.grantVictory(st, b, enc.kind);
           G.Run.applyLevelUps(st);
           G.Run.healParty(st, 0.3, 0.2);
+          /* 拾い物は通った道のもの。進める前に引く（本編と同じ順） */
+          if (st.story.dungeon.at < st.story.dungeon.depth - 1) G.Story.rollStash(st);
           if (G.Story.advanceDungeon(st)) G.Story.leaveDungeon(st);
         }
         G.Run.healParty(st, 1);

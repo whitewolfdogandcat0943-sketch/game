@@ -21,7 +21,9 @@ const FILES = [
   'js/data/difficulty.js',
   'js/data/skilltree.js',
   'js/data/classtree.js',
-  'js/data/story.js'
+  'js/data/story.js',
+  'js/data/paths.js',
+  'js/data/errands.js'
 ];
 
 /* 戦闘まで含めたエンジン一式（DOMに触れないファイルのみ） */

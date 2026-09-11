@@ -106,20 +106,33 @@
   }
 
   /** ダンジョンで一歩踏み込む。道中・ボス前の会話はここで挟む。 */
-  function dungeonGo() {
+  /** 道を選んで一歩踏み込む。pathId 無しなら本道あつかい（主戦はここを通る）。 */
+  function dungeonGo(pathId) {
     var dg = state.story.dungeon;
     if (!dg) { go('world'); return; }
     var d = G.Story.place(dg.id);
     var isBoss = dg.at >= dg.depth - 1;
     if (dg.at === 0 && d.intro && !state.story.flags['intro_' + dg.id]) {
       state.story.flags['intro_' + dg.id] = true;
-      playScene(d.intro, { title: d.name, endLabel: '奥へ進む', then: dungeonGo });
+      playScene(d.intro, { title: d.name, endLabel: '奥へ進む', then: function () { dungeonGo(pathId); } });
       return;
     }
     if (isBoss && d.bossIntro && !state.story.flags['bi_' + dg.id]) {
       state.story.flags['bi_' + dg.id] = true;
-      playScene(d.bossIntro, { title: d.name, endLabel: '戦う', then: dungeonGo });
+      playScene(d.bossIntro, { title: d.name, endLabel: '戦う', then: function () { dungeonGo(pathId); } });
       return;
+    }
+    if (!isBoss && pathId) {
+      var took = G.Story.takePath(state, pathId);
+      if (took && took.toll) UI.toast('🩸 ' + took.path.name + 'を抜けるあいだに、体力を削られた。', 'bad');
+      if (took && took.skipped) {
+        /* 戦わずに一歩進んだ。拾い物だけは通る。 */
+        UI.toast('🤫 ' + took.path.after, '');
+        if (took.stash) showStash(took.stash);
+        if (took.cleared) { /* 静区は主の手前までしか出ないので、ここは通らない */ }
+        G.Save.saveRun(state);
+        go('dungeon'); return;
+      }
     }
     var enc = G.Story.nextEncounter(state);
     if (!enc) { go('world'); return; }
@@ -129,21 +142,31 @@
     go('battle');
   }
 
+  /** 拾い物を知らせる */
+  function showStash(stash) {
+    UI.toast('🎁 ' + stash.place + (stash.gold ? '（' + stash.gold + 'G）' : ''), 'legend');
+    stash.items.filter(function (x) { return x.rare; }).forEach(function (x) {
+      UI.toast('✦ レアアイテム: <b>' + x.ref.name + '</b>', 'mythic');
+    });
+    if (stash.acc) UI.toast('💍 <b>' + stash.acc.name + '</b> を見つけた。', 'legend');
+  }
+
   /** 物語モードで戦闘に勝ったあと */
   function storyAfterBattle() {
+    /* 倒した相手を、受けている頼まれごとに数える */
+    var hits = G.Story.noteKills(state, state.battle && state.battle.rec && state.battle.rec.killIds);
+    hits.forEach(function (x) {
+      UI.toast('📜 ' + x.errand.who + 'の頼まれごと: ' + x.n + ' / ' + x.errand.n, '');
+    });
     var dg = state.story.dungeon;
     if (!dg) { go('world'); return; }
     var d = G.Story.place(dg.id);
+    /* 拾い物は「今通った道」のもの。進めてしまうと道の情報が消えるので、
+     * 一歩進める前に引く。 */
+    var stash = (dg.at < dg.depth - 1) ? G.Story.rollStash(state) : null;
     var done = G.Story.advanceDungeon(state);
     if (!done) {
-      /* 奥へ進む途中で、物陰から物資が見つかることがある */
-      var stash = G.Story.rollStash(state);
-      if (stash) {
-        UI.toast('🎁 ' + stash.place + 'から物資を見つけた。', 'legend');
-        stash.items.filter(function (x) { return x.rare; }).forEach(function (x) {
-          UI.toast('✦ レアアイテム: <b>' + x.ref.name + '</b>', 'mythic');
-        });
-      }
+      if (stash) showStash(stash);
       G.Save.saveRun(state);
       go('dungeon'); return;
     }
@@ -409,14 +432,46 @@
       case 'town': go('town'); break;
       case 'inn': {
         var cost = parseInt(p[1], 10);
-        if (G.Story.inn(state, cost)) { UI.toast('🛏 ひと晩休み、全員が回復した。'); G.Save.saveRun(state); }
-        else UI.toast('所持金が足りない。');
+        if (G.Story.inn(state, cost)) {
+          UI.toast('🛏 ひと晩休み、全員が回復した。');
+          G.Save.saveRun(state);
+          /* 泊まった夜に、一つだけ話が転がる。無ければ黙って朝になる。 */
+          var night = G.Story.innTalk(state);
+          if (night) {
+            G.Save.saveRun(state);
+            playScene(night.lines, { title: '宿の夜', endLabel: '朝を待つ', then: function () { go('town'); } });
+            break;
+          }
+        } else UI.toast('所持金が足りない。');
         draw(); break;
       }
       case 'townShop':
         if (!state.run.shop) state.run.shop = G.Run.makeShop(state);
         go('shop'); break;
-      case 'dungeonGo': dungeonGo(); break;
+      case 'dungeonGo': dungeonGo(p[1]); break;
+      case 'errandTake':
+        if (G.Story.takeErrand(state, p[1])) {
+          UI.toast('📜 頼まれごとを引き受けた。', '');
+          G.Save.saveRun(state);
+        }
+        draw(); break;
+      case 'errandDone': {
+        var qx = G.ERRAND_BY_ID[p[1]];
+        var got = G.Story.finishErrand(state, p[1]);
+        if (got) {
+          /* 報告は台詞で返す。数字だけ増えて終わると、用事ではなく作業になる。 */
+          playScene([{ w: qx.who, t: qx.done }], { title: '頼まれごと', endLabel: '受け取る', then: function () {
+            if (got.gold) UI.toast('💰 ' + got.gold + 'G を受け取った。', 'legend');
+            got.items.forEach(function (it) {
+              UI.toast('🧪 <b>' + it.ref.name + '</b> ×' + it.n, '');
+            });
+            if (got.acc) UI.toast('💍 <b>' + got.acc.name + '</b> を譲り受けた。', 'legend');
+            G.Save.saveRun(state);
+            go('town');
+          } });
+        } else draw();
+        break;
+      }
       case 'dungeonLeave': G.Story.leaveDungeon(state); G.Save.saveRun(state); go('world'); break;
       case 'chapterNext': chapterNext(); break;
       case 'storyRecover': storyRecover(); break;

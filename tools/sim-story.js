@@ -2,6 +2,14 @@
  * 会話は飛ばし、戦闘だけを簡易AIで処理して、章ごとの手応えを測る。 */
 const { loadEngine, newState } = require('./load-data.js');
 
+/* 分かれ道の選び方。--paths main なら安全な本道だけを通る。
+ * 既定は greedy（拾い物のある道を優先する欲張り）で、こちらのほうが厳しく出る。
+ * 手応えを測るときは両方回して、差が「選んだ代償」に見合うかを見る。 */
+const PATHS = (() => {
+  const i = process.argv.indexOf('--paths');
+  return i >= 0 ? process.argv[i + 1] : 'greedy';
+})();
+
 function heroAI(G, b) {
   var u = b.actor;
   var foes = G.Battle.aliveEnemies(b);
@@ -83,6 +91,15 @@ function playthrough(G, log) {
       G.Story.enterDungeon(st, d.id);
       let steps = 0;
       while (st.story.dungeon && steps++ < 40) {
+        /* 分かれ道。実際の遊びでは選ぶので、測るときも選ぶ。
+         * 「拾い物のある道を選び続ける人」が一番多いはずなので、それで測る。 */
+        const ps = G.Story.paths(st).filter(x => !x.skip);
+        /* 消耗する道は、余力があるときだけ。人は瀕死で淀みに降りない。 */
+        const party = st.party || [st.hero];
+        const fresh = party.every(m => m.hp / G.Stats.compute(m).S.maxHp > 0.6);
+        const pick = ps.filter(x => fresh || !x.toll);
+        const want = PATHS === 'main' ? ps[0] : (pick.filter(x => x.find >= 0.85)[0] || pick[0] || ps[0]);
+        if (want && st.story.dungeon.at < st.story.dungeon.depth - 1) G.Story.takePath(st, want.id);
         const enc = G.Story.nextEncounter(st);
         const b = fight(G, st, enc);
         if (b.result !== 'win') {
@@ -95,6 +112,8 @@ function playthrough(G, log) {
         G.Run.grantVictory(st, b, enc.kind);
         G.Run.applyLevelUps(st);
         G.Run.healParty(st, 0.3, 0.2);
+        /* 拾い物は通った道のもの。進める前に引く（本編と同じ順） */
+        if (st.story.dungeon.at < st.story.dungeon.depth - 1) G.Story.rollStash(st);
         if (G.Story.advanceDungeon(st)) G.Story.leaveDungeon(st);
       }
       G.Run.healParty(st, 1);   /* 宿に泊まった想定 */
@@ -117,8 +136,9 @@ function main() {
   const di = process.argv.indexOf('--diff');
   const diff = di >= 0 ? process.argv[di + 1] : 'normal';
   G.Diff.set(diff);
-  console.log('難易度:', G.Diff.get().name);
-  const n = process.argv.indexOf('-v') >= 0 ? 1 : 20;
+  console.log('難易度:', G.Diff.get().name, '／ 道の選び方:', PATHS === 'main' ? '本道だけ' : '拾い物を優先');
+  const ri = process.argv.indexOf('--runs');
+  const n = process.argv.indexOf('-v') >= 0 ? 1 : (ri >= 0 ? parseInt(process.argv[ri + 1], 10) : 20);
   let done = 0, totalWipes = 0, lvs = [];
   for (let i = 0; i < n; i++) {
     const r = playthrough(G, n === 1);

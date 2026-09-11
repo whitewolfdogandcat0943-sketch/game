@@ -322,3 +322,13 @@ img.ico{display:inline-block;margin:0 4px -3px 0;vertical-align:baseline}
 /* 召喚体は、本物の仲間と見分けがつくように縁を変える */
 .unit.member.summoned { border-style: dashed; opacity: .94; }
 .unit.member.summoned .un span:first-child { color: var(--gold); }
+
+/* ダンジョンの分かれ道 */
+.pathicon{font-size:28px;line-height:1;margin-bottom:6px}
+.pathtags{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap}
+.ptag{font-size:10px;letter-spacing:.04em;border:1px solid var(--line);border-radius:999px;padding:1px 7px;color:var(--dim)}
+.ptag.good{border-color:#2f6b4a;color:var(--ok)}
+.ptag.bad{border-color:#6b2f35;color:var(--danger)}
+.ptag.rare{border-color:#7a4d1c;color:var(--legend)}
+.errand{padding:2px 0}
+.errand.sep-top{border-top:1px dashed #1a1f33;margin-top:10px;padding-top:10px}

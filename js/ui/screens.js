@@ -328,6 +328,36 @@ G.Screens = (function () {
     return h;
   }
 
+  /** 頼まれごと。受けるも断るも自由な、本筋の外の用事。 */
+  function errandPanel(state, t) {
+    var list = G.Story.errandsAt(state, t.id);
+    if (!list.length) return '';
+    var h = '<div class="panel"><h3>頼まれごと</h3>' +
+      '<p class="tiny muted">受けても受けなくてもいい。断っても、誰も怒らない。</p>';
+    list.forEach(function (x, i) {
+      var taken = G.Story.errandTaken(state, x.id);
+      var pr = taken ? G.Story.errandProgress(state, x.id) : null;
+      var need = x.kind === 'kill'
+        ? (G.ENEMY_BY_ID[x.target] || { name: '？' }).name + ' を ' + x.n + ' 体'
+        : (G.ITEM_BY_ID[x.item] || { name: '？' }).name + ' を ' + x.n + ' 個';
+      h += '<div class="errand' + (i ? ' sep-top' : '') + '">' +
+        '<p class="line"><b class="who">' + U.esc(x.who) + '</b>' +
+        '<span class="say">' + U.esc(taken ? x.mid : x.ask) + '</span></p>' +
+        '<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap">' +
+        '<span class="tiny muted">' + need + '</span>';
+      if (!taken) {
+        h += '<button class="btn tiny" data-act="errandTake:' + x.id + '">引き受ける</button>';
+      } else {
+        h += '<span class="tiny ' + (pr.ok ? 'r-legend' : 'muted') + '">' + pr.have + ' / ' + pr.need + '</span>';
+        h += pr.ok
+          ? '<button class="btn tiny primary" data-act="errandDone:' + x.id + '">報告する</button>'
+          : '<span class="tiny muted">まだ足りない。</span>';
+      }
+      h += '</div></div>';
+    });
+    return h + '</div>';
+  }
+
   /** 町。宿・店・祭壇・立ち話。 */
   function town(state) {
     var t = G.Story.place(state.story.place);
@@ -342,8 +372,13 @@ G.Screens = (function () {
     if (t.tower) h += '<button class="btn" data-act="towerFromStory">試練の塔へ</button>';
     h += '<button class="btn" data-act="toWorld" style="margin-left:auto">町を出る</button>';
     h += '</div></div>';
+    h += errandPanel(state, t);
+    /* 章の主を倒したあとは、同じ人が違うことを言う。
+     * 町の台詞が最後まで同じだと、こちらが何をしても世界は動いていないことになる。 */
+    var ch = G.Story.chapter(state);
+    var moved = !!(ch && state.story.cleared[ch.goal] && t.talksAfter);
     h += '<div class="panel"><h3>街の声</h3>' +
-      (t.talks || []).map(function (x) {
+      (moved ? t.talksAfter : (t.talks || [])).map(function (x) {
         return '<p class="line"><b class="who">' + U.esc(x.who) + '</b><span class="say">' +
           U.esc(G.Story.fill(x.t, state)) + '</span></p>';
       }).join('') + '</div>';
@@ -368,6 +403,20 @@ G.Screens = (function () {
     render(h);
   }
 
+  /** 道の性格を短い札で見せる。数字は出さない。
+   *  「精鋭が待つ」「体力を削られる」程度が分かれば、選ぶには足りる。 */
+  function pathTags(p) {
+    var t = [];
+    if (p.elite) t.push('<span class="ptag bad">手強い</span>');
+    if (p.mobs && p.mobs < 0) t.push('<span class="ptag">数は少ない</span>');
+    if (p.toll) t.push('<span class="ptag bad">消耗する</span>');
+    if (p.skip) t.push('<span class="ptag good">戦わずに進める</span>');
+    if (p.acc) t.push('<span class="ptag rare">何かが眠っている</span>');
+    else if (p.find != null && p.find >= 0.85) t.push('<span class="ptag good">拾い物がある</span>');
+    if (p.once) t.push('<span class="ptag">一度きり</span>');
+    return t.join('');
+  }
+
   /** ダンジョン内の進行画面 */
   function dungeon(state) {
     var dg = state.story.dungeon;
@@ -388,18 +437,43 @@ G.Screens = (function () {
       h += '<span class="depth-dot ' + cls + '">' + (i === dg.depth - 1 ? '👑' : '·') + '</span>';
     }
     h += '</div>';
-    h += '<div class="center" style="margin-top:12px">' +
-      '<button class="btn primary" data-act="dungeonGo">' +
-      (dg.echo ? '⚔ 残響の主に挑む' : (last ? '⚔ 主に挑む' : '⚔ 奥へ進む')) + '</button> ' +
-      '<button class="btn" data-act="dungeonLeave">引き返す</button></div></div>';
+    if (last || dg.echo) {
+      h += '<div class="center" style="margin-top:12px">' +
+        '<button class="btn primary" data-act="dungeonGo">' +
+        (dg.echo ? '⚔ 残響の主に挑む' : '⚔ 主に挑む') + '</button> ' +
+        '<button class="btn" data-act="dungeonLeave">引き返す</button></div></div>';
+    } else {
+      h += '</div>';
+      /* 分かれ道。どの道でも一歩は一歩だが、払うものと拾うものが違う。 */
+      var ps = G.Story.paths(state);
+      if (ps.length) {
+        h += '<p class="muted">道が分かれている。どれを選んでも、奥へは一歩。</p><div class="grid g3">';
+        ps.forEach(function (pp) {
+          h += '<div class="node" data-act="dungeonGo:' + pp.id + '">' +
+            '<div class="pathicon">' + pp.icon + '</div>' +
+            '<div class="nn">' + pp.name + '</div>' +
+            '<div class="nd">' + pp.desc + '</div>' +
+            (pathTags(pp) ? '<div class="pathtags">' + pathTags(pp) + '</div>' : '') +
+            '</div>';
+        });
+        h += '</div>';
+      } else {
+        h += '<div class="panel center">' +
+          '<button class="btn primary" data-act="dungeonGo">⚔ 奥へ進む</button></div>';
+      }
+      h += '<div class="center" style="margin-top:12px">' +
+        '<button class="btn" data-act="dungeonLeave">引き返す</button></div>';
+    }
     if (dg.stash) {
-      h += '<div class="panel"><h3>🎁 ' + dg.stash.place + '</h3>' +
-        '<p class="muted small">物資が残されていた。' +
+      h += '<div class="panel"><h3>🎁 拾い物</h3>' +
+        '<p class="muted small">' + dg.stash.place +
         (dg.stash.gold ? '（' + dg.stash.gold + 'G）' : '') + '</p><div class="grid g3">' +
         dg.stash.items.map(function (x) {
           return UI.itemCard(x.ref, null, x.rare
             ? { note: '<span class="r-legend">✦ レアアイテム</span>', cls: 'bd-legend' } : null);
-        }).join('') + '</div></div>';
+        }).join('') +
+        (dg.stash.acc ? UI.accCard(dg.stash.acc, { note: '<span class="r-legend">扉の奥にあった</span>' }) : '') +
+        '</div></div>';
     }
     h += partyPanel(state);
     render(h);

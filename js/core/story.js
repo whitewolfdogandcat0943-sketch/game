@@ -120,6 +120,57 @@ G.Story = (function () {
     state.story.place = null;
   }
 
+  /* ===================== 分かれ道 ===================== */
+
+  /** 今の一歩で選べる道。中身は paths.js（G.PATHS）が持つ。 */
+  function paths(state) {
+    if (!G.rollPaths) return [];
+    return G.rollPaths(state).map(function (id) { return G.PATH_BY_ID[id]; })
+      .filter(function (p) { return !!p; });
+  }
+
+  /** 今どの道を通っているか。選ぶ前は本道あつかい。 */
+  function curPath(state) {
+    var dg = state.story && state.story.dungeon;
+    var p = dg && dg.path && G.PATH_BY_ID ? G.PATH_BY_ID[dg.path] : null;
+    return p || (G.PATHS ? G.PATHS[0] : null);
+  }
+
+  /** 道を選ぶ。入るだけで払うもの（淀んだ底の消耗）はここで払う。
+   *  戦わずに抜ける道なら { skipped: true } を返す。 */
+  function takePath(state, id) {
+    var dg = state.story && state.story.dungeon;
+    if (!dg) return null;
+    var p = G.PATH_BY_ID && G.PATH_BY_ID[id];
+    if (!p) return null;
+    /* 選べる顔ぶれに無い道は通らせない（保存データの持ち回しで壊れないように） */
+    if ((dg.paths || []).indexOf(id) < 0) return null;
+    dg.path = id;
+    if (p.once) {
+      if (!dg.usedPaths) dg.usedPaths = {};
+      dg.usedPaths[p.once] = true;
+    }
+    var hurt = 0;
+    if (p.toll) {
+      /* 通行料は最大HPの割合で、倒れることはない。
+       * 道を選んだだけで全滅が決まる作りにはしない。 */
+      (state.party || [state.hero]).forEach(function (m) {
+        var mx = G.Stats.compute(m).S.maxHp;
+        var cut = Math.round(mx * p.toll);
+        var before = m.hp;
+        m.hp = Math.max(1, m.hp - cut);
+        hurt += before - m.hp;
+      });
+    }
+    if (p.skip) {
+      /* 戦わずに一歩。拾い物の判定だけは通す。 */
+      var st = rollStash(state);
+      var done = advanceDungeon(state);
+      return { skipped: true, cleared: done, stash: st, toll: hurt, path: p };
+    }
+    return { skipped: false, toll: hurt, path: p };
+  }
+
   /* 章の想定レベルを大きく超えて育っていると、中盤が素通りになり
    * 最終章だけが壁になる。育ったぶんは敵の格も上げて、道中に手応えを残す。
    * 章の設計値を下回ることはなく、上限も +8 までに留める。 */
@@ -181,6 +232,12 @@ G.Story = (function () {
     n += (lvN >= 4 ? G.Diff.get().mobPlus : 0);
     /* 最後の一歩手前は少し歯応えを増やす */
     var elite = (dg.at === dg.depth - 2) && d.depth >= 4;
+    /* 選んだ道の中身。狭ければ数が減り、広間なら精鋭が待つ。 */
+    var pth = curPath(state);
+    if (pth) {
+      if (pth.mobs) n = Math.max(1, n + pth.mobs);
+      if (pth.elite) elite = true;
+    }
     /* 精鋭は一体ずつが重い。数を増やすと難しくなるのではなく長くなるだけなので、
      * 数は絞って、一体あたりの手応えで見せる。 */
     if (elite) n = Math.min(3, Math.max(2, n - 1));
@@ -201,6 +258,8 @@ G.Story = (function () {
     var dg = state.story.dungeon;
     if (!dg) return false;
     dg.at++;
+    /* 一歩進んだら、道の選び直し。次の顔ぶれは踏み込むときに引く。 */
+    dg.path = null; dg.paths = null; dg.pathsAt = -1;
     if (dg.at >= dg.depth) {
       dg.cleared = true;
       state.story.cleared[dg.id] = true;
@@ -226,23 +285,37 @@ G.Story = (function () {
     /* 同じ場所は一度きり。踏破済みのダンジョンでは出ない。 */
     var key = dg.id + '#' + dg.at;
     if (state.story.flags['stash_' + key]) return null;
-    if (!U.chance(0.55)) return null;
+    /* 選んだ道で、見つかるかどうかも、量も変わる。
+     * 拾い物が道と無関係だと、道を選んだ意味が「戦闘の形」だけになる。 */
+    var pth = curPath(state);
+    var chance = (pth && pth.find != null) ? pth.find : 0.40;
+    var bonus = (pth && pth.findBonus) || 1;
+    if (!U.chance(chance)) return null;
     state.story.flags['stash_' + key] = true;
 
     var lv = d.lv, got = [];
-    var n = U.rint(1, 2);
+    var n = U.rint(1, 2) + (bonus >= 1.5 ? 1 : 0);
     for (var i = 0; i < n; i++) {
       var it = G.Run.rollItem(lv);
       G.addItem(state.hero, it.id, 1);
       got.push({ ref: it, rare: false });
     }
-    if (U.chance(G.Run.rareItemChance(state, 'treasure'))) {
+    if (U.chance(Math.max((pth && pth.rare) || 0, G.Run.rareItemChance(state, 'treasure')))) {
       var ri = G.Run.rollRareItem(lv);
       if (ri) { G.addItem(state.hero, ri.id, 1); got.push({ ref: ri, rare: true }); }
     }
-    var gold = Math.round((25 + lv * 14) * U.rf(0.8, 1.3));
+    /* 隠し扉の先だけはアクセサリが出る。道中で装備が増える唯一の場所。 */
+    var acc = null;
+    if (pth && pth.acc) {
+      acc = G.Run.rollAcc(Math.max(1, lv), 0.2, U.chance(0.35), 'mid');
+      if (acc) G.addAcc(state.hero, acc.id);
+    }
+    var gold = Math.round((25 + lv * 14) * U.rf(0.8, 1.3) * bonus);
     state.hero.gold += gold;
-    dg.stash = { items: got, gold: gold, place: U.pick(STASH_PLACES) };
+    dg.stash = {
+      items: got, gold: gold, acc: acc,
+      place: (pth && pth.after) ? pth.after : U.pick(STASH_PLACES)
+    };
     return dg.stash;
   }
 
@@ -309,6 +382,87 @@ G.Story = (function () {
     });
   }
 
+  /* ===================== 頼まれごと =====================
+   *
+   * 町の人が持ちかける小さな用事。本筋には関わらない。
+   * 受けるのも断るのも自由で、断っても何も減らない。
+   * 「やってもやらなくてもいいことがある」のが、町が町に見える最小の条件。 */
+
+  function qbook(state) {
+    if (!state.story.errands) state.story.errands = { taken: {}, done: {} };
+    return state.story.errands;
+  }
+
+  /** この町で、今かかっている用事を返す（受ける前のものも含む） */
+  function errandsAt(state, townId) {
+    var q = qbook(state), ch = state.story.ch;
+    return (G.ERRANDS || []).filter(function (x) {
+      if (x.town !== townId) return false;
+      if (q.done[x.id]) return false;
+      /* 章が進んでも、取り逃した用事は残す。町を素通りした人を罰しない。 */
+      return x.ch <= ch;
+    });
+  }
+
+  function errandTaken(state, id) { return !!qbook(state).taken[id]; }
+  function errandDone(state, id) { return !!qbook(state).done[id]; }
+
+  function takeErrand(state, id) {
+    var q = qbook(state);
+    if (q.taken[id] || q.done[id]) return false;
+    q.taken[id] = { n: 0 };
+    return true;
+  }
+
+  /** 進み具合。{ have, need, ok } */
+  function errandProgress(state, id) {
+    var q = qbook(state), x = G.ERRAND_BY_ID && G.ERRAND_BY_ID[id];
+    if (!x) return { have: 0, need: 1, ok: false };
+    var have = 0;
+    if (x.kind === 'kill') have = (q.taken[id] && q.taken[id].n) || 0;
+    else if (x.kind === 'bring') have = (state.hero.items && state.hero.items[x.item]) || 0;
+    return { have: Math.min(have, x.n), need: x.n, ok: have >= x.n };
+  }
+
+  /** 報告する。品を求める用事は、ここで手持ちから引く。 */
+  function finishErrand(state, id) {
+    var q = qbook(state), x = G.ERRAND_BY_ID && G.ERRAND_BY_ID[id];
+    if (!x || !q.taken[id] || q.done[id]) return null;
+    var pr = errandProgress(state, id);
+    if (!pr.ok) return null;
+    if (x.kind === 'bring') G.addItem(state.hero, x.item, -x.n);
+    q.done[id] = true; delete q.taken[id];
+
+    var got = { gold: 0, items: [], acc: null };
+    var r = x.reward || {};
+    if (r.gold) { state.hero.gold += r.gold; got.gold = r.gold; }
+    (r.items || []).forEach(function (pair) {
+      G.addItem(state.hero, pair[0], pair[1]);
+      got.items.push({ ref: G.ITEM_BY_ID[pair[0]], n: pair[1] });
+    });
+    if (r.acc && G.ACC_BY_ID[r.acc]) {
+      G.addAcc(state.hero, r.acc);
+      got.acc = G.ACC_BY_ID[r.acc];
+    }
+    return got;
+  }
+
+  /** 戦闘のあとに呼ぶ。倒した相手を、受けている用事に数える。 */
+  function noteKills(state, killIds) {
+    if (!killIds) return [];
+    var q = qbook(state), hit = [];
+    Object.keys(q.taken).forEach(function (id) {
+      var x = G.ERRAND_BY_ID && G.ERRAND_BY_ID[id];
+      if (!x || x.kind !== 'kill') return;
+      var n = killIds[x.target] || 0;
+      if (!n) return;
+      var before = q.taken[id].n;
+      q.taken[id].n = Math.min(x.n, before + n);
+      if (q.taken[id].n !== before) hit.push({ errand: x, n: q.taken[id].n });
+    });
+    return hit;
+  }
+
   /* ===================== 宿 ===================== */
 
   function inn(state, cost) {
@@ -318,14 +472,41 @@ G.Story = (function () {
     return true;
   }
 
+  /** 宿の夜に一つだけ流れる話。無ければ null。
+   *  同じ話は二度出さず、その場に居ない仲間の話は出さない。 */
+  function innTalk(state) {
+    if (!G.INN_TALKS) return null;
+    if (!state.story.flags) state.story.flags = {};
+    var here = {};
+    (state.party || [state.hero]).forEach(function (m) { if (m.allyId) here[m.allyId] = true; });
+    var pool = G.INN_TALKS.filter(function (x) {
+      if (state.story.flags['inn_' + x.id]) return false;
+      if (x.ch > state.story.ch) return false;
+      return (x.need || []).every(function (id) { return here[id]; });
+    });
+    if (!pool.length) return null;
+    /* 今いる章にいちばん近い話から出す。
+     * 古い話から順に消化すると、第六章の宿で第一章の世間話をすることになる。 */
+    pool.sort(function (a, b) {
+      return (b.ch - a.ch) || ((b.need || []).length - (a.need || []).length);
+    });
+    var got = pool[0];
+    state.story.flags['inn_' + got.id] = true;
+    return { id: got.id, lines: fillLines(got.lines, state) };
+  }
+
   return {
     begin: begin, chapter: chapter, places: places, place: place, placeOpen: placeOpen,
     fill: fill, fillLines: fillLines,
     enterDungeon: enterDungeon, leaveDungeon: leaveDungeon, rollStash: rollStash,
+    paths: paths, curPath: curPath, takePath: takePath,
     nextEncounter: nextEncounter, advanceDungeon: advanceDungeon,
     echoCount: echoCount, echoReward: echoReward,
     chapterDone: chapterDone, nextChapter: nextChapter, joinForChapter: joinForChapter,
     partyTalks: partyTalks,
-    inn: inn
+    errandsAt: errandsAt, errandTaken: errandTaken, errandDone: errandDone,
+    takeErrand: takeErrand, errandProgress: errandProgress,
+    finishErrand: finishErrand, noteKills: noteKills,
+    inn: inn, innTalk: innTalk
   };
 })();
