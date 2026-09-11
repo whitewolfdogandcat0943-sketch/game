@@ -2718,6 +2718,95 @@
   "kind": "acc"
  },
  {
+  "id": "n_callbell",
+  "name": "招きの鈴",
+  "tier": 1,
+  "price": 115,
+  "mods": {
+   "summonPower": 0.22,
+   "mp": 12
+  },
+  "desc": "鳴らすと、呼ばれたものが振り向く。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_spiritvessel",
+  "name": "依代の壺",
+  "tier": 2,
+  "price": 225,
+  "mods": {
+   "summonPower": 0.34,
+   "summonTurns": 1
+  },
+  "desc": "中身は空のほうがいい、と古物商は言う。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "n_bindcircle",
+  "name": "契約の環",
+  "tier": 3,
+  "price": 345,
+  "mods": {
+   "summonPower": 0.44,
+   "summonTurns": 1,
+   "mag": 14
+  },
+  "desc": "描いた輪の外へは出られない。描いた側も同じだが、そこは言わない。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_sumcrown",
+  "name": "百霊の冠",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "summonPower": 0.64,
+   "summonTurns": 1,
+   "magPct": 0.12
+  },
+  "desc": "被った者の周りに、常に何かが侍っている。数えると一つ増える。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_gatekey",
+  "name": "彼方への鍵",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "summonPower": 0.58,
+   "mp": 55,
+   "mpRegen": 6
+  },
+  "desc": "鍵穴の向こう側が、毎回ちがう場所につながっている。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
+  "id": "l_shadepact",
+  "name": "影従の契",
+  "tier": 3,
+  "price": 680,
+  "mods": {
+   "summonPower": 0.5,
+   "summonTurns": 1,
+   "el_dark": 0.16
+  },
+  "grant": "summonShade",
+  "desc": "影と結んだ約束。破ると、破ったほうが影になる。<br><b>〈影従招来〉を習得する。</b>",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc"
+ },
+ {
   "id": "nn_runestone",
   "name": "ルーンの刻み石",
   "tier": 1,
@@ -2800,7 +2889,7 @@
   "price": 210,
   "mods": {
    "hp": 95,
-   "mpRegen": 0.06
+   "mpRegen": 3
   },
   "desc": "食べても翌朝には戻っている山羊の、抜けた毛。",
   "rarity": "normal",
@@ -2947,7 +3036,7 @@
   "mods": {
    "lifesteal": 0.36,
    "hpPct": 0.2,
-   "mpRegen": 0.1
+   "mpRegen": 5
   },
   "desc": "齧ると齢が戻る林檎。齧りすぎた者の話は残っていない。",
   "rarity": "legend",
@@ -3075,14 +3164,16 @@
   "id": "nl_huginmunin",
   "name": "フギンとムニン",
   "tier": 3,
-  "price": 685,
+  "price": 760,
   "mods": {
-   "spd": 28,
-   "mp": 55,
-   "mpRegen": 0.16,
-   "magPct": 0.1
+   "summonPower": 0.55,
+   "summonTurns": 1,
+   "spd": 24,
+   "mp": 45,
+   "mpRegen": 6
   },
-  "desc": "思考と記憶。毎朝飛ばして、毎晩戻るのを待つ。帰らない日が来るのを、いちばん恐れているという。",
+  "grant": "summonRavens",
+  "desc": "思考と記憶。毎朝飛ばして、毎晩戻るのを待つ。帰らない日が来るのを、いちばん恐れているという。<br><b>〈双鴉招来〉を習得する。二羽が同時に出る。</b>",
   "rarity": "legend",
   "slot": "acc",
   "kind": "acc",
@@ -3436,6 +3527,69 @@
    "debuffTurns": 1
   },
   "desc": "猫の足音で編んだ紐の、余ったところ。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_valgrind",
+  "name": "ヴァルグリンドの鍵",
+  "tier": 3,
+  "price": 700,
+  "mods": {
+   "summonPower": 0.62,
+   "summonTurns": 1,
+   "mag": 20
+  },
+  "desc": "ヴァルホルの門の鍵。開けるたびに、誰かが呼ばれて出てくる。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nl_hlidskjalf",
+  "name": "フリズスキャルヴの座",
+  "tier": 3,
+  "price": 690,
+  "mods": {
+   "summonPower": 0.58,
+   "mp": 50,
+   "mpRegen": 7,
+   "magPct": 0.1
+  },
+  "desc": "九つの世界を見渡す高座。座れば、どこの誰にでも声が届く。",
+  "rarity": "legend",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_summonrune",
+  "name": "招きのルーン",
+  "tier": 3,
+  "price": 335,
+  "mods": {
+   "summonPower": 0.42,
+   "summonTurns": 1
+  },
+  "desc": "呼ぶための文字。呼ばれた側に断る文字は無い。",
+  "rarity": "normal",
+  "slot": "acc",
+  "kind": "acc",
+  "realm": "norse"
+ },
+ {
+  "id": "nn_ravenquill",
+  "name": "鴉の風切羽",
+  "tier": 2,
+  "price": 215,
+  "mods": {
+   "summonPower": 0.26,
+   "spd": 12
+  },
+  "desc": "飛ばした鴉が落としていったもの。まだ少し温かい。",
   "rarity": "normal",
   "slot": "acc",
   "kind": "acc",

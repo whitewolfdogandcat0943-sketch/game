@@ -245,6 +245,8 @@ G.Gfx = (function () {
     sum_guardian:  { arch: 'golem',    hue: 35,  sat: 22, lum: 48, eye: '#9fe8c0' },
     sum_wisp:      { arch: 'orb',      hue: 52,  sat: 90, lum: 62, eye: '#fffbd0' },
     sum_great:     { arch: 'angel',    hue: 288, sat: 52, lum: 60, eye: '#ffe066' },
+    sum_raven:     { arch: 'bird',     hue: 262, sat: 22, lum: 32, eye: '#ffd24a' },
+    sum_shade:     { arch: 'ghost',    hue: 272, sat: 36, lum: 38, eye: '#c08cff' },
     /* --- 試練の塔（北欧）--- */
     nm_draugr:     { arch: 'skeleton', hue: 150, sat: 18, lum: 46, eye: '#8cf0b0' },
     nm_ratatosk:   { arch: 'beast',    hue: 28,  sat: 62, lum: 52, eye: '#fff' },

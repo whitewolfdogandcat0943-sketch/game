@@ -2425,17 +2425,18 @@
    "need": 2,
    "a": {
     "name": "依代",
-    "desc": "呼ぶものが硬くなる",
+    "desc": "呼ぶものを厚くする",
     "mods": {
-     "magPct": 0.15,
+     "summonPower": 0.25,
      "mp": 25
     }
    },
    "b": {
     "name": "触媒",
-    "desc": "呼ぶものが強く出る",
+    "desc": "呼ぶものを鋭くする",
     "mods": {
-     "magPct": 0.2
+     "summonPower": 0.2,
+     "magPct": 0.12
     }
    }
   },
@@ -2444,10 +2445,10 @@
    "need": 5,
    "a": {
     "name": "長縁",
-    "desc": "支援の効きと持ちを上げる",
+    "desc": "呼んだものが長く留まる",
     "mods": {
-     "buffPower": 0.2,
-     "buffTurns": 1
+     "summonTurns": 1,
+     "summonPower": 0.15
     }
    },
    "b": {
@@ -2490,9 +2491,9 @@
    "need": 2,
    "a": {
     "name": "統率",
-    "desc": "呼ぶものの威力を大きく上げる",
+    "desc": "呼ぶものの力を大きく上げる",
     "mods": {
-     "magPct": 0.28
+     "summonPower": 0.45
     }
    },
    "b": {
@@ -2500,7 +2501,8 @@
     "desc": "MPと回復を厚くする",
     "mods": {
      "mp": 70,
-     "mpRegen": 10
+     "mpRegen": 10,
+     "summonPower": 0.15
     }
    }
   },
@@ -2509,16 +2511,17 @@
    "need": 5,
    "a": {
     "name": "加護",
-    "desc": "支援の効果量を伸ばす",
+    "desc": "呼んだものごと強化する",
     "mods": {
-     "buffPower": 0.3
+     "buffPower": 0.3,
+     "summonPower": 0.12
     }
    },
    "b": {
     "name": "常駐",
-    "desc": "支援が長く残る",
+    "desc": "呼んだものが長く居座る",
     "mods": {
-     "buffTurns": 2
+     "summonTurns": 2
     }
    }
   },

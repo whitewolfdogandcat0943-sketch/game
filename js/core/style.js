@@ -4,7 +4,7 @@
  *   上級職   … 実際にどう戦ったか（行動の実績）        -> G.Style.behaviourOf
  *   最上級職 … アクセサリ4枠がどんな構成か（組み方）   -> G.Style.fromAccessories
  *
- * どちらも同じ11軸で表す。
+ * どちらも同じ12軸で表す。
  */
 G.Style = (function () {
 
@@ -22,7 +22,10 @@ G.Style = (function () {
      * 呪詛（状態異常）とは別に置いた。毒や麻痺を撒くことと、
      * 敵の攻撃力そのものを削ることは、組み方も対策も違うため。 */
     { id: 'buff',    name: '支援',     cls: 'r-legend' },
-    { id: 'debuff',  name: '弱体',     cls: 'e-dark'   }
+    { id: 'debuff',  name: '弱体',     cls: 'e-dark'   },
+    /* 召喚は「自分以外の手番を増やす」軸。支援とも範囲とも違い、
+     * 盤面に並ぶ頭数そのものを勝ち筋にする。 */
+    { id: 'summon',  name: '召喚',     cls: 'r-mythic' }
   ];
   var AXIS_IDS = AXES.map(function (a) { return a.id; });
 
@@ -39,7 +42,8 @@ G.Style = (function () {
     spd: { speed: 1.2 }, evade: { speed: 200 },
     buffPower: { buff: 130 }, buffTurns: { buff: 45 },
     debuffPower: { debuff: 130 }, debuffTurns: { debuff: 45 },
-    dotPower: { status: 130 }, dotTurns: { status: 45 }
+    dotPower: { status: 130 }, dotTurns: { status: 45 },
+    summonPower: { summon: 130 }, summonTurns: { summon: 45 }
   };
   G.MAGIC_ELEMENTS.forEach(function (e) { MOD_AXES['el_' + e] = { elem: 60 }; });
 

@@ -225,7 +225,7 @@ G.Battle = (function () {
   function aliveRealParty(b) { return realParty(b).filter(alive); }
 
   /** 召喚体を場に出す。術者の魔力を元に強さを決める。 */
-  function addSummon(b, caster, spec) {
+  function addSummon(b, caster, spec, nth) {
     var cap = spec.cap || 1;
     /* 同時に出せる数は cap まで。溢れたぶんは古いものから還す。
      * 技ごとに cap が違うので、超えている数だけまとめて処理する
@@ -237,14 +237,19 @@ G.Battle = (function () {
       log(b, '✨ ' + old.name + ' が霧に還った。');
     }
     var mag = caster.S.mag || 0, atk = caster.S.atk || 0;
-    var pw = Math.max(mag, atk);
+    /* 呼ぶものの強さは術者から決まる。summonPower を積めば呼ぶ側ごと伸びる。 */
+    var pw = Math.max(mag, atk) * (1 + (caster.S.summonPower || 0));
+    var extraT = Math.round(caster.S.summonTurns || 0);
     var u = {
-      side: 'player', id: 'sum' + b.units.length, name: spec.name, icon: spec.icon || '✨',
+      side: 'player', id: 'sum' + b.units.length,
+      /* 複数まとめて呼ぶものは、一体ずつ名前を分ける（フギンとムニン のように）。 */
+      name: (spec.names && spec.names[nth || 0]) || spec.name, icon: spec.icon || '✨',
       hero: null, state: b.state, buffs: [], flagBuffs: [], statuses: [],
       barrier: 0, endureUsed: false, killStacks: 0, extraEndure: false,
       coverFor: null, coveredBy: null, counterStance: 0, charge: 0, mark: null,
       weak: spec.weak || [], resist: spec.resist || [],
-      summon: true, summonTurns: (spec.turns || 3) + 1, summonSkill: spec.skill || 'attack',
+      summon: true, summonTurns: (spec.turns || 3) + extraT + 1,
+      summonSkill: spec.skill || 'attack',
       ref: { id: spec.sprite || 'summon' },
       base: {
         maxHp: Math.max(1, Math.round(pw * (spec.hp || 3.0))),
@@ -255,14 +260,16 @@ G.Battle = (function () {
       flags: {}, S: null
     };
     refresh(u);
-    /* 召喚体はMPを使わないが、画面はMPの上限を見る。未設定だと NaN が出る。 */
-    u.S.maxMp = u.S.maxMp || 1;
+    /* 召喚体はMPの心配をしない。上限を 0 のままにすると画面に NaN が出て、
+     * 小さくすると自分の技をMP不足で撃てなくなる（実機で「MPが足りない」が並んだ）。 */
+    u.S.maxMp = 999;
     u.hp = u.S.maxHp; u.mp = u.S.maxMp;
     b.party.push(u);
     b.units.push(u);
     b.units.forEach(function (x, i) { x.idx = i; });
     if (b.queue.indexOf(u) < 0) b.queue.push(u);
-    log(b, '✨ ' + caster.name + ' が ' + u.name + ' を呼び出した！（' + (spec.turns || 3) + 'ターン）', 'good');
+    log(b, '✨ ' + caster.name + ' が ' + u.name + ' を呼び出した！（' +
+      ((spec.turns || 3) + extraT) + 'ターン）', 'good');
     fx(b, { t: 'heal', i: u.idx, v: 0 });
     return u;
   }
@@ -1235,8 +1242,11 @@ G.Battle = (function () {
      * 強さは術者の魔力（か攻撃力の高いほう）から決まるので、
      * 召喚士を伸ばせば呼ぶものも一緒に伸びる。 */
     if (eff.summon && src.side === 'player') {
-      addSummon(b, src, eff.summon);
-      sty(b, src, 'buff', 2);
+      /* count があれば、その数だけまとめて呼ぶ。
+       * cap も一緒に見るので「2体同時に出て、2体まで並ぶ」が表せる。 */
+      var sn = eff.summon.count || 1;
+      for (var si = 0; si < sn; si++) addSummon(b, src, eff.summon, si);
+      sty(b, src, 'summon', 3);
     }
     if (eff.revive) {
       var downs = toAlly ? targets : alliesOf(b, src).filter(function (x) { return !alive(x); });

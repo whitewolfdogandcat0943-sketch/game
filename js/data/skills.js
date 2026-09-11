@@ -144,6 +144,19 @@ G.SKILLS = {};
                        hp: 4.0, pw: 1.05, spd: 1.05, skill: 'darkPact',
                        weak: [], resist: ['dark'], cap: 2 } } });
 
+  /* アクセサリが配る召喚。職業ではなく装備から来る一手。 */
+  S({ id: 'summonRavens', name: '双鴉招来', mp: 16, kind: 'util', target: 'self',
+      desc: '思考と記憶の二羽を同時に呼ぶ（4ターン）。速く、二羽で別々に動く。',
+      eff: { summon: { name: 'フギン', names: ['フギン', 'ムニン'],
+                       icon: '🐦', sprite: 'sum_raven', turns: 4,
+                       hp: 1.5, pw: 0.62, spd: 1.45, skill: 'galeEdge',
+                       weak: ['thunder'], resist: ['wind'], cap: 2, count: 2 } } });
+  S({ id: 'summonShade', name: '影従招来', mp: 12, kind: 'util', target: 'self',
+      desc: '影の従者を3ターン呼ぶ。闇で削る。',
+      eff: { summon: { name: '影の従者', icon: '👤', sprite: 'sum_shade', turns: 3,
+                       hp: 2.0, pw: 0.72, spd: 1.05, skill: 'darkPact',
+                       weak: ['light'], resist: ['dark'], cap: 1 } } });
+
   /* 隠し職業〈フェンリル〉の技。着ぐるみを手に入れた者だけが使う。 */
   S({ id: 'ult_ragnarok', name: '【奥義】顎・ラグナロク', mp: 30, kind: 'phys', el: 'phys', power: 250, target: 'one',
       hits: 2,

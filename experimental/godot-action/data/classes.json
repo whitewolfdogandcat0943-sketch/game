@@ -697,12 +697,12 @@
   "desc": "自分で殴らず、呼んだものに殴らせる者。手番をひとつ増やすのと同じことをする。",
   "req": [
    {
-    "label": "戦い方が「属性」と「支援」の両方に寄っている（各 14 以上）",
+    "label": "戦い方が「召喚」に寄っている（実績 12 以上／全体の 10% 以上）",
     "d": {
-     "t": "styleBoth",
-     "a": "elem",
-     "b": "buff",
-     "v": 14
+     "t": "style",
+     "k": "summon",
+     "v": 12,
+     "share": 0.1
     }
    },
    {
@@ -734,7 +734,7 @@
   "mods": {
    "magPct": 0.18,
    "mp": 30,
-   "buffPower": 0.12
+   "summonPower": 0.2
   },
   "skills": [
    "summonSprite",
@@ -2147,12 +2147,12 @@
   "desc": "呼ぶのではなく、従える者。盤上に自分の軍を並べ、自分は一歩も動かずに終わらせる。",
   "req": [
    {
-    "label": "アクセサリ4枠で「支援」と「属性」を両立（各 60 以上）",
+    "label": "アクセサリ4枠が「召喚」構成（得点 150 以上／全体の 40% 以上）",
     "d": {
-     "t": "accStyleDual",
-     "a": "buff",
-     "b": "elem",
-     "v": 60
+     "t": "accStyle",
+     "k": "summon",
+     "v": 150,
+     "share": 0.4
     }
    },
    {
@@ -2193,11 +2193,12 @@
    "magPct": 0.34,
    "mp": 70,
    "mpRegen": 8,
-   "buffPower": 0.3,
-   "buffTurns": 1,
-   "el_fire": 0.18,
-   "el_thunder": 0.18,
-   "el_dark": 0.18
+   "summonPower": 0.6,
+   "summonTurns": 1,
+   "buffPower": 0.2,
+   "el_fire": 0.15,
+   "el_thunder": 0.15,
+   "el_dark": 0.15
   },
   "flags": [
    "encore",

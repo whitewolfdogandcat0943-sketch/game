@@ -88,7 +88,10 @@ G.MODKEYS = {
   debuffPower:{ label: '弱体の効果量',   kind: 'pct'  },
   debuffTurns:{ label: '弱体の継続',     kind: 'flat' },
   dotPower:   { label: '持続ダメージ',   kind: 'pct'  },
-  dotTurns:   { label: '持続の継続',     kind: 'flat' }
+  dotTurns:   { label: '持続の継続',     kind: 'flat' },
+  /* 召喚体の強さと、場に留まる長さ。呼ぶ側を伸ばすと呼ばれる側も伸びる。 */
+  summonPower: { label: '召喚体の強さ',  kind: 'pct'  },
+  summonTurns: { label: '召喚の継続',    kind: 'flat' }
 };
 G.MAGIC_ELEMENTS.concat(['phys']).forEach(function (e) {
   G.MODKEYS['el_' + e] = { label: G.ELEMENTS[e].name + '属性ダメージ', kind: 'pct' };

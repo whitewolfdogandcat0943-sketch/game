@@ -316,10 +316,10 @@
     id: 'summoner', name: '召喚士', tier: 2,
     from: ['mage', 'priest', 'rogue'],
     desc: '自分で殴らず、呼んだものに殴らせる者。手番をひとつ増やすのと同じことをする。',
-    req: [styleBoth('elem', 'buff', 14), lv(6)],
+    req: [style('summon', 12, 0.10), lv(6)],
     base: { hp: 128, mp: 82, str: 6, int: 19, vit: 10, agi: 10, luk: 12 },
     grow: { hp: 10, mp: 5.4, str: 0.8, int: 2.9, vit: 1.4, agi: 1.4, luk: 1.7 },
-    mods: { magPct: 0.18, mp: 30, buffPower: 0.12 },
+    mods: { magPct: 0.18, mp: 30, summonPower: 0.20 },
     skills: ['summonSprite', 'summonGuardian', 'blessing', 'fireball', 'focus', 'purify']
   });
   def({
@@ -545,11 +545,11 @@
     id: 'myriadKing', name: '万霊統王', tier: 3,
     from: ['summoner', 'elementalist', 'bard'],
     desc: '呼ぶのではなく、従える者。盤上に自分の軍を並べ、自分は一歩も動かずに終わらせる。',
-    req: [accStyleDual('buff', 'elem', 60), legendN(1), lv(12)],
+    req: [accStyle('summon', 150, 0.40), legendN(1), lv(12)],
     base: { hp: 185, mp: 135, str: 7, int: 26, vit: 15, agi: 13, luk: 16 },
     grow: { hp: 14, mp: 8.0, str: 0.8, int: 3.5, vit: 2.0, agi: 1.8, luk: 2.2 },
-    mods: { magPct: 0.34, mp: 70, mpRegen: 8, buffPower: 0.30, buffTurns: 1,
-            'el_fire': 0.18, 'el_thunder': 0.18, 'el_dark': 0.18 },
+    mods: { magPct: 0.34, mp: 70, mpRegen: 8, summonPower: 0.60, summonTurns: 1,
+            buffPower: 0.20, 'el_fire': 0.15, 'el_thunder': 0.15, 'el_dark': 0.15 },
     flags: ['encore', 'boonGuard'],
     skills: ['ult_myriad', 'summonSprite', 'summonGuardian', 'summonWisp',
              'encoreCall', 'blessing', 'groupHeal']

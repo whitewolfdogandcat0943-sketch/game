@@ -147,7 +147,7 @@
       desc: '嵌めた指だけ、いつまでも冷たい。' });
   n({ id: 'nn_valknut', name: 'ヴァルクヌートの護符', tier: 2, price: 200, mods: { def: 24, hp: 60, dr: 0.05 },
       desc: '三つの三角が絡んだ印。戦死者を縛めるものだという。' });
-  n({ id: 'nn_goathide', name: '山羊の毛皮', tier: 2, price: 210, mods: { hp: 95, mpRegen: 0.06 },
+  n({ id: 'nn_goathide', name: '山羊の毛皮', tier: 2, price: 210, mods: { hp: 95, mpRegen: 3 },
       desc: '食べても翌朝には戻っている山羊の、抜けた毛。' });
   n({ id: 'nn_emberchip', name: '火の粉の欠片', tier: 2, price: 220, mods: { el_fire: 0.20, dotPower: 0.14 },
       desc: 'ムスペルから飛んできて、まだ消えていない。' });
@@ -175,7 +175,7 @@
       mods: { itemPower: 0.72, itemKeep: 0.30, mp: 30 },
       desc: '毎晩煮ても、朝には中身が戻っている鍋。' });
   l({ id: 'nl_idunn', name: 'イズンの林檎', tier: 3, price: 710,
-      mods: { lifesteal: 0.36, hpPct: 0.20, mpRegen: 0.10 },
+      mods: { lifesteal: 0.36, hpPct: 0.20, mpRegen: 5 },
       desc: '齧ると齢が戻る林檎。齧りすぎた者の話は残っていない。' });
   l({ id: 'nl_valhollshield', name: 'ヴァルホルの盾屋根', tier: 3, price: 665,
       mods: { dr: 0.18, def: 40, res: 36, hpPct: 0.16 },
@@ -199,10 +199,14 @@
   l({ id: 'nl_draupnir', name: 'ドラウプニル', tier: 3, price: 690,
       mods: { goldUp: 0.45, dropUp: 0.18, itemKeep: 0.12 },
       desc: '九夜ごとに、同じ重さの腕輪が八つ滴り落ちる。' });
-  l({ id: 'nl_huginmunin', name: 'フギンとムニン', tier: 3, price: 685,
-      mods: { spd: 28, mp: 55, mpRegen: 0.16, magPct: 0.10 },
+  /* 塔の目玉。着けているあいだ〈双鴉招来〉が使え、二羽が同時に出る。
+   * 職業に関係なく召喚を撃てる唯一の品なので、召喚の軸そのものも厚く持たせた。 */
+  l({ id: 'nl_huginmunin', name: 'フギンとムニン', tier: 3, price: 760,
+      mods: { summonPower: 0.55, summonTurns: 1, spd: 24, mp: 45, mpRegen: 6 },
+      grant: 'summonRavens',
       desc: '思考と記憶。毎朝飛ばして、毎晩戻るのを待つ。' +
-            '帰らない日が来るのを、いちばん恐れているという。' });
+            '帰らない日が来るのを、いちばん恐れているという。' +
+            '<br><b>〈双鴉招来〉を習得する。二羽が同時に出る。</b>' });
 
   /* --- 各軸をもう一枚ずつ ---
    *
@@ -289,6 +293,20 @@
   n({ id: 'nn_bindknot', name: '縛めの結び目', tier: 3, price: 330,
       mods: { debuffPower: 0.50, debuffTurns: 1 },
       desc: '猫の足音で編んだ紐の、余ったところ。' });
+
+  /* --- 召喚の軸（塔側） --- */
+  l({ id: 'nl_valgrind', name: 'ヴァルグリンドの鍵', tier: 3, price: 700,
+      mods: { summonPower: 0.62, summonTurns: 1, mag: 20 },
+      desc: 'ヴァルホルの門の鍵。開けるたびに、誰かが呼ばれて出てくる。' });
+  l({ id: 'nl_hlidskjalf', name: 'フリズスキャルヴの座', tier: 3, price: 690,
+      mods: { summonPower: 0.58, mp: 50, mpRegen: 7, magPct: 0.10 },
+      desc: '九つの世界を見渡す高座。座れば、どこの誰にでも声が届く。' });
+  n({ id: 'nn_summonrune', name: '招きのルーン', tier: 3, price: 335,
+      mods: { summonPower: 0.42, summonTurns: 1 },
+      desc: '呼ぶための文字。呼ばれた側に断る文字は無い。' });
+  n({ id: 'nn_ravenquill', name: '鴉の風切羽', tier: 2, price: 215,
+      mods: { summonPower: 0.26, spd: 12 },
+      desc: '飛ばした鴉が落としていったもの。まだ少し温かい。' });
 
   /* =============== 隠しのミシック =============== */
 

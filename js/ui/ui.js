@@ -132,6 +132,9 @@ G.UI = (function () {
     if (S.dotPower || S.dotTurns) {
       h += row('持続ダメージ', U.sgnp(S.dotPower)) + row('持続の継続', '+' + (S.dotTurns || 0));
     }
+    if (S.summonPower || S.summonTurns) {
+      h += row('召喚体の強さ', U.sgnp(S.summonPower)) + row('召喚の継続', '+' + (S.summonTurns || 0));
+    }
     h += '</table>';
     return h;
   }

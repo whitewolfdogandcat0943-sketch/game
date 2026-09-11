@@ -435,6 +435,28 @@
       cond: { when: 'progress', code: 'gold', v: 6000, label: '6000ゴールドを所持する', hint: '使わず貯め込め',
               test: function (c) { return c.hero.gold >= 6000; } } });
 
+  /* =============== 召喚の軸（物語側） ===============
+   * 軸は塔と物語の両方で成立している必要がある。
+   * 片側にしか無いと、その世界からは召喚の最上級職に就けなくなる。 */
+  n({ id: 'n_callbell', name: '招きの鈴', tier: 1, price: 115,
+      mods: { summonPower: 0.22, mp: 12 }, desc: '鳴らすと、呼ばれたものが振り向く。' });
+  n({ id: 'n_spiritvessel', name: '依代の壺', tier: 2, price: 225,
+      mods: { summonPower: 0.34, summonTurns: 1 }, desc: '中身は空のほうがいい、と古物商は言う。' });
+  n({ id: 'n_bindcircle', name: '契約の環', tier: 3, price: 345,
+      mods: { summonPower: 0.44, summonTurns: 1, mag: 14 },
+      desc: '描いた輪の外へは出られない。描いた側も同じだが、そこは言わない。' });
+  l({ id: 'l_sumcrown', name: '百霊の冠', tier: 3, price: 700,
+      mods: { summonPower: 0.64, summonTurns: 1, magPct: 0.12 },
+      desc: '被った者の周りに、常に何かが侍っている。数えると一つ増える。' });
+  l({ id: 'l_gatekey', name: '彼方への鍵', tier: 3, price: 690,
+      mods: { summonPower: 0.58, mp: 55, mpRegen: 6 },
+      desc: '鍵穴の向こう側が、毎回ちがう場所につながっている。' });
+  l({ id: 'l_shadepact', name: '影従の契', tier: 3, price: 680,
+      mods: { summonPower: 0.50, summonTurns: 1, 'el_dark': 0.16 },
+      grant: 'summonShade',
+      desc: '影と結んだ約束。破ると、破ったほうが影になる。' +
+            '<br><b>〈影従招来〉を習得する。</b>' });
+
   G.ACCESSORIES = ACC;
   G.ACC_BY_ID = {};
   ACC.forEach(function (a) { G.ACC_BY_ID[a.id] = a; });

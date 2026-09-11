@@ -115,6 +115,8 @@ G.Stats = (function () {
     S.debuffTurns = Math.max(0, Math.round(mods.debuffTurns || 0));
     S.dotPower = Math.max(0, mods.dotPower || 0);
     S.dotTurns = Math.max(0, Math.round(mods.dotTurns || 0));
+    S.summonPower = Math.max(0, mods.summonPower || 0);
+    S.summonTurns = Math.max(0, Math.round(mods.summonTurns || 0));
 
     G.ALL_ELEMENTS.forEach(function (e) { S['el_' + e] = mods['el_' + e] || 0; });
 
@@ -138,6 +140,12 @@ G.Stats = (function () {
     });
     var w = hero.equip.weapon && G.GEAR[hero.equip.weapon];
     if (w && w.grant && out.indexOf(w.grant) < 0) out.push(w.grant);
+    /* アクセサリも技を配れる。召喚アクセのように
+     * 「着けているあいだだけ使える一手」を持たせるため。 */
+    (hero.equip.acc || []).forEach(function (aid) {
+      var a = aid && G.ACC_BY_ID[aid];
+      if (a && a.grant && out.indexOf(a.grant) < 0) out.push(a.grant);
+    });
     Object.keys(hero.tree || {}).forEach(function (id) {
       var n = G.TREE && G.TREE.byId[id];
       if (n && n.skill && out.indexOf(n.skill) < 0) out.push(n.skill);

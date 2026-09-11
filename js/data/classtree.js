@@ -336,18 +336,18 @@
 
   /* 召喚。呼ぶものを強くするか、長く留めるか。 */
   tree('summoner', [
-    [n('依代', '呼ぶものが硬くなる', { magPct: 0.15, mp: 25 }),
-     n('触媒', '呼ぶものが強く出る', { magPct: 0.20 })],
-    [n('長縁', '支援の効きと持ちを上げる', { buffPower: 0.20, buffTurns: 1 }),
+    [n('依代', '呼ぶものを厚くする', { summonPower: 0.25, mp: 25 }),
+     n('触媒', '呼ぶものを鋭くする', { summonPower: 0.20, magPct: 0.12 })],
+    [n('長縁', '呼んだものが長く留まる', { summonTurns: 1, summonPower: 0.15 }),
      n('速招', '素早く呼び、素早く動く', { spd: 18, mpRegen: 5 })],
     [n('二重召喚', '雷光も呼べるようになる', { magPct: 0.12 }, null, 'summonWisp'),
      n('守り手', '呼んだものごと守りを固める', { defPct: 0.20, hpPct: 0.15 }, ['boonGuard'], 'bulwark')]
   ]);
   tree('myriadKing', [
-    [n('統率', '呼ぶものの威力を大きく上げる', { magPct: 0.28 }),
-     n('顕現', 'MPと回復を厚くする', { mp: 70, mpRegen: 10 })],
-    [n('加護', '支援の効果量を伸ばす', { buffPower: 0.30 }),
-     n('常駐', '支援が長く残る', { buffTurns: 2 })],
+    [n('統率', '呼ぶものの力を大きく上げる', { summonPower: 0.45 }),
+     n('顕現', 'MPと回復を厚くする', { mp: 70, mpRegen: 10, summonPower: 0.15 })],
+    [n('加護', '呼んだものごと強化する', { buffPower: 0.30, summonPower: 0.12 }),
+     n('常駐', '呼んだものが長く居座る', { summonTurns: 2 })],
     [n('万霊', '奥義を撃ちやすくする', { magPct: 0.15, mpRegen: 8 }, null, 'ult_myriad'),
      n('霊盾', '呼んだものに守られる', { dr: 0.14, hpPct: 0.18 }, ['boonGuard', 'wardAll'], 'sanctuary')]
   ]);

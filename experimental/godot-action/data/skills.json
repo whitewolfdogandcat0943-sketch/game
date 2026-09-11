@@ -775,6 +775,65 @@
    }
   }
  },
+ "summonRavens": {
+  "id": "summonRavens",
+  "name": "双鴉招来",
+  "mp": 16,
+  "kind": "util",
+  "target": "self",
+  "desc": "思考と記憶の二羽を同時に呼ぶ（4ターン）。速く、二羽で別々に動く。",
+  "eff": {
+   "summon": {
+    "name": "フギン",
+    "names": [
+     "フギン",
+     "ムニン"
+    ],
+    "icon": "🐦",
+    "sprite": "sum_raven",
+    "turns": 4,
+    "hp": 1.5,
+    "pw": 0.62,
+    "spd": 1.45,
+    "skill": "galeEdge",
+    "weak": [
+     "thunder"
+    ],
+    "resist": [
+     "wind"
+    ],
+    "cap": 2,
+    "count": 2
+   }
+  }
+ },
+ "summonShade": {
+  "id": "summonShade",
+  "name": "影従招来",
+  "mp": 12,
+  "kind": "util",
+  "target": "self",
+  "desc": "影の従者を3ターン呼ぶ。闇で削る。",
+  "eff": {
+   "summon": {
+    "name": "影の従者",
+    "icon": "👤",
+    "sprite": "sum_shade",
+    "turns": 3,
+    "hp": 2,
+    "pw": 0.72,
+    "spd": 1.05,
+    "skill": "darkPact",
+    "weak": [
+     "light"
+    ],
+    "resist": [
+     "dark"
+    ],
+    "cap": 1
+   }
+  }
+ },
  "ult_ragnarok": {
   "id": "ult_ragnarok",
   "name": "【奥義】顎・ラグナロク",

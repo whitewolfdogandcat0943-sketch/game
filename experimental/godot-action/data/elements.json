@@ -199,6 +199,14 @@
    "label": "持続の継続",
    "kind": "flat"
   },
+  "summonPower": {
+   "label": "召喚体の強さ",
+   "kind": "pct"
+  },
+  "summonTurns": {
+   "label": "召喚の継続",
+   "kind": "flat"
+  },
   "el_fire": {
    "label": "炎属性ダメージ",
    "kind": "pct"
