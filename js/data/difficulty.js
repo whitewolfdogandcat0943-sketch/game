@@ -60,7 +60,7 @@
     rageFrom: 30,
     rw: 1.18, drop: 0.10, aim: 0.45,
     playerDr: 0, fleeUp: -0.10,
-    track: 0.72, trackCap: 10, bossTrack: 1, xpCatch: 1.00
+    track: 0.72, trackCap: 10, bossTrack: 1, xpCatch: 0.60
   });
   d({
     id: 'brutal', name: '相剋', icon: '💀',
@@ -78,7 +78,7 @@
     rageFrom: 28,
     rw: 1.40, drop: 0.20, aim: 0.80,
     playerDr: 0, fleeUp: -0.20,
-    track: 0.76, trackCap: 12, bossTrack: 2, xpCatch: 0.50
+    track: 0.76, trackCap: 12, bossTrack: 2, xpCatch: 0.30
   });
 
   var byId = {};

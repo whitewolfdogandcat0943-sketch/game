@@ -158,6 +158,12 @@ G.Story = (function () {
        * ここで数を増やすと「難しい」ではなく「どうしようもない」になる。
        * 一番手詰まりになりやすい場所を一番きつくするのは、いちばん人が離れる作り。 */
       var addN = (bossN >= 9 ? 2 : 1) + (bossN >= 8 ? G.Diff.get().adds : 0);
+      /* 自分で頭数を増やす主は、最初の取り巻きを減らす。
+       * 仕掛けと難易度の取り巻きが二重に乗ると、難しくなるのではなく
+       * ただ長くなる（写し身の一戦が31ラウンドになった）。 */
+      if (boss.gimmick && (boss.gimmick.kind === 'clones' || boss.gimmick.kind === 'summon')) {
+        addN = Math.max(0, addN - 2);
+      }
       for (i = 0; i < addN; i++) {
         units.push(G.Battle.makeEnemyUnit(G.ENEMY_BY_ID[U.pick(d.pool)], Math.max(1, bossN - 2), i + 1));
       }

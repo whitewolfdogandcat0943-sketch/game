@@ -199,6 +199,10 @@ G.Run = (function () {
       if (f >= 25) boss = G.ENEMY_BY_ID.b_worldmirror;
       units.push(G.Battle.makeEnemyUnit(boss, f, 0));
       var addN = (f >= 8 ? 2 : 1) + G.Diff.get().adds;
+      /* 塔でも同じ。自分で増やす主に、さらに取り巻きを付けない */
+      if (boss.gimmick && (boss.gimmick.kind === 'clones' || boss.gimmick.kind === 'summon')) {
+        addN = Math.max(0, addN - 2);
+      }
       for (i = 0; i < addN; i++) units.push(G.Battle.makeEnemyUnit(U.pick(enemyPool(f)), Math.max(1, f - 2), i + 1));
       return { units: units, isBoss: true };
     }

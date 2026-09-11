@@ -226,6 +226,24 @@ G.Screens = (function () {
     render(h);
   }
 
+  /* ボスの仕掛けの「今の状態」を出す。
+   * 鎧が張られているのか、空にいるのか、写し身なのかが見えないと、
+   * 手を持ち替える判断ができず、ただの理不尽になる。 */
+  function gimChips(e) {
+    var out = [];
+    if (e.shellOn) {
+      var w = (e.gim && e.gim.word) || '鎧';
+      out.push('<span class="tag" style="background:#3a2a12;color:#e8b552">🛡 ' + w +
+        ' ' + (e.gimState.shell || 0) + '</span>');
+    }
+    if (e.aloft) out.push('<span class="tag" style="background:#12283a;color:#6fc3f5">🌪 飛翔中（物理が届かない）</span>');
+    if (e.bornOf) out.push('<span class="tag muted">写し身</span>');
+    if (e.gim && e.gim.kind === 'clones' && e.hp > 0) {
+      out.push('<span class="tag" style="background:#2a1235;color:#d08bf5">🪞 本体</span>');
+    }
+    return out.length ? '<div class="tiny" style="margin-top:3px">' + out.join(' ') + '</div>' : '';
+  }
+
   /** 章の地図。町とダンジョンを選ぶ。 */
   function world(state) {
     var c = G.Story.chapter(state);
@@ -541,6 +559,7 @@ G.Screens = (function () {
         UI.bar(e.hp, e.S.maxHp, 'hp', '') +
         '<div class="tiny muted" style="margin-top:3px">弱点: ' + (e.weak.length ? e.weak.map(G.elSpan).join(' ') : 'なし') +
         '<br>耐性: ' + (e.resist.length ? e.resist.map(G.elSpan).join(' ') : 'なし') + '</div>' +
+        gimChips(e) +
         '<div class="sts">' + statusChips(e) + '</div>' +
         '</div>';
     });

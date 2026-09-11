@@ -27,6 +27,7 @@ const CORE_FILES = [
   'js/core/stats.js',
   'js/core/unlock.js',
   'js/core/battle.js',
+  'js/core/gimmick.js',
   'js/core/run.js',
   'js/core/story.js'
 ];

@@ -46,20 +46,37 @@
       exp: 82, gold: 100, weak: ['dark'], resist: ['light'], skills: ['e_ray', 'e_heal', 'e_curse'] });
 
   /* --- ボス --- */
+  /* 最初の主。仕掛けは一番わかりやすいものにしてある。
+   * 取り巻きを残すと食べて立て直すので、「雑魚から片付ける」を体で覚える一戦。 */
   e({ id: 'b_ogre', name: '暴食のオーガ', icon: '👹', tier: 1, boss: true, hp: 318, atk: 33, mag: 11, def: 26, res: 13, spd: 12,
-      exp: 90, gold: 160, weak: ['ice'], resist: ['dark'], skills: ['e_slam', 'e_quake', 'e_roar'] });
+      exp: 90, gold: 160, weak: ['ice'], resist: ['dark'], skills: ['e_slam', 'e_quake', 'e_roar'],
+      gimmick: { kind: 'devour', from: 0.60, heal: 0.10, atk: 0.10 } });
+  /* 氷像を立て続ける。数でこちらの手番を削ってくるので、
+   * 範囲技か、像を無視して女王を落としきる速さのどちらかが要る。 */
   e({ id: 'b_frostqueen', name: '氷獄の女王', icon: '❄', tier: 2, boss: true, hp: 672, atk: 32, mag: 55, def: 33, res: 48, spd: 22,
-      exp: 190, gold: 320, weak: ['fire'], resist: ['ice', 'wind'], skills: ['e_frost', 'e_curse', 'e_blizzard'] });
+      exp: 190, gold: 320, weak: ['fire'], resist: ['ice', 'wind'], skills: ['e_frost', 'e_curse', 'e_blizzard'],
+      gimmick: { kind: 'summon', from: 2, everyN: 2, n: 1, cap: 2, word: '氷像',
+                 pool: ['icewitch', 'shade'] } });
+  /* 棘鎧を剥がすまで刃が通らない。術なら倍の速さで剥がせるので、
+   * 物理一本の人にも「一度だけ持ち替える」余地を残してある。剥がしても4ラウンドで閉じ直す。 */
   e({ id: 'b_thornbeast', name: '棘鎧の獣王', icon: '🦂', tier: 2, boss: true, hp: 912, atk: 59, mag: 23, def: 62, res: 33, spd: 14,
-      exp: 220, gold: 360, weak: ['thunder'], resist: ['phys'], skills: ['e_thorn', 'e_slam', 'e_quake'] });
+      exp: 220, gold: 360, weak: ['thunder'], resist: ['phys'], skills: ['e_thorn', 'e_slam', 'e_quake'],
+      gimmick: { kind: 'shell', hp: 0.12, regrow: 5, magBite: 2.0, through: 0.50, word: '棘鎧' } });
+  /* 舞い上がっているあいだ、地上の得物は届かない。降りぎわに薙ぎ払う。
+   * 属性を乗せた一撃か術があれば空にも届くので、備えを一つ持てという相手。 */
   e({ id: 'b_stormdrake', name: '天空竜', icon: '🐉', tier: 3, boss: true, hp: 1380, atk: 78, mag: 82, def: 57, res: 55, spd: 28,
-      exp: 340, gold: 520, weak: ['ice'], resist: ['wind', 'thunder'], skills: ['e_gust', 'e_meteorfall', 'e_claw', 'e_roar'] });
+      exp: 340, gold: 520, weak: ['ice'], resist: ['wind', 'thunder'], skills: ['e_gust', 'e_meteorfall', 'e_claw', 'e_roar'],
+      gimmick: { kind: 'aloft', from: 2, everyN: 3, land: 1.0, word: '落着' } });
+  /* 積み上げた加護を吸って自分のものにする。支援で固めるほど餌になるので、
+   * 掛け直す間合いを計るか、吸われる前に決めきるかを選ばせる相手。 */
   e({ id: 'b_voidlord', name: '虚無の王', icon: '🕳', tier: 3, boss: true, hp: 1920, atk: 93, mag: 98, def: 68, res: 68, spd: 30,
-      exp: 500, gold: 760, weak: [], resist: ['dark', 'phys'], skills: ['e_voidbeam', 'e_drain', 'e_curse', 'e_meteorfall'] });
+      exp: 500, gold: 760, weak: [], resist: ['dark', 'phys'], skills: ['e_voidbeam', 'e_drain', 'e_curse', 'e_meteorfall'],
+      gimmick: { kind: 'siphon', from: 2, everyN: 3, rate: 0.4, word: '加護' } });
   /* 最終章の前段。物理だけで来た者に、一度だけ持ち替えを迫る。
    * 全体攻撃を持たないので、長引いても事故で終わらない。 */
-  e({ id: 'b_mirrorself', name: '鏡写しの衛士', icon: '🛡', tier: 3, boss: true, hp: 1210, atk: 98, mag: 58, def: 72, res: 56, spd: 34,
-      exp: 560, gold: 820, weak: ['light'], resist: ['phys'], skills: ['e_claw', 'e_slam', 'e_thorn', 'e_roar'] });
+  e({ id: 'b_mirrorself', name: '鏡写しの衛士', icon: '🛡', tier: 3, boss: true, hp: 880, atk: 98, mag: 58, def: 72, res: 56, spd: 34,
+      exp: 560, gold: 820, weak: ['light'], resist: ['phys'], skills: ['e_claw', 'e_slam', 'e_thorn', 'e_roar'],
+      gimmick: { kind: 'clones', n: 3, hp: 0.12, pw: 0.40, revive: 4, reviveHp: 0.35, word: '写し身' } });
 
   /* 世界の鏡像は「相（そう）」を四つ持つ。
    * 残HPが下がるたびに弱点と耐性が入れ替わり、通る手段が入れ替わる。

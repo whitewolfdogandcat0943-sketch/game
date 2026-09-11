@@ -459,7 +459,13 @@
    "e_slam",
    "e_quake",
    "e_roar"
-  ]
+  ],
+  "gimmick": {
+   "kind": "devour",
+   "from": 0.6,
+   "heal": 0.1,
+   "atk": 0.1
+  }
  },
  {
   "id": "b_frostqueen",
@@ -486,7 +492,19 @@
    "e_frost",
    "e_curse",
    "e_blizzard"
-  ]
+  ],
+  "gimmick": {
+   "kind": "summon",
+   "from": 2,
+   "everyN": 2,
+   "n": 1,
+   "cap": 2,
+   "word": "氷像",
+   "pool": [
+    "icewitch",
+    "shade"
+   ]
+  }
  },
  {
   "id": "b_thornbeast",
@@ -512,7 +530,15 @@
    "e_thorn",
    "e_slam",
    "e_quake"
-  ]
+  ],
+  "gimmick": {
+   "kind": "shell",
+   "hp": 0.12,
+   "regrow": 5,
+   "magBite": 2,
+   "through": 0.5,
+   "word": "棘鎧"
+  }
  },
  {
   "id": "b_stormdrake",
@@ -540,7 +566,14 @@
    "e_meteorfall",
    "e_claw",
    "e_roar"
-  ]
+  ],
+  "gimmick": {
+   "kind": "aloft",
+   "from": 2,
+   "everyN": 3,
+   "land": 1,
+   "word": "落着"
+  }
  },
  {
   "id": "b_voidlord",
@@ -566,7 +599,14 @@
    "e_drain",
    "e_curse",
    "e_meteorfall"
-  ]
+  ],
+  "gimmick": {
+   "kind": "siphon",
+   "from": 2,
+   "everyN": 3,
+   "rate": 0.4,
+   "word": "加護"
+  }
  },
  {
   "id": "b_mirrorself",
@@ -574,7 +614,7 @@
   "icon": "🛡",
   "tier": 3,
   "boss": true,
-  "hp": 1210,
+  "hp": 880,
   "atk": 98,
   "mag": 58,
   "def": 72,
@@ -593,7 +633,16 @@
    "e_slam",
    "e_thorn",
    "e_roar"
-  ]
+  ],
+  "gimmick": {
+   "kind": "clones",
+   "n": 3,
+   "hp": 0.12,
+   "pw": 0.4,
+   "revive": 4,
+   "reviveHp": 0.35,
+   "word": "写し身"
+  }
  },
  {
   "id": "b_worldmirror",

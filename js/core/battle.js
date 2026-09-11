@@ -42,7 +42,9 @@ G.Battle = (function () {
       /* ボスが追撃を始める残HP割合。0 なら追撃しない。難易度で変わる。 */
       follow: def.boss ? (G.Diff ? G.Diff.get().bossFollow : 0) : 0, raged: false,
       /* 相（そう）の切り替え。残HPが下がるたびに弱点と耐性が入れ替わる。 */
-      phases: (def.phases || []).slice(), phase: 0
+      phases: (def.phases || []).slice(), phase: 0,
+      /* ボス固有の仕掛け。中身は gimmick.js（G.Gimmick）が解釈する。 */
+      gim: def.gimmick ? JSON.parse(JSON.stringify(def.gimmick)) : null, gimState: {}
     };
     refresh(u);
     u.hp = u.S.maxHp; u.mp = 999;
@@ -143,6 +145,7 @@ G.Battle = (function () {
     b.units.forEach(function (u, i) { u.idx = i; });
     b.fx = [];
     log(b, '⚔ 戦闘開始！ ' + enemyUnits.map(function (e) { return e.name; }).join('・') + ' が現れた。', 'sys');
+    if (G.Gimmick) b.enemies.slice().forEach(function (e) { G.Gimmick.onStart(b, e); });
 
     /* itemRefill: 戦闘開始時にアイテム補充 */
     party.forEach(function (m) {
@@ -197,6 +200,16 @@ G.Battle = (function () {
 
   function alive(u) { return u.hp > 0; }
   function aliveEnemies(b) { return b.enemies.filter(alive); }
+
+  /** 戦闘の途中で敵を足す。idx は fx の宛先なので、足すたびに振り直す。 */
+  function addEnemy(b, u) {
+    b.enemies.push(u);
+    b.units.push(u);
+    b.units.forEach(function (x, i) { x.idx = i; });
+    /* すでに始まっているラウンドにも並ばせる。手番が回るのは次の巡から */
+    if (b.queue && b.queue.indexOf(u) < 0) b.queue.push(u);
+    return u;
+  }
   function partyUnits(b) { return b.party || [b.hero]; }
   function aliveParty(b) { return partyUnits(b).filter(alive); }
   /** 各ユニットのHP/MPをパーティデータへ書き戻す */
@@ -262,6 +275,7 @@ G.Battle = (function () {
      * 立て直す隙がなく、ビルドの差ではなく事故で決まる戦いになる。 */
     b.units.forEach(function (u) { u._actNo = 0; });
     aliveEnemies(b).forEach(function (u) { checkPhase(b, u); });
+    if (G.Gimmick) b.enemies.slice().forEach(function (u) { G.Gimmick.onRound(b, u); });
     aliveEnemies(b).forEach(function (u) {
       if (!u.isBoss || !u.follow) return;
       if (u.hp > u.S.maxHp * u.follow) return;
@@ -453,6 +467,12 @@ G.Battle = (function () {
    */
   function strike(b, src, tgt, o) {
     if (!alive(tgt) || !alive(src)) return 0;
+    /* 空にいる相手には、地上からの得物が届かない。
+     * 属性を乗せた一撃や術は届くので、飛ばれているあいだは手を持ち替える。 */
+    if (tgt.aloft && (o.el || 'phys') === 'phys' && o.kind !== 'mag') {
+      if (!o.silent) { log(b, '🌪 ' + tgt.name + ' は空にいる。届かない！'); fx(b, { t: 'miss', i: tgt.idx }); }
+      return 0;
+    }
     var S = src.S, T = tgt.S;
     var kind = o.kind === 'mag' ? 'mag' : 'phys';
     var atkStat = o.atkStat != null ? o.atkStat : (kind === 'mag' ? S.mag : S.atk);
@@ -613,6 +633,24 @@ G.Battle = (function () {
       }
     }
     dmg = Math.max(1, dmg);
+
+    /* 鎧（shell）: 剥がすまで本体に届かない。
+     * 刃で削ると手間がかかり、術なら速く剥がせる。
+     * 「効かない」ではなく「先に剥がす」なので、物理のビルドでも越えられる。 */
+    if (tgt.shellOn && tgt.gimState && tgt.gimState.shell > 0 && dmg > 0) {
+      var gsh = tgt.gim || {};
+      var bite = Math.round(dmg * (meta.kind === 'mag' ? (gsh.magBite || 2.0) : 1));
+      tgt.gimState.shell -= bite;
+      var through = Math.round(dmg * (gsh.through || 0.25));
+      if (tgt.gimState.shell <= 0) {
+        tgt.gimState.shell = 0; tgt.shellOn = false;
+        log(b, '💥 ' + tgt.name + ' の' + (gsh.word || '棘鎧') + 'が砕けた！ ここからは素通しだ。', 'good');
+      } else if (!meta.silent) {
+        log(b, '🛡 ' + (gsh.word || '棘鎧') + ' が受け止めた（残り ' + tgt.gimState.shell + '）');
+      }
+      dmg = Math.max(1, through);
+    }
+
     if (tgt.barrier > 0) {
       var absorbed = Math.min(tgt.barrier, dmg);
       tgt.barrier -= absorbed; dmg -= absorbed;
@@ -703,6 +741,7 @@ G.Battle = (function () {
     u._dead = true;
     log(b, '☠ ' + u.name + ' を倒した！', 'good');
     fx(b, { t: 'die', i: u.idx });
+    if (G.Gimmick) G.Gimmick.onDeath(b, u);
     if (u.side === 'enemy') {
       b.rec.kills++;
       b.state.run.stats.kills++;
@@ -1643,6 +1682,7 @@ G.Battle = (function () {
   return {
     start: start, advance: advance, playerAction: playerAction, refresh: refresh,
     makeEnemyUnit: makeEnemyUnit, enemyScale: enemyScale, aliveEnemies: aliveEnemies,
+    addEnemy: addEnemy, applyRawDamage: applyRawDamage, addBuff: addBuff, refresh: refresh,
     partyUnits: partyUnits, aliveParty: aliveParty, syncParty: syncParty, revive: revive,
     canFlee: canFlee, fleeChance: fleeChance, controller: controller,
     alive: alive, log: log, heal: heal
