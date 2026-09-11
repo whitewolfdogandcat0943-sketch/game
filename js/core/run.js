@@ -347,6 +347,28 @@ G.Run = (function () {
     return out;
   }
 
+  /* 物語モードだけ、格上になりすぎたぶん経験値を絞る。
+   *
+   * 物語は章ごとに相手の格が決まっているので、こちらが伸びすぎると、
+   * 設計した手応えが丸ごと意味を失う。実測ではパーティが
+   * 相手の1.9倍のレベルで最終章に着いていて、倍率をどう動かしても効かなかった。
+   *
+   * 塔には掛けない。あちらは「登った高さ＝レベル」なので、
+   * 経験値を削るとそのまま登れなくなる（実測で 18/40 → 2/40）。
+   *
+   * 遅れているあいだは満額で、進みすぎているときだけ減る。
+   * 詰まったときに稼いで立て直す道は塞がない。 */
+  function storyExpScale(state) {
+    if (state.mode !== 'story') return 1;
+    var foe = (state.run && state.run.floor) || 1;
+    var gap = ((state.hero && state.hero.level) || 1) - foe - G.XP_GAP_FREE;
+    if (gap <= 0) return 1;
+    var base = Math.max(G.XP_GAP_FLOOR, 1 - gap * G.XP_GAP_RATE);
+    /* 絞りの強さは難易度ごと。上の難度では、稼いで立て直す道を残すために弱める。 */
+    var k = G.Diff.get().xpCatch;
+    return 1 - (1 - base) * (k == null ? 1 : k);
+  }
+
   /** 勝利報酬を計算して付与し、表示用データを返す */
   function grantVictory(state, battle, kind) {
     var hero = state.hero;
@@ -365,6 +387,8 @@ G.Run = (function () {
       var mult = G.Story.echoReward(state, dgE.id);
       exp = Math.round(exp * mult); gold = Math.round(gold * mult);
     }
+
+    exp = Math.max(1, Math.round(exp * storyExpScale(state)));
 
     hero.exp += exp; hero.gold += gold;
     /* 勝利の余韻: 最大HPの8%を回復 */
@@ -575,6 +599,7 @@ G.Run = (function () {
     makeEncounter: makeEncounter, grantVictory: grantVictory, applyLevelUps: applyLevelUps,
     checkMythicUnlocks: checkMythicUnlocks, checkClassUnlocks: checkClassUnlocks,
     makeShop: makeShop, rest: rest, randomEvent: randomEvent, nextFloor: nextFloor,
+    storyExpScale: storyExpScale,
     rollAcc: rollAcc, rollGear: rollGear, rollItem: rollItem,
     rollRareItem: rollRareItem, rareItemChance: rareItemChance, EVENTS: EVENTS
   };

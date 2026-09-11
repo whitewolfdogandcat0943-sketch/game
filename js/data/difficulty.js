@@ -28,8 +28,11 @@
      * 倍率だけを上げる難易度は、詰まったぶん余分に稼いだレベルで薄まってしまう。
      * 稼げば楽になる余地はやさしい側に厚く残し、上の難度では世界が追ってくる。
      * track: 道中が追う係数 / trackCap: 章の設計値からの上限
-     * bossTrack: 章の主が追ってよい上限（0 なら設計どおりの相手のまま） */
-    track: 0.60, trackCap: 5, bossTrack: 0
+     * bossTrack: 章の主が追ってよい上限（0 なら設計どおりの相手のまま）
+     * xpCatch: 物語で「育ちすぎたぶん経験値を絞る」効きの強さ。
+     *   上の難度では弱める。あちらは全滅して稼ぎ直すのが立て直しの手段なので、
+     *   絞りを効かせると詰む（相剋は完走 20/20 → 0/20 になった）。 */
+    track: 0.60, trackCap: 5, bossTrack: 0, xpCatch: 1.00
   });
   d({
     id: 'normal', name: '標準', icon: '⚔',
@@ -38,11 +41,11 @@
     ehp: 1.00, epw: 1.00, edf: 1.00,
     bhp: 1.00, bpw: 1.00,
     adds: 0, mobPlus: 0,
-    bossFollow: 0,
+    bossFollow: 0.20,
     rageFrom: 32,
     rw: 1.00, drop: 0, aim: 0.25,
     playerDr: 0, fleeUp: 0,
-    track: 0.68, trackCap: 8, bossTrack: 0
+    track: 0.68, trackCap: 8, bossTrack: 0, xpCatch: 1.00
   });
   d({
     id: 'hard', name: '高難度', icon: '🔥',
@@ -57,7 +60,7 @@
     rageFrom: 30,
     rw: 1.18, drop: 0.10, aim: 0.45,
     playerDr: 0, fleeUp: -0.10,
-    track: 0.72, trackCap: 10, bossTrack: 1
+    track: 0.72, trackCap: 10, bossTrack: 1, xpCatch: 1.00
   });
   d({
     id: 'brutal', name: '相剋', icon: '💀',
@@ -75,7 +78,7 @@
     rageFrom: 28,
     rw: 1.40, drop: 0.20, aim: 0.80,
     playerDr: 0, fleeUp: -0.20,
-    track: 0.76, trackCap: 12, bossTrack: 2
+    track: 0.76, trackCap: 12, bossTrack: 2, xpCatch: 0.50
   });
 
   var byId = {};
